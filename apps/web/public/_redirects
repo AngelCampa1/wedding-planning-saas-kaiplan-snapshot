@@ -1,0 +1,23 @@
+# Add URL redirects here
+# Format: /old-path  /new-path  301
+
+# Normalize wedding website URLs to trailing-slash form (trailingSlash: "always")
+/w/:slug  /w/:slug/  301
+/sitemap.xml /sitemap-index.xml 301
+/compare/pricing/free-vs-paid-wedding-apps /compare/pricing/free-vs-paid-wedding-apps/ 301
+/compare/pricing/hitchd-pricing /compare/pricing/hitchd-pricing/ 301
+/compare/pricing/minted-pricing /compare/pricing/minted-pricing/ 301
+/compare/pricing/wedding-planning-software-cost /compare/pricing/wedding-planning-software-cost/ 301
+/compare/versus/hitchd-vs-zola-registry /compare/versus/hitchd-vs-zola-registry/ 301
+/compare/versus/the-knot-vs-joy /compare/versus/the-knot-vs-joy/ 301
+/compare/versus/the-knot-vs-zola /compare/versus/the-knot-vs-zola/ 301
+/compare/versus/wedding-website-builders-compared /compare/versus/wedding-website-builders-compared/ 301
+/compare/versus/zola-vs-minted /compare/versus/zola-vs-minted/ 301
+/resources/best/best-ad-free-wedding-planning-tools /resources/best/best-ad-free-wedding-planning-tools/ 301
+/resources/best/best-wedding-apps-for-couples /resources/best/best-wedding-apps-for-couples/ 301
+/resources/best/best-wedding-checklist-apps /resources/best/best-wedding-checklist-apps/ 301
+/resources/best/best-wedding-planning-apps /resources/best/best-wedding-planning-apps/ 301
+/resources/best/best-wedding-guest-list-manager /resources/best/best-wedding-guest-list-manager/ 301
+/resources/guides/the-knot-ftc-investigation-explained/ /resources/guides/the-knot-platform-scrutiny/ 301
+/resources/guides/how-to-write-wedding-vows /resources/guides/how-to-write-wedding-vows/ 301
+/resources/guides/new-york-wedding-cost-guide /resources/guides/new-york-wedding-cost-guide/ 301

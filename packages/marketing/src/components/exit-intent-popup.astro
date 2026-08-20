@@ -1,0 +1,15 @@
+---
+import { ExitIntentPopupIsland } from "./exit-intent-popup-island.tsx";
+
+// The public Turnstile site key is baked at build time via
+// PUBLIC_TURNSTILE_SITE_KEY (set in apps/web/wrangler.jsonc + .env). When empty
+// (local dev, see apps/web/.dev.vars), no widget renders and the server applies
+// its dev bypass — matching the inline-signup form's behavior.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+---
+
+<ExitIntentPopupIsland
+  client:only="react"
+  turnstileSiteKey={turnstileSiteKey}
+  {...Astro.props}
+/>

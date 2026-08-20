@@ -1,0 +1,312 @@
+---
+export const prerender = true;
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+import { buildAppSignupUrl } from "@/lib/app-links";
+
+const openAppUrl = buildAppSignupUrl();
+
+interface TemplatePlate {
+  eyebrow: string;
+  title: string;
+  body: string;
+  href: string;
+}
+
+const templates: TemplatePlate[] = [
+  {
+    eyebrow: "BUDGET",
+    title: "Wedding Budget Template",
+    body: "Most budget tools hand you national cost averages. This spreadsheet tracks what your vendors actually quoted — deposit paid, balance remaining, payment due dates. When a new quote lands you can see what it does to the rest of your wedding before you reply. Works in Google Sheets and Excel.",
+    href: "/free/budget-template/",
+  },
+  {
+    eyebrow: "TIMELINE",
+    title: "Wedding Day-of Timeline Template",
+    body: "A minute-by-minute schedule from getting-ready through vendor load-out. Covers ceremony, cocktail hour, reception, and the gap most couples miss between photos done and guests seated. Adapt the blocks to your venue's specific constraints without starting from scratch.",
+    href: "/free/wedding-timeline-template/",
+  },
+  {
+    eyebrow: "VENDORS",
+    title: "Vendor Interview Question List",
+    body: "The questions to ask photographers, caterers, florists, and coordinators before you sign anything. Structured so you can compare answers from multiple vendors on the same criteria — cancellation policy, overtime fees, second-shooter coverage — in the same sitting.",
+    href: "/free/vendor-interview-question-list/",
+  },
+  {
+    eyebrow: "VENDORS",
+    title: "Vendor Red Flag Checklist",
+    body: "Warning signs buried in vendor contracts and sales conversations. Catches vague language around cancellation, missing payment schedules, high-pressure booking tactics, and substitution clauses that let a vendor swap in someone you never met. Read before you sign.",
+    href: "/free/vendor-red-flag-checklist/",
+  },
+  {
+    eyebrow: "TOOLS",
+    title: "Wedding App Comparison Scorecard",
+    body: "A side-by-side evaluation sheet for comparing planning apps. Score each tool on the features that matter for your planning style — budget tracking, RSVP management, seating, vendor contact storage. Cuts through the feature-page marketing to what you will actually use.",
+    href: "/free/wedding-app-comparison-scorecard/",
+  },
+  {
+    eyebrow: "BUDGET",
+    title: "Hidden Cost Calculator Worksheet",
+    body: "A line-item worksheet for the costs that appear after the initial quote: vendor gratuities, delivery fees, dress alterations, day-of coordination, overtime charges, and the ceremony musician nobody budgeted for. Catches the surprise costs before they become one.",
+    href: "/free/hidden-cost-calculator-worksheet/",
+  },
+];
+---
+
+<LandingLayout
+  config={siteConfig}
+  description="Six free wedding planning spreadsheets and worksheets — budget tracker, day-of timeline, vendor interview questions, red flag checklist, app comparison scorecard, and hidden cost calculator. Download free, no account required."
+  title="Free Wedding Planning Templates"
+  canonicalPath="/templates/"
+>
+  <article class="editorial-shell" data-page="templates">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="templates-headline">
+      <div class="hero__grid">
+        <div class="hero__primary">
+          <p class="editorial-eyebrow">FREE TOOLS</p>
+          <h1
+            id="templates-headline"
+            class="editorial-display-l hero__headline"
+          >
+            Six <em class="editorial-italic">instruments</em> for the analogue planner.
+          </h1>
+        </div>
+        <div class="hero__lede-band">
+          <p class="editorial-lede hero__lede">
+            Spreadsheets and PDFs for the parts of wedding planning that live
+            outside any app. Download free, no account required.
+          </p>
+          <p class="hero__cta">
+            <a class="editorial-link" href={openAppUrl}>
+              Open the app <span aria-hidden="true">→</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- TEMPLATE SPREAD — two-column, three rows -->
+    <section aria-label="Template library">
+      <div class="template-grid">
+        {
+          templates.map((tpl, index) => (
+            <article
+              class="template-plate"
+              aria-labelledby={`tpl-title-${index}`}
+            >
+              <p class="editorial-eyebrow template-plate__eyebrow">
+                {tpl.eyebrow}
+              </p>
+              <hr
+                class="editorial-rule template-plate__rule"
+                aria-hidden="true"
+              />
+              <h2
+                id={`tpl-title-${index}`}
+                class="editorial-display-m editorial-italic template-plate__title"
+              >
+                {tpl.title}
+              </h2>
+              <p class="editorial-body template-plate__body">{tpl.body}</p>
+              <p class="template-plate__cta">
+                <a class="editorial-link" href={tpl.href}>
+                  Download <span aria-hidden="true">→</span>
+                </a>
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- WHY THESE EXIST -->
+    <section class="why-section" aria-labelledby="why-heading">
+      <p class="editorial-eyebrow">Why these exist</p>
+      <p class="editorial-body why-section__body">
+        We built Kaiplan because couples kept telling us the same thing — the
+        free wedding planning tools pushed biased vendor recommendations, and
+        their budgets kept falling apart because those tools showed average
+        estimates instead of real quotes.
+        <em class="editorial-italic"
+          >We built these templates from the same problems couples kept
+          describing.</em
+        >
+        The budget template tracks actual vendor quotes. The hidden cost worksheet
+        catches the line items that appear after the initial quote. The vendor red
+        flag checklist came from patterns couples described in contracts that went
+        sideways. If you want everything connected in one workspace instead of separate
+        files, that is what Kaiplan is for.
+      </p>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- CLOSING CTA -->
+    <section class="closing" aria-label="Open the app">
+      <p class="editorial-body closing__line">
+        Ready for the budget, guest list, seating, and vendors in one place?{
+          " "
+        }
+        <a class="editorial-link" href={openAppUrl}>
+          <em>Open Kaiplan &#8594;</em>
+        </a>
+      </p>
+    </section>
+  </article>
+</LandingLayout>
+
+<style>
+  [data-page="templates"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  /* Hero */
+  .hero {
+    padding-block: clamp(1.5rem, 5vw, 3.5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .hero__primary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hero__headline {
+    line-height: 0.98;
+  }
+
+  .hero__lede-band {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .hero__lede {
+    max-width: 38ch;
+  }
+
+  .hero__cta {
+    margin: 0;
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+  }
+
+  @media (min-width: 64rem) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 4rem);
+    }
+
+    .hero__lede-band {
+      text-align: right;
+      align-items: flex-end;
+    }
+
+    .hero__lede {
+      text-align: right;
+      max-width: 32ch;
+    }
+  }
+
+  /* Section rule spacing */
+  .section-rule {
+    margin-block: clamp(2rem, 5vw, 3.5rem) 0;
+  }
+
+  /* Template grid */
+  .template-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 48rem) {
+    .template-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: clamp(2rem, 5vw, 4rem);
+    }
+  }
+
+  /* Template plate */
+  .template-plate {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-block: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--rule);
+  }
+
+  @media (min-width: 48rem) {
+    .template-plate:nth-child(1),
+    .template-plate:nth-child(2) {
+      border-top: 0;
+      padding-top: 0;
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .template-plate:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+  }
+
+  .template-plate__rule {
+    max-width: 3rem;
+  }
+
+  .template-plate__title {
+    line-height: 1.1;
+  }
+
+  .template-plate__body {
+    max-width: 44ch;
+    color: var(--ink-soft);
+  }
+
+  .template-plate__cta {
+    margin: 0.25rem 0 0;
+    font-family: var(--font-editorial-body);
+    font-size: 0.9375rem;
+  }
+
+  /* Why section */
+  .why-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: clamp(2rem, 4vw, 3rem);
+    max-width: 62ch;
+  }
+
+  .why-section__body {
+    max-width: 62ch;
+  }
+
+  /* Closing */
+  .closing {
+    padding-block: clamp(1rem, 3vw, 2rem);
+  }
+
+  .closing__line {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  }
+</style>

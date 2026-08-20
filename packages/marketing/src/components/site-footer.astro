@@ -1,0 +1,315 @@
+---
+/**
+ * Editorial colophon (Wave 2 — Kaiplan overhaul).
+ *
+ * Replaces the previous SaaS footer. Renders as a magazine colophon:
+ * hairline rule above, italic credits, contact line, an optional
+ * dispatch CTA, and a tiny tagline ("Set in Instrument Serif &
+ * Geist. Built in Austin.").
+ *
+ * The component still accepts the legacy props for API compatibility —
+ * `linkGroups`, `legalLinks`, `emailCapture`, `brandMetrics` are
+ * preserved on the prop surface, and the link groups + legal links are
+ * rendered as italic running lines (no card grids).
+ */
+
+import { getCurrentYear } from "../lib/dates";
+import { marketingCaptureDefaults } from "@kaiplan/knowledge/marketing";
+import type {
+  FooterBrandMetric,
+  ReferralReward,
+  SurveyQualificationConfig,
+  SurveyQuestion,
+} from "../types";
+
+interface EmailCaptureCtaConfig {
+  mode: "cta";
+  heading?: string;
+  ctaText?: string;
+  ctaTarget?: string;
+}
+
+interface EmailCaptureFormConfig {
+  mode?: "capture";
+  heading?: string;
+  buttonText?: string;
+  apiUrl: string;
+  sourcePage: string;
+  surveyQuestions: SurveyQuestion[];
+  surveyQualification?: SurveyQualificationConfig;
+  qualification?: SurveyQualificationConfig;
+  discoveryCallUrl: string;
+  privacyNote?: string;
+  errorInvalidEmail?: string;
+  errorDuplicate?: string;
+  errorGeneric?: string;
+  successMessage?: string;
+  surveyPreview?: string;
+  subtitle?: string;
+  whatHappensNext?: string;
+  referralRewards?: ReferralReward[];
+  productName?: string;
+  productDomain?: string;
+  qualifiedHeading?: string;
+  qualifiedBody?: string;
+  qualifiedCtaText?: string;
+  qualifiedDismissText?: string;
+  unqualifiedHeading?: string;
+  unqualifiedBody?: string;
+  unqualifiedCtaText?: string;
+  unqualifiedCtaTarget?: string;
+  unqualifiedDismissText?: string;
+}
+
+type EmailCaptureConfig = EmailCaptureCtaConfig | EmailCaptureFormConfig;
+
+interface Props {
+  siteName: string;
+  tagline?: string;
+  linkGroups?: { heading: string; links: { label: string; href: string }[] }[];
+  legalLinks?: { label: string; href: string }[];
+  emailCapture?: EmailCaptureConfig;
+  footerTextColor?: string;
+  copyrightSuffix?: string;
+  contactEmail?: string;
+  captureVariant?: "full" | "compact" | "none";
+  brandMetrics?: FooterBrandMetric[];
+}
+
+const {
+  siteName,
+  tagline,
+  linkGroups = [],
+  legalLinks = [],
+  emailCapture,
+  copyrightSuffix = "All rights reserved.",
+  contactEmail,
+} = Astro.props;
+
+const currentYear = getCurrentYear();
+const wordmark = siteName.toLowerCase();
+const dispatchCtaTarget =
+  emailCapture?.mode === "cta" ? emailCapture.ctaTarget : undefined;
+const dispatchCtaText =
+  emailCapture?.mode === "cta"
+    ? emailCapture.ctaText
+    : marketingCaptureDefaults.footerDispatchCta;
+---
+
+<footer class="editorial-shell" data-site-footer>
+  <div class="editorial-colophon">
+    <div class="editorial-colophon__grid">
+      <div class="editorial-colophon__lede">
+        <p class="editorial-colophon__wordmark">
+          <em>{wordmark}</em>
+        </p>
+        {tagline && <p class="editorial-colophon__tagline">{tagline}</p>}
+      </div>
+
+      <div class="editorial-colophon__contact">
+        {
+          contactEmail && (
+            <p>
+              <span aria-hidden="true">Write to us — </span>
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+            </p>
+          )
+        }
+        {
+          linkGroups.length > 0 && (
+            <ul class="editorial-colophon__links">
+              {linkGroups
+                .flatMap((group) => group.links ?? [])
+                .map((link) => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))}
+            </ul>
+          )
+        }
+      </div>
+
+      {
+        dispatchCtaTarget && (
+          <div class="editorial-colophon__dispatch">
+            <p class="editorial-colophon__dispatch-heading">
+              <em>{marketingCaptureDefaults.footerDispatchHeading}</em>
+            </p>
+            <p class="editorial-colophon__dispatch-body">
+              {marketingCaptureDefaults.footerDispatchBody}
+            </p>
+            <a
+              class="editorial-subscribe__submit"
+              href={dispatchCtaTarget}
+              data-editorial-dispatch
+            >
+              {dispatchCtaText}
+            </a>
+          </div>
+        )
+      }
+    </div>
+
+    <hr class="editorial-rule editorial-colophon__divider" aria-hidden="true" />
+
+    <div class="editorial-colophon__bottom">
+      <p class="editorial-colophon__credit">
+        <em>Set in Instrument Serif &amp; Geist. Built in Austin.</em>
+      </p>
+      <p class="editorial-colophon__copy">
+        &copy; {currentYear}
+        {siteName}. {copyrightSuffix}
+      </p>
+      {
+        legalLinks.length > 0 && (
+          <ul class="editorial-colophon__legal">
+            {legalLinks.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</footer>
+
+<style>
+  .editorial-colophon__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  @media (min-width: 48rem) {
+    .editorial-colophon__grid {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: clamp(2rem, 5vw, 4rem);
+    }
+  }
+
+  .editorial-colophon__wordmark {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    color: var(--ink);
+    margin: 0 0 0.75rem;
+  }
+
+  .editorial-colophon__tagline {
+    font-family: var(--font-editorial-body);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 32ch;
+    margin: 0;
+    font-style: normal;
+  }
+
+  .editorial-colophon__contact p,
+  .editorial-colophon__contact ul {
+    margin: 0;
+    font-style: normal;
+  }
+
+  .editorial-colophon__contact p {
+    font-family: var(--font-editorial-body);
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+  }
+
+  .editorial-colophon__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-family: var(--font-editorial-body);
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+    font-style: normal;
+  }
+
+  .editorial-colophon__links li {
+    list-style: none;
+  }
+
+  .editorial-colophon__dispatch-heading {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    line-height: 1.2;
+    margin: 0 0 0.5rem;
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  .editorial-colophon__dispatch-body {
+    font-family: var(--font-editorial-body);
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+    margin: 0 0 1rem;
+    font-style: normal;
+    max-width: 32ch;
+  }
+
+  .editorial-colophon__divider {
+    margin-block: clamp(1rem, 3vw, 2rem);
+  }
+
+  .editorial-colophon__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: var(--font-editorial-body);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 48rem) {
+    .editorial-colophon__bottom {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+  }
+
+  .editorial-colophon__credit {
+    margin: 0;
+    font-style: normal;
+  }
+
+  .editorial-colophon__copy {
+    margin: 0;
+    font-style: normal;
+  }
+
+  .editorial-colophon__legal {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-style: normal;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

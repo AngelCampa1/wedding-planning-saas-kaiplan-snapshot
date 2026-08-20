@@ -1,0 +1,114 @@
+---
+import type { ContentItem } from "../types";
+import {
+  STAGE_BADGES,
+  formatContentDate,
+  filterMetadata,
+} from "../lib/content-helpers";
+
+interface Props {
+  item: ContentItem;
+  featuredBadgeText?: string;
+  datePrefixText?: string;
+}
+
+const {
+  item,
+  featuredBadgeText = "Popular",
+  datePrefixText = "Updated",
+} = Astro.props;
+
+const badge = STAGE_BADGES[item.buyerStage];
+const formattedDate = formatContentDate(item.updatedAt);
+const readTime = item.metadata?.readTime;
+const metadataEntries = filterMetadata(item.metadata, ["readTime"]);
+const isFeatured = item.featured === true;
+const isBofuOnly = item.buyerStage === "bofu" && !isFeatured;
+---
+
+<a
+  href={item.href}
+  class:list={[
+    "content-card group block h-full rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--color-neutral-300)_52%,transparent)] bg-[color-mix(in_srgb,var(--surface-elevated)_86%,var(--surface-primary))] p-5 shadow-[var(--shadow-card)] no-underline transition-[transform,box-shadow,border-color,background-color] duration-[var(--transition-base)] hover:border-[color-mix(in_srgb,var(--color-brand-primary)_42%,var(--color-neutral-300))] hover:-translate-y-[var(--card-hover-lift)] hover:scale-[var(--card-hover-scale)] hover:bg-[var(--surface-primary)] hover:shadow-[var(--shadow-lg)]",
+    isFeatured && "content-card-featured",
+    isBofuOnly && "content-card-bofu",
+  ]}
+>
+  <div class="mb-3 flex items-start justify-between gap-3">
+    <h3
+      class="min-w-0 break-words text-[length:var(--text-subheading)] font-bold font-heading leading-snug text-[var(--color-brand-text)] transition-colors group-hover:text-[var(--color-brand-primary)]"
+    >
+      {item.title}
+    </h3>
+    <div class="flex shrink-0 items-center gap-1.5">
+      {
+        isFeatured && (
+          <span class="rounded-full border border-[var(--color-accent-200)] bg-[var(--color-accent-50)] px-2.5 py-1 text-[length:var(--text-caption)] font-medium text-[var(--color-accent-700)]">
+            {featuredBadgeText}
+          </span>
+        )
+      }
+      <span
+        class:list={[
+          "rounded-full border px-2.5 py-1 text-[length:var(--text-caption)] font-medium",
+          badge.classes,
+        ]}
+      >
+        {badge.label}
+      </span>
+    </div>
+  </div>
+
+  <p
+    class="line-clamp-3 text-[length:var(--text-body)] leading-7 text-[var(--color-brand-muted)]"
+  >
+    {item.description}
+  </p>
+
+  <div
+    data-content-card-meta
+    class="mt-4 flex flex-wrap items-center gap-2 border-t border-[color-mix(in_srgb,var(--color-neutral-300)_40%,transparent)] pt-3 text-[length:var(--text-caption)] text-[var(--color-neutral-500)]"
+  >
+    <span>{datePrefixText} {formattedDate}</span>
+    {
+      readTime && (
+        <>
+          <span aria-hidden="true">&middot;</span>
+          <span class="flex items-center gap-1">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="6"
+                cy="6"
+                r="5"
+                stroke="currentColor"
+                stroke-width="1.2"
+              />
+              <path
+                d="M6 3.5V6l1.5 1.5"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            {readTime}
+          </span>
+        </>
+      )
+    }
+    {
+      metadataEntries.map(([, value]) => (
+        <>
+          <span aria-hidden="true">&middot;</span>
+          <span>{value}</span>
+        </>
+      ))
+    }
+  </div>
+</a>

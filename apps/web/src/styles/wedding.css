@@ -1,0 +1,800 @@
+/*
+ * wedding.css — Per-wedding public RSVP page token contract
+ *
+ * This stylesheet provides the default token values for the public wedding
+ * page at /w/[slug]. These tokens are intentionally separate from the
+ * apps/web and apps/app design systems — they form a theming layer that
+ * individual wedding templates can override by setting the --theme-* custom
+ * properties on :root before this file is imported.
+ *
+ * Token contract (set per-wedding via --theme-* overrides):
+ *   --panel-bg          glass panel background (default: rgba(255,255,255,0.84))
+ *   --panel-strong      opaque panel variant   (default: rgba(255,255,255,0.92))
+ *   --text-main         primary body text      (default: #211b19)
+ *   --text-muted        secondary body text    (default: #6a5e57)
+ *   --line              subtle divider color   (default: rgba(33,27,25,0.12))
+ *   --line-strong       stronger divider       (default: rgba(33,27,25,0.20))
+ *   --hero-from / --hero-to  gradient stops for the hero backdrop
+ *   --theme-hero-from / --theme-hero-to  per-wedding gradient overrides
+ *
+ * Do NOT import tokens from apps/web/src/styles/global.css here — this file
+ * is loaded independently on the public wedding page route and must be
+ * self-contained.
+ */
+:root {
+  --panel-bg: var(--theme-panel-bg, rgba(255, 255, 255, 0.84));
+  --panel-strong: var(--theme-panel-strong, rgba(255, 255, 255, 0.92));
+  --text-main: var(--theme-text-main, #211b19);
+  --text-muted: var(--theme-text-muted, #6a5e57);
+  --line: var(--theme-line, rgba(33, 27, 25, 0.12));
+  --line-strong: var(--theme-line-strong, rgba(33, 27, 25, 0.2));
+  --shadow: 0 28px 90px rgba(33, 27, 25, 0.08);
+  --shadow-soft: 0 18px 44px rgba(33, 27, 25, 0.07);
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-body: "Geist", system-ui, "Segoe UI", sans-serif;
+  --content-width: min(1120px, calc(100% - 1rem));
+  --hero-from: var(--theme-hero-from, rgba(255, 255, 255, 0.94));
+  --hero-to: var(--theme-hero-to, rgba(255, 247, 240, 0.78));
+  --focus-ring: color-mix(in srgb, var(--accent) 72%, white);
+  --accent-strong: color-mix(in srgb, var(--accent) 78%, #000);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 85% 15%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      var(--page-bg) 0%,
+      color-mix(in srgb, var(--page-bg) 85%, #c8a87a) 100%
+    );
+  color: var(--text-main);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.58) 0%,
+      rgba(255, 255, 255, 0) 26%
+    ),
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 58%
+    );
+  opacity: 0.9;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.page-shell {
+  width: var(--content-width);
+  margin: 0 auto;
+  padding: 0.75rem 0 4rem;
+}
+
+.wedding-frame {
+  display: grid;
+  gap: 1rem;
+}
+
+.wedding-masthead {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0.25rem 0;
+}
+
+.wedding-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.wedding-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.wedding-brand-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.wedding-brand-copy strong {
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.wedding-brand-copy span {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.section-anchor-nav {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+}
+
+.section-anchor-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.section-anchor-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    transform 0.18s;
+}
+
+.section-anchor-link:hover,
+.section-anchor-link:focus-visible {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.section-anchor-link-accent {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
+  background: color-mix(in srgb, var(--accent-soft) 76%, #fff);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 32px;
+  box-shadow: var(--shadow);
+  background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+}
+
+.hero-grid {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1rem;
+}
+
+.hero-copy h1,
+.section-card h2,
+.rsvp-panel h2 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero-kicker-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-soft) 82%, #fff);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  font-size: clamp(2.75rem, 13vw, 5.8rem);
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+.hero-subtitle {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero-body {
+  margin: 1.2rem 0 0;
+  max-width: 42rem;
+  font-size: 1.02rem;
+  line-height: 1.8;
+  color: color-mix(in srgb, var(--text-main) 84%, var(--text-muted));
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.hero-meta {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.hero-meta-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border: 1px solid rgba(33, 27, 25, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero-meta-label,
+.section-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero-meta-card p {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 1.6rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, #000);
+  border-radius: 100px;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--accent) 22%, transparent);
+  text-decoration: none;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s,
+    color 0.18s,
+    border-color 0.18s;
+  cursor: pointer;
+}
+
+.cta-primary:hover,
+.cta-primary:focus-visible {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 92%, white),
+    color-mix(in srgb, var(--accent-strong) 90%, black)
+  );
+  border-color: var(--accent-strong);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--accent) 28%, transparent);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 1.35rem;
+  background: color-mix(in srgb, var(--panel-strong) 92%, white);
+  color: var(--text-main);
+  border: 1px solid var(--line-strong);
+  border-radius: 100px;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 65%, transparent);
+  text-decoration: none;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    border-color 0.18s;
+  cursor: pointer;
+}
+
+.cta-secondary:hover,
+.cta-secondary:focus-visible {
+  background: color-mix(in srgb, var(--accent-soft) 90%, white);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.hero-media {
+  position: relative;
+  min-height: 340px;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      color-mix(in srgb, var(--accent-soft) 85%, white)
+    ),
+    linear-gradient(
+      135deg,
+      var(--panel-strong),
+      color-mix(in srgb, var(--page-bg) 88%, white)
+    );
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-media-sheen {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 38%
+    ),
+    linear-gradient(0deg, rgba(33, 27, 25, 0.18) 0%, rgba(33, 27, 25, 0) 34%);
+}
+
+.hero-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 340px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.content-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.section-card,
+.rsvp-panel {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+.section-card {
+  padding: 1.25rem;
+}
+
+.section-card-wide {
+  grid-column: 1 / -1;
+}
+
+.section-card h2,
+.rsvp-panel h2 {
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+
+.section-card h2,
+.rsvp-panel h2,
+.section-card p,
+.rsvp-panel p {
+  margin-top: 0;
+}
+
+.section-card p,
+.rsvp-panel p,
+.rsvp-panel li,
+.rsvp-panel label,
+.rsvp-panel button {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.section-card p {
+  color: var(--text-muted);
+}
+
+.section-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.rsvp-panel {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+}
+
+.rsvp-panel-header {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(33, 27, 25, 0.08);
+}
+
+.rsvp-panel-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.rsvp-panel-note {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(33, 27, 25, 0.08);
+  border-radius: 22px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.rsvp-panel-note p {
+  margin: 0;
+}
+
+.guest-row {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.15rem 0;
+  margin: 0;
+  min-inline-size: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.guest-row:first-of-type {
+  border-top: none;
+}
+
+.guest-name {
+  padding: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.status-options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rsvp-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 4.2rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--panel-strong) 94%, white);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition:
+    box-shadow 0.15s,
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
+  user-select: none;
+}
+
+.rsvp-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.rsvp-option-indicator {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 4px transparent;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.rsvp-option-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.rsvp-option-copy strong {
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.rsvp-option-copy span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.rsvp-option:has(input[type="radio"]:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text-main);
+  box-shadow: 0 16px 30px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.rsvp-option:has(input[type="radio"]:checked) .rsvp-option-indicator {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 4px var(--accent);
+}
+
+.rsvp-option:has(input[type="radio"]:checked) .rsvp-option-copy span {
+  color: color-mix(in srgb, var(--text-main) 76%, var(--text-muted));
+}
+
+.rsvp-option:has(input[type="radio"]:focus-visible) {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.rsvp-option:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.rsvp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(33, 27, 25, 0.08);
+}
+
+.submit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.95rem 1.3rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 85%, #000)
+  );
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 85%, #000),
+    color-mix(in srgb, var(--accent) 72%, #000)
+  );
+}
+
+.submit-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.submit-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.hint,
+.status-copy {
+  color: var(--text-muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 720px) {
+  .page-shell {
+    width: min(100% - 1.5rem, 1120px);
+    padding-top: 1rem;
+  }
+
+  .wedding-masthead {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    align-items: stretch;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .content-grid,
+  .hero-meta,
+  .rsvp-panel-header {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .page-shell {
+    width: min(100% - 2rem, 1120px);
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.8fr);
+    padding: 1.75rem;
+    gap: 1.75rem;
+  }
+
+  .content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-card {
+    padding: 1.5rem;
+  }
+
+  .rsvp-panel {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 719px) {
+  .wedding-masthead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: 0 -0.25rem;
+    padding: 0.75rem 0.25rem 0.25rem;
+    backdrop-filter: blur(14px);
+  }
+
+  .hero-grid {
+    gap: 1rem;
+    padding: 0.95rem;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 11vw, 3.6rem);
+    line-height: 0.98;
+  }
+
+  .hero-body {
+    font-size: 0.97rem;
+    line-height: 1.65;
+  }
+
+  .hero-meta {
+    gap: 0.7rem;
+  }
+
+  .hero-meta-card {
+    padding: 0.9rem;
+  }
+
+  .hero-actions > * {
+    width: 100%;
+  }
+
+  .hero-media--with-image {
+    min-height: 180px;
+    max-height: 220px;
+  }
+
+  .rsvp-actions {
+    align-items: stretch;
+  }
+
+  .submit-button,
+  .status-copy {
+    width: 100%;
+  }
+}
+
+@media (min-width: 720px) and (max-width: 900px) {
+  .hero-media--with-image {
+    min-height: 200px;
+    max-height: 260px;
+    order: -1;
+  }
+}

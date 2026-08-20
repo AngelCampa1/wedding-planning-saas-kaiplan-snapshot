@@ -1,0 +1,228 @@
+---
+export const prerender = true;
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { publicSiteCopy } from "@kaiplan/knowledge/marketing";
+import { siteConfig } from "@/config/site";
+import { buildAppSignupUrl } from "@/lib/app-links";
+
+const openAppUrl = buildAppSignupUrl();
+---
+
+<LandingLayout
+  config={siteConfig}
+  description="Kaiplan is a solo, bootstrapped wedding planning workspace. One builder, one product, paid for by couples. Learn who builds it and why."
+  canonicalPath="/about/"
+  title="About - Kaiplan"
+>
+  <article class="editorial-shell" data-page="about">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="about-hero-headline">
+      <div class="hero__grid">
+        <div class="hero__primary">
+          <p class="editorial-eyebrow">About</p>
+          <h1
+            id="about-hero-headline"
+            class="editorial-display-l hero__headline"
+          >
+            One product. One builder. Paid for by couples.
+          </h1>
+        </div>
+        <div class="hero__lede-band">
+          <p class="editorial-lede hero__lede">
+            Kaiplan is a bootstrapped wedding planning workspace. There is no PE
+            firm, no venture round, no thousand-person product org behind it.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- CHAPTER I -->
+    <section
+      class="chapter chapter--narrow"
+      aria-labelledby="about-solo-heading"
+    >
+      <p class="editorial-eyebrow">I. The operation</p>
+      <h2 id="about-solo-heading" class="editorial-display-m chapter__title">
+        A solo, bootstrapped operation.
+      </h2>
+      <p class="editorial-body chapter__body">
+        Kaiplan is built and maintained by one person. Not a startup with a
+        runway and a growth team, not a PE-backed rollup adding tools to a
+        marketplace. One engineer, one product, funded by the couples who use
+        it. That is not a caveat. It is the point.
+      </p>
+      <p class="editorial-body chapter__body">
+        Most wedding tools are free because vendors pay for the placements you
+        see inside them. That model means the platform earns from the vendors,
+        not the couples, which means every recommendation is shaped by who is
+        paying. Kaiplan earns from couples directly. The pricing is on the page.
+        The features are the product. There is no ad inventory to sell.
+      </p>
+      <p class="editorial-body chapter__body">
+        I read every customer complaint personally. Every support email, every
+        bug report, every piece of feedback lands in my inbox and I respond to
+        it. That is not a PR commitment — it is just how a one-person product
+        works. You are not writing into a ticket queue; you are writing to the
+        person who will fix it.
+      </p>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- CHAPTER II -->
+    <section
+      class="chapter chapter--narrow"
+      aria-labelledby="about-bugs-heading"
+    >
+      <p class="editorial-eyebrow">II. Bug fixes</p>
+      <h2 id="about-bugs-heading" class="editorial-display-m chapter__title">
+        A 24-hour bug-fix promise.
+      </h2>
+      <p class="editorial-body chapter__body">
+        If you find a bug that breaks your workflow — something that stops you
+        from saving a guest, updating a budget line, or generating a seating
+        assignment — write to <a
+          class="editorial-link"
+          href="mailto:angel.campa@kaiplan.app">angel.campa@kaiplan.app</a
+        >. I commit to a fix within 24 hours for anything that blocks core
+        planning work. Not a workaround, not a timeline — a fix.
+      </p>
+      <p class="editorial-body chapter__body">
+        Kaiplan is a paid product. If it does not work, you should not be paying
+        for it. The 24-hour window reflects that. Non-blocking improvements and
+        feature work move at a different cadence, but broken core features do
+        not wait.
+      </p>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- CHAPTER III -->
+    <section
+      class="chapter chapter--narrow"
+      aria-labelledby="about-contact-heading"
+    >
+      <p class="editorial-eyebrow">III. How to reach me</p>
+      <h2 id="about-contact-heading" class="editorial-display-m chapter__title">
+        Email and LinkedIn.
+      </h2>
+      <p class="editorial-body chapter__body">
+        For support, feedback, or anything about the product: <a
+          class="editorial-link"
+          href="mailto:angel.campa@kaiplan.app">angel.campa@kaiplan.app</a
+        >. I respond personally and I keep every conversation in context — if
+        you wrote last month, I remember it.
+      </p>
+      <p class="editorial-body chapter__body">
+        If you want to see what else I am building or follow the product
+        publicly: <a
+          class="editorial-link"
+          href="https://www.linkedin.com/in/angelcampa1/"
+          rel="noopener noreferrer"
+          target="_blank">linkedin.com/in/angelcampa1</a
+        >.
+      </p>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- CLOSING CTA -->
+    <section
+      class="chapter chapter--narrow chapter--close"
+      aria-labelledby="about-close-heading"
+    >
+      <h2 id="about-close-heading" class="editorial-display-m chapter__title">
+        {publicSiteCopy.pricingTrialBannerText}
+      </h2>
+      <p class="editorial-body chapter__body">
+        Budget, guest list, seating, and vendor tracking in one workspace.
+        <a class="editorial-link" href={openAppUrl}>Start planning</a> and keep the
+        spreadsheets as a backup if you want — most couples stop needing them after
+        the first week.
+      </p>
+    </section>
+  </article>
+</LandingLayout>
+
+<style>
+  [data-page="about"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .hero {
+    padding-block: clamp(2rem, 6vw, 4.5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .hero__primary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .hero__lede-band {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hero__lede {
+    max-width: 38ch;
+  }
+
+  @media (min-width: 64rem) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 4rem);
+    }
+    .hero__lede-band {
+      text-align: right;
+      align-items: flex-end;
+    }
+    .hero__lede {
+      text-align: right;
+      max-width: 32ch;
+    }
+  }
+
+  .chapter-rule {
+    margin-block: clamp(2rem, 5vw, 3.5rem) 0;
+  }
+
+  .chapter {
+    padding-block-end: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .chapter--narrow {
+    max-width: 62ch;
+  }
+
+  .chapter--close {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .chapter__title {
+    margin-top: 1rem;
+  }
+
+  .chapter__body {
+    margin-top: 1rem;
+  }
+
+  .chapter__body + .chapter__body {
+    margin-top: 1.25rem;
+  }
+</style>

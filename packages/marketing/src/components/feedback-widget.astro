@@ -1,0 +1,14 @@
+---
+import { FeedbackWidgetIsland } from "./feedback-widget-island.tsx";
+
+// The public Turnstile site key is baked at build time via
+// PUBLIC_TURNSTILE_SITE_KEY. Empty in local dev (apps/web/.dev.vars) so no
+// widget renders and the server applies its dev bypass.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+---
+
+<FeedbackWidgetIsland
+  client:only="react"
+  turnstileSiteKey={turnstileSiteKey}
+  {...Astro.props}
+/>

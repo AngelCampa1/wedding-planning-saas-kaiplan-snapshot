@@ -1,0 +1,534 @@
+---
+import type { HouseholdRsvpResponse } from "@kaiplan/shared";
+import "../../styles/wedding.css";
+import {
+  getContentCardClassName,
+  getTemplateTheme,
+  loadPublicHouseholdRsvp,
+  loadPublicWebsiteData,
+  shouldRenderRegistrySection,
+  shouldRenderStorySection,
+  shouldRenderVenueSection,
+} from "../../lib/public-website";
+import { getApiBaseUrl } from "../../lib/api-config";
+import { getRuntimeEnv, readPublicVar } from "../../lib/runtime-env";
+
+const runtimeEnv = await getRuntimeEnv();
+const { slug = "" } = Astro.params;
+const shouldRenderRemoteFonts =
+  import.meta.env.PUBLIC_DISABLE_REMOTE_FONTS !== "true";
+const apiBase = getApiBaseUrl(
+  {
+    PUBLIC_API_URL: readPublicVar(runtimeEnv, "PUBLIC_API_URL"),
+    PROD: import.meta.env.PROD,
+  },
+  Astro.url,
+);
+const isLocalApiBase =
+  apiBase.startsWith("http://localhost") ||
+  apiBase.startsWith("http://127.0.0.1");
+const websiteData = await loadPublicWebsiteData(fetch, apiBase, slug);
+Astro.response.status = websiteData.status;
+if (websiteData.status !== 200) {
+  Astro.response.headers.set("Cache-Control", "no-store");
+}
+
+const website = websiteData.website;
+const token = Astro.url.searchParams.get("token");
+let household: HouseholdRsvpResponse | null = null;
+let householdError: string | null = null;
+
+if (website && token) {
+  const householdData = await loadPublicHouseholdRsvp(fetch, apiBase, token);
+  household = householdData.household;
+  householdError = householdData.householdError;
+}
+
+const theme = getTemplateTheme(website?.template ?? "classic");
+const turnstileSiteKey = isLocalApiBase
+  ? ""
+  : (readPublicVar(runtimeEnv, "PUBLIC_TURNSTILE_SITE_KEY") ?? "");
+const publicRsvpHoneypotField =
+  readPublicVar(runtimeEnv, "PUBLIC_RSVP_HONEYPOT_FIELD") ?? "website";
+const publicRsvpTurnstileField =
+  readPublicVar(runtimeEnv, "PUBLIC_RSVP_TURNSTILE_FIELD") ?? "turnstileToken";
+const hasStorySection = website
+  ? shouldRenderStorySection(website.content.story)
+  : false;
+const hasVenueSection = website
+  ? shouldRenderVenueSection(website.content.venue)
+  : false;
+const hasRegistrySection = website
+  ? shouldRenderRegistrySection(website.content.registry)
+  : false;
+const contentCardCount =
+  Number(hasStorySection) +
+  Number(hasVenueSection) +
+  Number(hasRegistrySection);
+const contentCardClassName = getContentCardClassName(contentCardCount);
+const heroMediaClassName = website?.content.heroImage
+  ? "hero-media hero-media--with-image"
+  : "hero-media hero-media--fallback";
+const publicWeddingUrl = `${Astro.url.origin}${Astro.url.pathname}`;
+
+// Set a per-page CSP that includes the dynamic apiBase in connect-src.
+// The middleware defers to this page-set CSP when present (it only sets
+// WEDDING_PAGE_CSP as a fallback). Including apiBase is necessary for
+// the RSVP fetch to work across different environments (local uses
+// http://127.0.0.1:5030; production uses https://api.kaiplan.app).
+// 'unsafe-inline' is added to script-src only in dev/e2e environments
+// (identified by the apiBase being a localhost URL) because Astro dev mode
+// emits inline <script type="module"> tags. Production Cloudflare Pages
+// builds produce external hashed scripts that do not need this directive.
+const isDevEnv = import.meta.env.DEV || isLocalApiBase;
+const scriptSrc = isDevEnv
+  ? "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com"
+  : "script-src 'self' https://challenges.cloudflare.com";
+Astro.response.headers.set(
+  "Content-Security-Policy",
+  [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    scriptSrc,
+    `connect-src 'self' ${apiBase} https://*.kaiplan.app https://challenges.cloudflare.com`,
+    "frame-src https://www.youtube.com https://player.vimeo.com https://challenges.cloudflare.com",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ].join("; "),
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {
+      shouldRenderRemoteFonts ? (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossorigin
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+          />
+        </>
+      ) : null
+    }
+    <style
+      define:vars={{
+        "theme-page-bg": theme.pageBg,
+        "theme-panel-bg": theme.panelBg,
+        "theme-panel-strong": theme.panelStrong,
+        "theme-text-main": theme.textMain,
+        "theme-text-muted": theme.textMuted,
+        "theme-line": theme.line,
+        "theme-line-strong": theme.lineStrong,
+        "theme-accent": theme.accent,
+        "theme-accent-soft": theme.accentSoft,
+        "theme-hero-from": theme.heroFrom,
+        "theme-hero-to": theme.heroTo,
+      }}
+    >
+      :root {
+        --page-bg: var(--theme-page-bg);
+        --panel-bg: var(--theme-panel-bg);
+        --panel-strong: var(--theme-panel-strong);
+        --text-main: var(--theme-text-main);
+        --text-muted: var(--theme-text-muted);
+        --line: var(--theme-line);
+        --line-strong: var(--theme-line-strong);
+        --accent: var(--theme-accent);
+        --accent-soft: var(--theme-accent-soft);
+        --hero-from: var(--theme-hero-from);
+        --hero-to: var(--theme-hero-to);
+      }
+    </style>
+    <title>
+      {
+        website
+          ? `${website.content.hero.title} | Kaiplan`
+          : "Website not found"
+      }
+    </title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href={publicWeddingUrl} />
+    {
+      website ? (
+        <>
+          <meta
+            property="og:title"
+            content={`${website.content.hero.title} | Kaiplan`}
+          />
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content={publicWeddingUrl} />
+          {website.content.heroImage && (
+            <meta property="og:image" content={website.content.heroImage.url} />
+          )}
+          <meta
+            property="og:description"
+            content={website.content.hero.body?.slice(0, 200) ?? ""}
+          />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta
+            name="twitter:title"
+            content={`${website.content.hero.title} | Kaiplan`}
+          />
+          <meta
+            name="twitter:description"
+            content={website.content.hero.body?.slice(0, 200) ?? ""}
+          />
+        </>
+      ) : null
+    }
+    {
+      turnstileSiteKey ? (
+        <script
+          is:inline
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+        />
+      ) : null
+    }
+  </head>
+  <body class={theme.pageClass}>
+    <main class="page-shell">
+      {
+        website ? (
+          <>
+            <div class="wedding-frame">
+              <header class="wedding-masthead" aria-label="Wedding website">
+                <a class="wedding-brand" href="#top">
+                  <span class="wedding-brand-mark">K</span>
+                  <span class="wedding-brand-copy">
+                    <strong>{website.content.hero.title}</strong>
+                    <span>Wedding website</span>
+                  </span>
+                </a>
+                <nav class="section-anchor-nav" aria-label="Page sections">
+                  {hasStorySection ? (
+                    <a class="section-anchor-link" href="#story">
+                      Story
+                    </a>
+                  ) : null}
+                  {hasVenueSection ? (
+                    <a class="section-anchor-link" href="#venue">
+                      Venue
+                    </a>
+                  ) : null}
+                  {hasRegistrySection ? (
+                    <a class="section-anchor-link" href="#registry">
+                      Registry
+                    </a>
+                  ) : null}
+                  {website.content.rsvp.visible ? (
+                    <a
+                      class="section-anchor-link section-anchor-link-accent"
+                      href="#rsvp"
+                    >
+                      RSVP
+                    </a>
+                  ) : null}
+                </nav>
+              </header>
+
+              <section class={`hero ${theme.heroClass}`} id="top">
+                <div class="hero-grid">
+                  <div class="hero-copy">
+                    <div class="hero-kicker-row">
+                      <p class="eyebrow">Wedding Celebration</p>
+                      {website.content.hero.subtitle ? (
+                        <span class="hero-chip">
+                          {website.content.hero.subtitle}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h1>{website.content.hero.title}</h1>
+                    {website.content.hero.body ? (
+                      <p class="hero-body">{website.content.hero.body}</p>
+                    ) : null}
+                    <div class="hero-actions">
+                      {website.content.rsvp.visible ? (
+                        <a class="cta-primary" href="#rsvp">
+                          {website.content.hero.ctaLabel ||
+                            "Reply to invitation"}
+                        </a>
+                      ) : null}
+                      {hasVenueSection ? (
+                        <a class="cta-secondary" href="#venue">
+                          See venue details
+                        </a>
+                      ) : null}
+                    </div>
+                    <div class="hero-meta">
+                      <article class="hero-meta-card">
+                        <span class="hero-meta-label">For guests</span>
+                        <p>
+                          Everything you need for the day, from directions to
+                          your RSVP, in one place.
+                        </p>
+                      </article>
+                      <article class="hero-meta-card">
+                        <span class="hero-meta-label">RSVP</span>
+                        <p>
+                          {website.content.rsvp.visible
+                            ? "Use your private invitation link to reply for everyone in your household."
+                            : "The couple is collecting replies another way for this celebration."}
+                        </p>
+                      </article>
+                    </div>
+                  </div>
+                  <div class={heroMediaClassName}>
+                    {website.content.heroImage ? (
+                      <img
+                        src={website.content.heroImage.url}
+                        alt={
+                          website.content.heroImage.alt ||
+                          website.content.hero.title
+                        }
+                      />
+                    ) : (
+                      <div class="hero-placeholder">
+                        <p>
+                          {website.content.hero.title}
+                          <br />
+                          <span class="hint">
+                            {website.content.hero.subtitle}
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                    <div class="hero-media-sheen" aria-hidden="true" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="content-grid">
+                {hasStorySection ? (
+                  <article class={contentCardClassName} id="story">
+                    <p class="section-label">Our story</p>
+                    <h2>{website.content.story.title}</h2>
+                    <div class="section-stack">
+                      {website.content.story.body?.trim() ? (
+                        <p>{website.content.story.body}</p>
+                      ) : null}
+                    </div>
+                  </article>
+                ) : null}
+
+                {hasVenueSection ? (
+                  <article class={contentCardClassName} id="venue">
+                    <p class="section-label">Venue</p>
+                    <h2>{website.content.venue.name || "Venue details"}</h2>
+                    <div class="section-stack">
+                      {website.content.venue.address ? (
+                        <p>{website.content.venue.address}</p>
+                      ) : null}
+                      {website.content.venue.details ? (
+                        <p>{website.content.venue.details}</p>
+                      ) : null}
+                      {website.content.venue.mapUrl ? (
+                        <p>
+                          <a
+                            class="cta-secondary"
+                            href={website.content.venue.mapUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Open map
+                          </a>
+                        </p>
+                      ) : null}
+                    </div>
+                  </article>
+                ) : null}
+
+                {hasRegistrySection ? (
+                  <article class={contentCardClassName} id="registry">
+                    <p class="section-label">Registry</p>
+                    <h2>{website.content.registry.title || "Registry"}</h2>
+                    <div class="section-stack">
+                      {website.content.registry.details ? (
+                        <p>{website.content.registry.details}</p>
+                      ) : null}
+                      {website.content.registry.url ? (
+                        <p>
+                          <a
+                            class="cta-secondary"
+                            href={website.content.registry.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            View registry
+                          </a>
+                        </p>
+                      ) : null}
+                    </div>
+                  </article>
+                ) : null}
+              </section>
+
+              {website.content.rsvp.visible ? (
+                <section class="rsvp-panel" id="rsvp">
+                  <div class="rsvp-panel-header">
+                    <div class="rsvp-panel-copy">
+                      <p class="eyebrow">RSVP</p>
+                      <h2>{website.content.rsvp.headline || "Please RSVP"}</h2>
+                      {website.content.rsvp.details ? (
+                        <p>{website.content.rsvp.details}</p>
+                      ) : null}
+                    </div>
+                    <div class="rsvp-panel-note">
+                      <span class="hero-meta-label">Private invite</span>
+                      <p>
+                        This reply form is reserved for the guests on your
+                        invitation.
+                      </p>
+                    </div>
+                  </div>
+                  {householdError ? (
+                    <p class="status-copy">{householdError}</p>
+                  ) : null}
+                  {household ? (
+                    <form
+                      data-rsvp-form
+                      data-api-base={apiBase}
+                      data-token={token}
+                      data-honeypot-field={publicRsvpHoneypotField}
+                      data-turnstile-field={publicRsvpTurnstileField}
+                      data-turnstile-required={
+                        turnstileSiteKey ? "true" : undefined
+                      }
+                    >
+                      {household.guests.map((guest) => (
+                        <fieldset class="guest-row">
+                          <legend class="guest-name">
+                            {guest.firstName} {guest.lastName}
+                          </legend>
+                          <div class="status-options">
+                            <label class="rsvp-option">
+                              <input
+                                type="radio"
+                                name={`guest-${guest.id}`}
+                                value="accepted"
+                                checked={guest.rsvpStatus === "accepted"}
+                                required
+                              />
+                              <span
+                                class="rsvp-option-indicator"
+                                aria-hidden="true"
+                              />
+                              <span class="rsvp-option-copy">
+                                <strong>Joyfully attending</strong>
+                                <span>We'll count you in.</span>
+                              </span>
+                            </label>
+                            <label class="rsvp-option">
+                              <input
+                                type="radio"
+                                name={`guest-${guest.id}`}
+                                value="declined"
+                                checked={guest.rsvpStatus === "declined"}
+                              />
+                              <span
+                                class="rsvp-option-indicator"
+                                aria-hidden="true"
+                              />
+                              <span class="rsvp-option-copy">
+                                <strong>Regretfully declining</strong>
+                                <span>We'll miss celebrating with you.</span>
+                              </span>
+                            </label>
+                          </div>
+                        </fieldset>
+                      ))}
+
+                      <div class="visually-hidden" aria-hidden="true">
+                        <label>
+                          Website
+                          <input
+                            type="text"
+                            name={publicRsvpHoneypotField}
+                            autocomplete="off"
+                            tabindex="-1"
+                          />
+                        </label>
+                      </div>
+
+                      {turnstileSiteKey ? (
+                        <>
+                          <input
+                            type="hidden"
+                            name={publicRsvpTurnstileField}
+                            value=""
+                          />
+                          <div
+                            class="cf-turnstile"
+                            data-sitekey={turnstileSiteKey}
+                            data-callback="kaiplanTurnstileCallback"
+                          />
+                        </>
+                      ) : (
+                        <input
+                          type="hidden"
+                          name={publicRsvpTurnstileField}
+                          value=""
+                        />
+                      )}
+
+                      <div class="rsvp-actions">
+                        <button class="submit-button" type="submit">
+                          Send RSVP
+                        </button>
+                        <span
+                          class="status-copy"
+                          data-rsvp-status
+                          aria-live="polite"
+                        />
+                      </div>
+                    </form>
+                  ) : null}
+                  {!token ? (
+                    <p class="status-copy">
+                      Open the private link from your invitation to reply for
+                      your household.
+                    </p>
+                  ) : null}
+                </section>
+              ) : null}
+            </div>
+          </>
+        ) : (
+          <section class="hero">
+            <div class="hero-grid">
+              <div class="hero-copy">
+                <p class="eyebrow">Kaiplan</p>
+                <h1>That wedding site is not available.</h1>
+                <p class="hero-body">
+                  Double-check the link or ask the couple to resend the latest
+                  invitation.
+                </p>
+              </div>
+            </div>
+          </section>
+        )
+      }
+    </main>
+    {
+      websiteData.status === 200 && (
+        <script>import "../../scripts/public-rsvp";</script>
+      )
+    }
+  </body>
+</html>

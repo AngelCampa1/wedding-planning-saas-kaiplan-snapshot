@@ -1,0 +1,140 @@
+---
+import {
+  getStickyMobileCtaRenderState,
+  getStickyMobileCtaSpacerHeight,
+  type StickyMobileCtaAction,
+  shouldShowStickyMobileCta,
+} from "../lib/sticky-mobile-cta"
+import { resolvePublicSignupCta } from "../lib/public-signup-cta"
+
+interface Props {
+  ctaText: string
+  ctaTarget: string
+  subtitle?: string
+  ctaAction?: StickyMobileCtaAction
+}
+const { ctaText, ctaTarget, subtitle, ctaAction } = Astro.props
+const renderState = getStickyMobileCtaRenderState(ctaAction)
+const resolvedCta = resolvePublicSignupCta({
+  sourcePage: "/",
+  explicitTarget: ctaTarget,
+  explicitText: ctaText,
+})
+---
+
+<div data-sticky-cta-spacer class="sm:hidden" style="height:0px" aria-hidden="true"></div>
+<div
+  data-sticky-cta
+  data-cta-action={renderState.action}
+  data-intercepts-link-clicks={renderState.interceptsLinkClicks ? "true" : "false"}
+  class="fixed bottom-0 left-0 right-0 z-50 sm:hidden invisible translate-y-full opacity-0 transition-[transform,opacity] duration-300 ease-out border-t border-[var(--color-neutral-200)] pb-[env(safe-area-inset-bottom)]"
+  style="background: color-mix(in srgb, var(--surface-primary) 96%, var(--surface-secondary))"
+>
+  <div class="px-4 py-3 flex items-center justify-between gap-3 max-w-lg mx-auto">
+    {subtitle && (
+      <span class="text-[length:var(--text-caption)] text-[var(--color-brand-muted)] hidden min-[360px]:block">
+        {subtitle}
+      </span>
+    )}
+    {renderState.showLink && (
+      <a
+        href={resolvedCta.target}
+        data-sticky-cta-link
+        class="btn-primary whitespace-nowrap shadow-[var(--shadow-glow-accent)]"
+      >
+        {resolvedCta.text}
+      </a>
+    )}
+  </div>
+</div>
+
+<script>
+  import {
+    getStickyMobileCtaSpacerHeight,
+    shouldShowStickyMobileCta,
+  } from "../lib/sticky-mobile-cta";
+
+  const bar = document.querySelector('[data-sticky-cta]') as HTMLElement | null;
+  const spacer = document.querySelector('[data-sticky-cta-spacer]') as HTMLElement | null;
+  const hero = document.querySelector('[data-hero]');
+  const footer = document.querySelector('[data-site-footer]');
+  let footerIntersecting = false;
+
+  function getHeroIntersecting() {
+    return hero instanceof Element
+      ? hero.getBoundingClientRect().bottom > 0 &&
+          hero.getBoundingClientRect().top < window.innerHeight
+      : false;
+  }
+
+  function syncBarVisibility(isVisible: boolean) {
+    if (!bar) {
+      return;
+    }
+
+    if (isVisible) {
+      bar.classList.remove('invisible', 'translate-y-full', 'opacity-0');
+      bar.classList.add('visible', 'translate-y-0', 'opacity-100');
+    } else {
+      bar.classList.add('invisible', 'translate-y-full', 'opacity-0');
+      bar.classList.remove('visible', 'translate-y-0', 'opacity-100');
+    }
+
+    if (spacer) {
+      spacer.style.height = `${getStickyMobileCtaSpacerHeight({
+        isVisible,
+        barHeight: bar.getBoundingClientRect().height,
+      })}px`;
+    }
+  }
+
+  function syncFromViewport() {
+    syncBarVisibility(
+      shouldShowStickyMobileCta({
+        heroIntersecting: getHeroIntersecting(),
+        footerIntersecting,
+      }),
+    );
+  }
+
+  if (bar) {
+    syncFromViewport();
+  }
+
+  if (bar && hero) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      bar.style.transition = 'none';
+    }
+
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      syncBarVisibility(
+        shouldShowStickyMobileCta({
+          heroIntersecting: entry.isIntersecting,
+          footerIntersecting,
+        }),
+      );
+    }, { threshold: 0 });
+    heroObserver.observe(hero);
+  }
+
+  if (bar && footer) {
+    const footerObserver = new IntersectionObserver(([entry]) => {
+      footerIntersecting = entry.isIntersecting;
+      syncFromViewport();
+    }, { threshold: 0 });
+    footerObserver.observe(footer);
+  }
+
+  if (bar) {
+    const handleResize = () => {
+      syncFromViewport();
+    };
+
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('resize', handleResize);
+    }, { once: true });
+  }
+
+</script>

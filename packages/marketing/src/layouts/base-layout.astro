@@ -1,0 +1,208 @@
+---
+import MetaTags from "../seo/meta-tags.astro";
+import FeedbackWidget from "../components/feedback-widget.astro";
+import {
+  buildGoogleFontsUrl,
+  buildFontCssOverrides,
+  DEFAULT_FONTS,
+} from "../lib/fonts";
+import { buildPostHogBootstrapScript } from "../lib/analytics";
+import {
+  buildChunkRecoveryScript,
+  buildDocumentBootstrapScript,
+  buildScrollRevealScript,
+} from "../lib/base-layout-scripts";
+import { ensureTrailingSlash } from "../lib/meta";
+import { generateThemeCSS } from "../lib/generate-theme-css";
+import type { SiteTheme } from "../types";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalUrl: string;
+  siteName: string;
+  ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageAlt?: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  noindex?: boolean;
+  ogType?: string;
+  twitterSite?: string;
+  articleAuthor?: string;
+  articleSection?: string;
+  articleTags?: string[];
+  themeColor?: string;
+  appleTouchIcon?: string;
+  showHeader?: boolean;
+  showFooter?: boolean;
+  theme?: SiteTheme;
+  fonts?: { heading: string; body: string; mono?: string };
+  siteUrl?: string;
+  preserveMetaTagCopy?: boolean;
+  prevUrl?: string;
+  nextUrl?: string;
+  analyticsEnabled?: boolean;
+  rssUrl?: string;
+  enableScrollReveal?: boolean;
+}
+const {
+  showHeader = true,
+  showFooter = true,
+  theme,
+  fonts,
+  themeColor,
+  appleTouchIcon,
+  prevUrl,
+  nextUrl,
+  analyticsEnabled = true,
+  rssUrl,
+  enableScrollReveal = true,
+  siteName,
+  canonicalUrl: rawCanonicalUrl,
+  preserveMetaTagCopy = false,
+  ...props
+} = Astro.props;
+const canonicalUrl = ensureTrailingSlash(rawCanonicalUrl);
+
+const resolvedFonts = fonts ?? DEFAULT_FONTS;
+const fontsUrl = buildGoogleFontsUrl(resolvedFonts);
+const fontCssOverrides = buildFontCssOverrides(resolvedFonts);
+const themeCss = theme ? generateThemeCSS(theme) : "";
+const documentBootstrapScript = buildDocumentBootstrapScript();
+const chunkRecoveryScript = buildChunkRecoveryScript();
+const scrollRevealScript = buildScrollRevealScript();
+const postHogBootstrapScript = buildPostHogBootstrapScript(siteName);
+const shouldRenderAnalytics =
+  analyticsEnabled &&
+  import.meta.env.PROD &&
+  import.meta.env.PUBLIC_DISABLE_ANALYTICS !== "true";
+const shouldRenderRemoteFonts =
+  import.meta.env.PUBLIC_DISABLE_REMOTE_FONTS !== "true";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    {
+      /* Pin the canvas to light. `light only` is the spec-defined opt-out
+        that tells Chrome's Auto Dark Mode for Web Contents the page has
+        no dark-mode design, so the browser must not invert it. Pairs
+        with `color-scheme: only light` on :root. */
+    }
+    <meta name="color-scheme" content="light only" />
+    {
+      /* Inline critical overrides to defeat Chrome Auto Dark Mode before
+         any external CSS loads. These are the same rules that live in
+         apps/web/src/styles/global.css but shipped inline so (a) they apply
+         immediately, (b) they cannot be stripped by CSS optimizers, and (c)
+         they are the first paint instruction the browser sees.
+         Trade-off: `color-scheme: only light` suppresses the browser's
+         built-in Forced Colors / Windows High Contrast Mode adaptation.
+         This is intentional. The design system uses a fixed editorial
+         palette that must not be overridden by the OS. Users who rely on
+         system high-contrast themes will see the design-system colours
+         rather than their OS colour overrides. */
+    }
+    <style is:inline>
+      :root {
+        color-scheme: only light;
+      }
+      html,
+      body {
+        background-color: #f5f1ea !important;
+        color: #171311 !important;
+      }
+    </style>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {appleTouchIcon && <link rel="apple-touch-icon" href={appleTouchIcon} />}
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {
+      rssUrl && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${siteName} RSS Feed`}
+          href={rssUrl}
+        />
+      )
+    }
+    {themeColor && <meta name="theme-color" content={themeColor} />}
+    <MetaTags
+      siteName={siteName}
+      canonicalUrl={canonicalUrl}
+      preserveAuthoredMetadata={preserveMetaTagCopy}
+      {...props}
+    />
+    {
+      shouldRenderRemoteFonts && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link rel="preload" as="style" href={fontsUrl} />
+          <link
+            rel="stylesheet"
+            href={fontsUrl}
+            media="print"
+            onload="this.media='all'"
+          />
+          <noscript>
+            <link rel="stylesheet" href={fontsUrl} />
+          </noscript>
+        </>
+      )
+    }
+    <style set:html={fontCssOverrides}></style>
+    {themeCss && <style set:html={themeCss} />}
+    <script is:inline set:html={documentBootstrapScript} />
+    <script is:inline set:html={chunkRecoveryScript} />
+    {
+      shouldRenderAnalytics && (
+        <script is:inline set:html={postHogBootstrapScript} />
+      )
+    }
+    {
+      shouldRenderAnalytics && (
+        <script>
+          import {initSentry} from "../lib/sentry-client"; const siteName =
+          document.body.getAttribute("data-site-name") ?? "unknown";
+          initSentry(siteName);
+        </script>
+      )
+    }
+    {
+      shouldRenderAnalytics && (
+        <script>
+          import {initCroTracking} from "../lib/cro-tracker"; initCroTracking();
+        </script>
+      )
+    }
+    <slot name="head" />
+    {prevUrl && <link rel="prev" href={prevUrl} />}
+    {nextUrl && <link rel="next" href={nextUrl} />}
+  </head>
+  <body
+    class="bg-brand-surface text-brand-text min-h-screen font-[family-name:var(--font-body)] antialiased"
+    data-site-name={siteName}
+  >
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:inline-flex focus:min-h-11 focus:items-center focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-[var(--color-neutral-50)] focus:rounded-md focus:text-sm focus:font-medium"
+    >
+      Skip to main content
+    </a>
+    {showHeader && <slot name="header" />}
+    <main id="main-content" class="overflow-x-hidden" data-pagefind-body>
+      <slot />
+    </main>
+    {showFooter && <slot name="footer" />}
+    <FeedbackWidget apiUrl={Astro.url.origin} />
+    {enableScrollReveal && <script is:inline set:html={scrollRevealScript} />}
+  </body>
+</html>

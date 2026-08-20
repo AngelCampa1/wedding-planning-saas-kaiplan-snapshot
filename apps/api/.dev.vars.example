@@ -1,0 +1,38 @@
+# Required
+BETTER_AUTH_SECRET=your-better-auth-secret-here
+BETTER_AUTH_URL=http://localhost:5030
+APP_URL=http://localhost:3030
+EMAIL_FROM_ADDRESS=noreply@example.com
+EMAIL_TOKEN_SECRET=your-email-token-secret-here
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_STARTER_PRICE_ID=price_...
+STRIPE_PRO_PRICE_ID=price_...
+STRIPE_LIFETIME_PRICE_ID=price_...
+STRIPE_STARTER_ANNUAL_PRICE_ID=price_...
+STRIPE_PRO_ANNUAL_PRICE_ID=price_...
+STRIPE_CHECKOUT_SUCCESS_URL=http://localhost:3030/dashboard?checkout=success
+STRIPE_CHECKOUT_CANCEL_URL=http://localhost:3030/pricing
+STRIPE_PORTAL_RETURN_URL=http://localhost:3030/settings/billing
+
+# Optional
+DATABASE_URL=postgresql://...
+PUBLIC_WEB_URL=http://localhost:4321
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+EMAIL_REPLY_TO_ADDRESS=
+RESEND_API_KEY=
+# Cloudflare Images is optional. When these are unset the wedding-website hero
+# image upload endpoint returns a 503; every other request is unaffected.
+CLOUDFLARE_IMAGES_ACCOUNT_ID=your-account-id
+CLOUDFLARE_IMAGES_API_TOKEN=your-api-token
+CLOUDFLARE_IMAGES_DELIVERY_BASE_URL=https://imagedelivery.net/your-hash
+CLOUDFLARE_IMAGES_DIRECT_UPLOAD_TTL_SECONDS=600
+FEEDBACK_RECIPIENT_EMAIL=
+TURNSTILE_SECRET_KEY=
+PUBLIC_RSVP_HONEYPOT_FIELD=website
+PUBLIC_RSVP_TURNSTILE_FIELD=turnstileToken
+PUBLIC_RSVP_REQUIRE_TURNSTILE=false
+E2E_MODE=
+ENVIRONMENT=development
+SENTRY_DSN=

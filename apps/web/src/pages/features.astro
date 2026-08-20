@@ -1,0 +1,372 @@
+---
+export const prerender = true;
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+import { screenshotPlates } from "@/assets/screenshots/v2/manifest";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import { kaiplanOffering } from "@kaiplan/knowledge";
+import { publicSiteCopy } from "@kaiplan/knowledge/marketing";
+
+const featurePlateKeys = [
+  "budget-ledger",
+  "guest-list",
+  "seating-chart",
+  "vendor-tracker",
+  "wedding-website",
+  "milestone-checklist",
+] as const;
+
+const orderedChapters = featurePlateKeys.map((key) => {
+  const plate = screenshotPlates.find((p) => p.key === key);
+  if (!plate) {
+    throw new Error(`Missing plate for key ${key}`);
+  }
+  return { key, plate, chapter: kaiplanOffering.featureChapters[key] };
+});
+
+const matrixRows = kaiplanOffering.featureMatrix.map((row) => ({
+  feature: row.label,
+  starter: row.availability.starter,
+  pro: row.availability.pro,
+  lifetime: row.availability.lifetime,
+}));
+
+const openAppUrl = buildAppSignupUrl();
+---
+
+<LandingLayout
+  config={siteConfig}
+  description="Explore the connected Kaiplan workspace for wedding budget, guests, RSVP, seating, vendors, website, and checklist planning without vendor ads."
+  title="Connected Wedding Planning Features | Kaiplan"
+  canonicalPath="/features/"
+>
+  <article class="editorial-shell" data-page="features">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="features-headline">
+      <div class="hero__grid">
+        <div class="hero__primary">
+          <p class="editorial-eyebrow">Features</p>
+          <h1 id="features-headline" class="editorial-display-l hero__headline">
+            Everything stays connected.
+          </h1>
+        </div>
+        <div class="hero__lede-band">
+          <p class="editorial-lede hero__lede">
+            Budget, guests, RSVP, seating, vendors, wedding website, and
+            checklist live in one planning workspace for couples and the people
+            helping them plan.
+          </p>
+          <p class="hero__cta">
+            <a class="editorial-link" href={openAppUrl}>
+              Start planning <span aria-hidden="true">-&gt;</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- SIX FEATURE CHAPTERS: alternating plate-above / plate-below rhythm -->
+    {
+      orderedChapters.map(({ key, plate, chapter }, index) => {
+        const plateAbove = index % 2 === 0;
+        const figLazy = index === 0 ? "eager" : "lazy";
+        const headingId = `chapter-${chapter.numeral.replace(".", "").toLowerCase()}-heading`;
+        return (
+          <>
+            <section
+              class="editorial-chapter feature-chapter"
+              data-chapter={chapter.numeral}
+              data-feature={key}
+              aria-labelledby={headingId}
+              id={key}
+            >
+              <p class="editorial-eyebrow">{chapter.eyebrow}</p>
+              <h2
+                id={headingId}
+                class="editorial-display-m feature-chapter__title"
+              >
+                <em>{chapter.title}</em>
+              </h2>
+
+              {plateAbove && (
+                <figure class="editorial-figure feature-chapter__plate">
+                  <Image
+                    src={plate.srcLarge}
+                    alt={plate.alt}
+                    widths={[640, 960, 1280, 1920]}
+                    sizes="(min-width: 80rem) 1280px, 100vw"
+                    loading={figLazy}
+                  />
+                  <figcaption>
+                    <em>
+                      {plate.figNumber}: {plate.caption}
+                    </em>
+                  </figcaption>
+                </figure>
+              )}
+
+              <p class="editorial-body feature-chapter__body">{chapter.body}</p>
+
+              {!plateAbove && (
+                <figure class="editorial-figure feature-chapter__plate">
+                  <Image
+                    src={plate.srcLarge}
+                    alt={plate.alt}
+                    widths={[640, 960, 1280, 1920]}
+                    sizes="(min-width: 80rem) 1280px, 100vw"
+                    loading={figLazy}
+                  />
+                  <figcaption>
+                    <em>
+                      {plate.figNumber}: {plate.caption}
+                    </em>
+                  </figcaption>
+                </figure>
+              )}
+
+              <hr
+                class="editorial-rule feature-chapter__sub-rule"
+                aria-hidden="true"
+              />
+              <p class="editorial-eyebrow">What it does</p>
+              <ul class="editorial-spread__list feature-chapter__list">
+                {chapter.whatItDoes.map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+            </section>
+            <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+          </>
+        );
+      })
+    }
+
+    <!-- THE MATRIX -->
+    <section
+      class="editorial-chapter chapter"
+      data-chapter="✦"
+      aria-labelledby="matrix-heading"
+      id="matrix"
+    >
+      <p class="editorial-eyebrow">The matrix</p>
+      <h2 id="matrix-heading" class="editorial-display-l chapter__title">
+        <em>What lives in which plan.</em>
+      </h2>
+      <p class="editorial-lede chapter__lede">
+        Starter covers the core planning workflows. Pro and Lifetime add the
+        connected vendor and website tools that keep more of the wedding in one
+        workspace.
+      </p>
+
+      <div class="matrix-wrap">
+        <table class="editorial-matrix" aria-label="Plan comparison matrix">
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Starter</th>
+              <th scope="col">Pro</th>
+              <th scope="col">Lifetime</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              matrixRows.map((row) => (
+                <tr>
+                  <td>{row.feature}</td>
+                  <td data-column-label="Starter">
+                    {row.starter ? (
+                      row.starter
+                    ) : (
+                      <span
+                        class="editorial-matrix__absent"
+                        aria-label="Not included"
+                      >
+                        Not included
+                      </span>
+                    )}
+                  </td>
+                  <td data-column-label="Pro">
+                    {row.pro ? (
+                      row.pro
+                    ) : (
+                      <span
+                        class="editorial-matrix__absent"
+                        aria-label="Not included"
+                      >
+                        Not included
+                      </span>
+                    )}
+                  </td>
+                  <td data-column-label="Lifetime">
+                    {row.lifetime ? (
+                      row.lifetime
+                    ) : (
+                      <span
+                        class="editorial-matrix__absent"
+                        aria-label="Not included"
+                      >
+                        Not included
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="editorial-caption matrix-footnote">
+        {publicSiteCopy.pricingTrialBannerText}
+      </p>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- CLOSING CTA -->
+    <section class="closing" aria-label="Start planning">
+      <p class="editorial-body closing__line">
+        Ready to see what changes when the plan lives in one place?{" "}
+        <a class="editorial-link" href={openAppUrl}>
+          <em>Start your free planning trial -&gt;</em>
+        </a>
+      </p>
+    </section>
+  </article>
+</LandingLayout>
+
+<style>
+  /* Page-local rhythm only. Every visual treatment lives in editorial.css. */
+
+  [data-page="features"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .hero {
+    padding-block: clamp(1.5rem, 5vw, 3.5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .hero__primary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hero__headline {
+    line-height: 0.98;
+  }
+
+  .hero__headline em {
+    font-style: italic;
+    font-weight: inherit;
+  }
+
+  .hero__lede-band {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .hero__lede {
+    max-width: 38ch;
+  }
+
+  .hero__cta {
+    margin: 0;
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+  }
+
+  @media (min-width: 64rem) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 4rem);
+    }
+    .hero__lede-band {
+      text-align: right;
+      align-items: flex-end;
+    }
+    .hero__lede {
+      text-align: right;
+      max-width: 32ch;
+    }
+  }
+
+  .chapter-rule {
+    margin-block: clamp(2rem, 5vw, 3.5rem) 0;
+  }
+
+  .chapter {
+    padding-block-end: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .chapter__title {
+    margin-top: 1rem;
+  }
+
+  .chapter__lede {
+    margin-top: 1rem;
+  }
+
+  .feature-chapter {
+    padding-block-end: clamp(2rem, 5vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  .feature-chapter__title {
+    margin: 0;
+  }
+
+  .feature-chapter__plate {
+    margin: 0;
+  }
+
+  .feature-chapter__body {
+    /* Single-column 62ch reading width is enforced by .editorial-body */
+    margin: 0;
+  }
+
+  .feature-chapter__sub-rule {
+    margin-block: 0.5rem 0;
+    max-width: 18rem;
+  }
+
+  .feature-chapter__list {
+    margin-top: 0.5rem;
+    max-width: 38rem;
+  }
+
+  .matrix-wrap {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .matrix-footnote {
+    margin-top: 1rem;
+    max-width: 62ch;
+  }
+
+  .closing {
+    padding-block: clamp(1rem, 3vw, 2rem);
+  }
+
+  .closing__line {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  }
+</style>

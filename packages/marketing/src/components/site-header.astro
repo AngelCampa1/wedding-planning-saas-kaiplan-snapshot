@@ -1,0 +1,487 @@
+---
+/**
+ * Editorial masthead (Wave 2 — Kaiplan overhaul).
+ *
+ * Replaces the previous SaaS-style sticky header. Renders as a magazine
+ * masthead: lowercase italic wordmark on the left, italic issue stamp +
+ * editorial nav on the right, hairline rule below. The mobile breakpoint
+ * collapses the nav into a single hamburger affordance that opens an
+ * oversized italic overlay (full-bleed paper background).
+ *
+ * The component still accepts the legacy `siteName`, `navItems`,
+ * `ctaText`, `ctaHref`, etc. props so existing layout consumers keep
+ * working unchanged. Logo props render the Kaiplan wedding wordmark when
+ * present; mobile CTA and variant props remain accepted for compatibility.
+ */
+interface Props {
+  siteName: string;
+  navItems?: {
+    label: string;
+    href: string;
+    megaMenu?: {
+      groups: {
+        heading: string;
+        links: { label: string; href: string; description?: string }[];
+      }[];
+    };
+  }[];
+  ctaText: string;
+  ctaHref?: string;
+  mobileCtaEyebrow?: string;
+  ctaVariant?: "primary" | "secondary";
+  logoLight?: string;
+  logoDark?: string;
+  logoWidth?: number;
+  /** Issue stamp printed on the right (e.g. "No. 01 — Spring 2026"). */
+  issueStamp?: string;
+}
+
+const {
+  siteName,
+  navItems = [],
+  ctaText,
+  ctaHref = "/#signup",
+  logoLight,
+  logoDark,
+  issueStamp = "No. 01 — Spring 2026",
+} = Astro.props;
+
+const wordmark = siteName.toLowerCase();
+const mastheadLogo = logoLight ?? logoDark;
+const mobileOverlayLogo = logoDark ?? logoLight;
+---
+
+<header id="site-header" class="editorial-shell" data-editorial-masthead>
+  <div class="editorial-masthead">
+    <a href="/" data-masthead-wordmark aria-label={`${siteName} home`}>
+      {
+        mastheadLogo ? (
+          <img
+            src={mastheadLogo}
+            alt={`${siteName} wedding planning`}
+            class="editorial-masthead-logo"
+            width="150"
+            height="40"
+            loading="eager"
+            decoding="async"
+          />
+        ) : (
+          wordmark
+        )
+      }
+    </a>
+
+    <nav data-masthead-nav aria-label="Main navigation">
+      {
+        navItems.map((item) =>
+          item.megaMenu ? (
+            <div class="editorial-megamenu" data-editorial-megamenu>
+              <a
+                href={item.href}
+                class="editorial-link editorial-megamenu__trigger"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                {item.label}
+              </a>
+              <div
+                class="editorial-megamenu__panel"
+                data-editorial-megamenu-panel
+              >
+                {item.megaMenu.groups.map((group) => (
+                  <section class="editorial-megamenu__group">
+                    <p class="editorial-megamenu__heading">{group.heading}</p>
+                    <ul class="editorial-megamenu__links">
+                      {group.links.map((link) => (
+                        <li>
+                          <a href={link.href}>
+                            <span>{link.label}</span>
+                            {link.description && (
+                              <small>{link.description}</small>
+                            )}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <a href={item.href} class="editorial-link">
+              {item.label}
+            </a>
+          ),
+        )
+      }
+      <a href={ctaHref} class="editorial-link">
+        {ctaText}
+        <span aria-hidden="true">→</span>
+      </a>
+    </nav>
+
+    <span data-masthead-stamp aria-hidden="true">{issueStamp}</span>
+
+    <button
+      type="button"
+      class="editorial-mobile-nav-trigger"
+      data-editorial-nav-trigger
+      aria-controls="editorial-mobile-nav"
+      aria-expanded="false"
+      aria-label="Open navigation"
+    >
+      menu
+    </button>
+  </div>
+
+  <nav
+    id="editorial-mobile-nav"
+    class="editorial-mobile-nav-overlay"
+    data-editorial-nav-overlay
+    aria-label="Mobile navigation"
+    hidden
+  >
+    <div class="editorial-mobile-nav-overlay__head">
+      <a
+        href="/"
+        class="editorial-mobile-nav-overlay__wordmark"
+        aria-label={`${siteName} home`}
+      >
+        {
+          mobileOverlayLogo ? (
+            <img
+              src={mobileOverlayLogo}
+              alt={`${siteName} wedding planning`}
+              class="editorial-masthead-logo"
+              width="150"
+              height="40"
+              loading="eager"
+              decoding="async"
+            />
+          ) : (
+            wordmark
+          )
+        }
+      </a>
+      <button
+        type="button"
+        class="editorial-mobile-nav-overlay__close"
+        data-editorial-nav-close
+        aria-label="Close navigation"
+      >
+        close
+      </button>
+    </div>
+
+    <ul class="editorial-mobile-nav-overlay__list">
+      {
+        navItems.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+            {item.megaMenu && (
+              <details class="editorial-mobile-nav-overlay__group">
+                <summary>
+                  <span>Browse {item.label}</span>
+                </summary>
+                {item.megaMenu.groups.map((group) => (
+                  <section>
+                    <p>{group.heading}</p>
+                    <ul>
+                      {group.links.map((link) => (
+                        <li>
+                          <a href={link.href}>{link.label}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </details>
+            )}
+          </li>
+        ))
+      }
+      <li>
+        <a href={ctaHref}>
+          {ctaText}
+          <span aria-hidden="true">→</span>
+        </a>
+      </li>
+    </ul>
+
+    <p class="editorial-mobile-nav-overlay__cta">
+      <em>{issueStamp}</em>
+    </p>
+  </nav>
+
+  <div class="editorial-masthead-utilities" hidden>
+    <slot name="theme-toggle" />
+    <slot name="search" />
+  </div>
+</header>
+
+<script>
+  import { initEditorialMobileNav } from "../lib/editorial-mobile-nav";
+
+  const root = document.getElementById("site-header");
+  if (root) {
+    const cleanup = initEditorialMobileNav(root);
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        cleanup();
+      },
+      { once: true },
+    );
+
+    const megaMenus = root.querySelectorAll<HTMLElement>(
+      "[data-editorial-megamenu]",
+    );
+    const hasHover = window.matchMedia("(hover: hover)").matches;
+    megaMenus.forEach((menu) => {
+      const panel = menu.querySelector<HTMLElement>(
+        "[data-editorial-megamenu-panel]",
+      );
+      const trigger = menu.querySelector<HTMLElement>(
+        ".editorial-megamenu__trigger",
+      );
+      let closeTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const cancel = () => {
+        if (closeTimer !== null) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+      };
+
+      const setOpen = (open: boolean) => {
+        if (open) {
+          menu.setAttribute("data-open", "");
+        } else {
+          menu.removeAttribute("data-open");
+        }
+        trigger?.setAttribute("aria-expanded", open ? "true" : "false");
+      };
+
+      const scheduleClose = () => {
+        closeTimer = setTimeout(() => {
+          setOpen(false);
+        }, 150);
+      };
+
+      trigger?.setAttribute("aria-expanded", "false");
+
+      if (hasHover) {
+        menu.addEventListener("mouseenter", () => {
+          cancel();
+          setOpen(true);
+        });
+        menu.addEventListener("mouseleave", scheduleClose);
+
+        if (panel) {
+          panel.addEventListener("mouseenter", cancel);
+          panel.addEventListener("mouseleave", scheduleClose);
+        }
+      }
+
+      if (trigger && !hasHover) {
+        trigger.addEventListener("click", (e) => {
+          e.preventDefault();
+          cancel();
+          setOpen(!menu.hasAttribute("data-open"));
+        });
+
+        document.addEventListener("click", (e) => {
+          if (
+            !hasHover &&
+            menu.hasAttribute("data-open") &&
+            !menu.contains(e.target as Node)
+          ) {
+            setOpen(false);
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (
+            !hasHover &&
+            e.key === "Escape" &&
+            menu.hasAttribute("data-open")
+          ) {
+            setOpen(false);
+          }
+        });
+      }
+
+      menu.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") setOpen(false);
+      });
+    });
+  }
+</script>
+
+<style>
+  .editorial-megamenu {
+    position: relative;
+  }
+
+  .editorial-masthead-logo {
+    display: block;
+    width: auto;
+    height: clamp(2rem, 4vw, 2.6rem);
+  }
+
+  .editorial-megamenu__trigger::after {
+    content: "";
+    display: inline-block;
+    width: 0.35rem;
+    height: 0.35rem;
+    margin-left: 0.35rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-0.12rem) rotate(45deg);
+  }
+
+  .editorial-megamenu__panel {
+    position: fixed;
+    top: 4.5rem;
+    right: max(1rem, calc((100vw - 72rem) / 2));
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(10rem, 1fr));
+    gap: 1rem 1.25rem;
+    width: min(56rem, calc(100vw - 2rem));
+    max-height: min(72vh, 42rem);
+    overflow: auto;
+    padding: 1.25rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    box-shadow: 0 1.5rem 3rem rgb(23 19 17 / 0.14);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-0.35rem);
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+  }
+
+  .editorial-megamenu[data-open] .editorial-megamenu__panel,
+  .editorial-megamenu:focus-within .editorial-megamenu__panel {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .editorial-megamenu__heading {
+    margin: 0 0 0.55rem;
+    font-family: var(--font-editorial-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .editorial-megamenu__links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .editorial-megamenu__links a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .editorial-megamenu__links a:hover,
+  .editorial-megamenu__links a:focus-visible {
+    color: var(--terracotta);
+    outline: none;
+  }
+
+  .editorial-megamenu__links small {
+    font-family: var(--font-editorial-body);
+    font-size: 0.76rem;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+
+  .editorial-mobile-nav-overlay__group {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem 0 0.5rem;
+    border-top: 1px solid rgb(245 241 234 / 0.22);
+  }
+
+  .editorial-mobile-nav-overlay__group summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 0.5rem;
+    font-family: var(--font-editorial-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--paper-deep);
+  }
+
+  .editorial-mobile-nav-overlay__group summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .editorial-mobile-nav-overlay__group summary::after {
+    content: "+";
+    float: right;
+  }
+
+  .editorial-mobile-nav-overlay__group[open] summary::after {
+    content: "−";
+  }
+
+  .editorial-mobile-nav-overlay__group p {
+    margin: 0 0 0.45rem;
+    font-family: var(--font-editorial-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--paper-deep);
+  }
+
+  .editorial-mobile-nav-overlay__group section:first-of-type {
+    margin-top: 1rem;
+  }
+
+  .editorial-mobile-nav-overlay__group section + section {
+    margin-top: 1rem;
+  }
+
+  .editorial-mobile-nav-overlay__group ul {
+    display: grid;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .editorial-mobile-nav-overlay__group a {
+    font-size: clamp(1rem, 4vw, 1.3rem);
+  }
+
+  @media (max-width: 63.99rem) {
+    .editorial-megamenu__panel {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .editorial-megamenu__panel {
+      transition: none;
+    }
+  }
+</style>

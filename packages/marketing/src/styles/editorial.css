@@ -1,0 +1,954 @@
+/* ===================================================================
+   EDITORIAL PRIMITIVES (Wave 0)
+   ===================================================================
+   Magazine-grade layout, type, and figure primitives. Every class is
+   scoped to the .editorial-* namespace so it can land alongside the
+   legacy marketing-* utilities while waves 2-5 migrate pages.
+
+   Tokens consumed:
+     --paper, --paper-deep, --ink, --ink-soft, --rule,
+     --terracotta, --terracotta-deep, --clay, --moss
+     --font-editorial-display, --font-editorial-body, --font-editorial-mono
+   =================================================================== */
+
+/* ── Global overflow guard ─────────────────────────────────────────── */
+/* overflow-x: clip prevents horizontal scrollbar from full-bleed elements.
+   Unlike overflow: hidden, it does not create a scroll container, so
+   position: sticky elements work normally. Note: technically creates a new
+   containing block for position: fixed elements, but since html fills the
+   viewport, fixed-positioned elements remain visually viewport-anchored. */
+html {
+  overflow-x: clip;
+}
+
+/* ── Shell + grid ──────────────────────────────────────────────────── */
+
+.editorial-shell {
+  width: min(100%, 80rem); /* 1280px */
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  position: relative;
+}
+
+.editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(1rem, 2vw, 1.5rem);
+  row-gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* ── Display type ──────────────────────────────────────────────────── */
+
+.editorial-display-xl,
+.editorial-display-l,
+.editorial-display-m {
+  font-family: var(--font-editorial-display);
+  font-weight: 400;
+  color: var(--ink);
+  text-wrap: balance;
+  margin: 0;
+}
+
+.editorial-display-xl {
+  font-size: clamp(4rem, 12vw, 9.5rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.editorial-display-l {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+.editorial-display-m {
+  font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+  line-height: 1.05;
+}
+
+.editorial-italic {
+  font-style: italic;
+  font-weight: inherit;
+}
+
+/* ── Body type ─────────────────────────────────────────────────────── */
+
+.editorial-lede {
+  font-family: var(--font-editorial-body);
+  font-size: clamp(1.125rem, 1.6vw, 1.4rem);
+  line-height: 1.5;
+  max-width: 50ch;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.editorial-body {
+  font-family: var(--font-editorial-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 62ch;
+  color: var(--ink);
+  margin: 0;
+}
+
+.editorial-caption {
+  font-family: var(--font-editorial-body);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.editorial-eyebrow {
+  font-family: var(--font-editorial-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* ── Hairline rule ─────────────────────────────────────────────────── */
+
+.editorial-rule {
+  border: 0;
+  height: 1px;
+  background: var(--rule);
+  /* Margin intentionally left to context — section-specific spacing
+     lives on the parent. */
+}
+
+/* ── Roman-numeral chapter ─────────────────────────────────────────── */
+
+.editorial-chapter {
+  position: relative;
+  padding-top: clamp(2rem, 4vw, 3rem);
+}
+
+.editorial-chapter::before {
+  content: attr(data-chapter);
+  display: block;
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+@media (min-width: 64rem) {
+  /* On wide viewports the numeral hangs into the left margin so the body
+     text aligns with the editorial column. */
+  .editorial-chapter {
+    padding-left: clamp(4rem, 8vw, 7rem);
+  }
+  .editorial-chapter::before {
+    position: absolute;
+    top: clamp(2rem, 4vw, 3rem);
+    left: 0;
+    width: clamp(3rem, 6vw, 5rem);
+    text-align: right;
+    margin-bottom: 0;
+  }
+}
+
+/* ── Pull quote ────────────────────────────────────────────────────── */
+
+.editorial-pullquote {
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.15;
+  color: var(--ink);
+  max-width: 32ch;
+  margin: 0;
+  position: relative;
+  padding-left: 0.4em;
+  /* Use real curly quotes so ::before content: open-quote resolves
+     against the document language. */
+  quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+.editorial-pullquote::before {
+  content: open-quote;
+  position: absolute;
+  top: -0.05em;
+  left: -0.6em;
+  font-size: 1.4em;
+  line-height: 1;
+  color: var(--terracotta);
+  font-style: italic;
+}
+
+@media (min-width: 64rem) {
+  /* Hang the oversized opening glyph into the gutter on wider screens. */
+  .editorial-pullquote {
+    padding-left: 0;
+  }
+  .editorial-pullquote::before {
+    left: -1em;
+  }
+}
+
+/* ── Figure / plate ────────────────────────────────────────────────── */
+
+.editorial-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.editorial-figure > img,
+.editorial-figure > picture > img,
+.editorial-figure > video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #ffffff;
+  border: 1px solid var(--rule);
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.editorial-figure > figcaption {
+  font-family: var(--font-editorial-body);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* ── Links ─────────────────────────────────────────────────────────── */
+
+.editorial-link {
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-decoration-color: var(--terracotta);
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  transition:
+    text-decoration-thickness 200ms ease,
+    color 200ms ease;
+}
+
+.editorial-link:hover,
+.editorial-link:focus-visible {
+  color: var(--terracotta-deep);
+  text-decoration-color: var(--terracotta-deep);
+  text-decoration-thickness: 2px;
+}
+
+/* ── Masthead ──────────────────────────────────────────────────────── */
+
+.editorial-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(1rem, 3vw, 2rem);
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-editorial-body);
+}
+
+.editorial-masthead > [data-masthead-wordmark] {
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  line-height: 1;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.editorial-masthead > [data-masthead-nav] {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  font-size: 0.875rem;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .editorial-masthead [data-masthead-nav] a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 0;
+  }
+}
+
+.editorial-masthead > [data-masthead-stamp] {
+  font-family: var(--font-editorial-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* ── Colophon (footer) ─────────────────────────────────────────────── */
+
+.editorial-colophon {
+  border-top: 1px solid var(--rule);
+  padding-block: clamp(1.5rem, 3vw, 2.5rem);
+  font-family: var(--font-editorial-body);
+  font-style: italic;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.editorial-colophon a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.editorial-colophon__links a,
+.editorial-colophon__legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 0.25rem;
+}
+
+.editorial-colophon a:hover,
+.editorial-colophon a:focus-visible {
+  color: var(--terracotta-deep);
+  text-decoration-thickness: 2px;
+}
+
+/* ── Mobile nav overlay (paper background, oversized italic links) ── */
+
+.editorial-mobile-nav-trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 0;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.editorial-mobile-nav-trigger:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+@media (max-width: 47.99rem) {
+  .editorial-mobile-nav-trigger {
+    display: inline-flex;
+  }
+  .editorial-masthead > [data-masthead-nav] {
+    display: none;
+  }
+}
+
+.editorial-mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.25rem, 5vw, 2.5rem);
+  padding-bottom: max(clamp(1.25rem, 5vw, 2.5rem), env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.editorial-mobile-nav-overlay[hidden] {
+  display: none;
+}
+
+.editorial-mobile-nav-overlay__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgb(245 241 234 / 0.22);
+  font-family: var(--font-editorial-body);
+}
+
+.editorial-mobile-nav-overlay__wordmark {
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.editorial-mobile-nav-overlay__close {
+  background: transparent;
+  border: 0;
+  font-family: var(--font-editorial-body);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--paper);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.5rem 0.75rem;
+}
+
+.editorial-mobile-nav-overlay__close:focus-visible {
+  outline: 1px solid var(--paper);
+  outline-offset: 4px;
+}
+
+.editorial-mobile-nav-overlay__list {
+  list-style: none;
+  margin: 0;
+  padding: clamp(2rem, 8vw, 3.5rem) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+.editorial-mobile-nav-overlay__list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-size: clamp(2rem, 9vw, 3rem);
+  line-height: 1.1;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.editorial-mobile-nav-overlay__list a:focus-visible {
+  outline: 1px solid var(--paper);
+  outline-offset: 4px;
+}
+
+.editorial-mobile-nav-overlay__cta {
+  margin-top: auto;
+  padding-top: 2rem;
+  border-top: 1px solid rgb(245 241 234 / 0.22);
+  font-family: var(--font-editorial-body);
+  font-size: 1rem;
+  color: var(--paper-deep);
+}
+
+/* ── Feature spread (alternating image/body row) ───────────────────── */
+
+.editorial-spread {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: 1fr;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.editorial-spread:last-of-type {
+  border-bottom: 0;
+}
+
+@media (min-width: 48rem) {
+  .editorial-spread {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+  .editorial-spread[data-flip="true"] .editorial-spread__figure {
+    order: 2;
+  }
+}
+
+.editorial-spread__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 38ch;
+}
+
+.editorial-spread__list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.editorial-spread__list li {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.editorial-spread__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ── Numbered chapter list (Roman numerals hanging in the margin) ── */
+
+.editorial-numbered-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.editorial-numbered-list > li {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  border-top: 1px solid var(--rule);
+  padding-top: clamp(1.5rem, 3vw, 2rem);
+}
+
+.editorial-numbered-list > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.editorial-numbered-list__numeral {
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  line-height: 1;
+  color: var(--ink);
+}
+
+.editorial-numbered-list__title {
+  font-family: var(--font-editorial-display);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 0 0 0.75rem;
+  font-weight: 400;
+}
+
+.editorial-numbered-list__body {
+  font-family: var(--font-editorial-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+
+@media (min-width: 48rem) {
+  .editorial-numbered-list > li {
+    grid-template-columns: minmax(4rem, 6rem) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+}
+
+/* ── Pricing spread (typeset magazine page) ───────────────────────── */
+
+.editorial-price-spread {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.editorial-price-spread__column {
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2vw, 1.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.editorial-price-spread__column:first-child {
+  border-top: 0;
+}
+
+@media (min-width: 48rem) {
+  .editorial-price-spread {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .editorial-price-spread__column {
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+  }
+  .editorial-price-spread__column:first-child {
+    border-left: 0;
+  }
+}
+
+.editorial-price-spread__name {
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1;
+  color: var(--ink);
+  margin: 0;
+  font-weight: 400;
+}
+
+.editorial-price-spread__price {
+  font-family: var(--font-editorial-mono);
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 0;
+}
+
+.editorial-price-spread__editor-pick {
+  display: inline-block;
+  border: 1px solid var(--rule);
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  align-self: flex-start;
+}
+
+.editorial-price-spread__features {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.editorial-price-spread__features li {
+  position: relative;
+  padding-left: 1rem;
+  text-indent: -1rem;
+}
+
+.editorial-price-spread__features li::before {
+  content: "—";
+  display: inline-block;
+  width: 1rem;
+  color: var(--ink);
+}
+
+.editorial-price-spread__cta {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+/* Pricing tab pair — hairline tabs replacing the on/off switch. */
+
+.editorial-tabs {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  border-radius: 9999px;
+  overflow: hidden;
+  font-family: var(--font-editorial-body);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editorial-tabs__btn {
+  background: transparent;
+  border: 0;
+  padding: 0.5rem 1rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.editorial-tabs__btn + .editorial-tabs__btn {
+  border-left: 1px solid var(--rule);
+}
+
+.editorial-tabs__btn[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.editorial-tabs__btn:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ── FAQ editorial Q&A ────────────────────────────────────────────── */
+
+.editorial-qa {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorial-qa > li {
+  border-top: 1px solid var(--rule);
+  padding-block: clamp(1.5rem, 3vw, 2rem);
+}
+
+.editorial-qa > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.editorial-qa details {
+  display: block;
+}
+
+.editorial-qa summary {
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0;
+  padding-right: 2.5rem;
+  position: relative;
+}
+
+.editorial-qa summary::-webkit-details-marker {
+  display: none;
+}
+
+.editorial-qa summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 0.1em;
+  font-family: var(--font-editorial-display);
+  font-style: normal;
+  font-size: 1.5rem;
+  color: var(--ink-soft);
+  transition: transform 200ms ease;
+}
+
+.editorial-qa details[open] > summary::after {
+  content: "—";
+}
+
+.editorial-qa summary:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.editorial-qa__answer {
+  font-family: var(--font-editorial-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 62ch;
+  margin: 1rem 0 0;
+}
+
+/* ── Subscribe form (colophon dispatch) ───────────────────────────── */
+
+.editorial-subscribe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 22rem;
+}
+
+@media (min-width: 32rem) {
+  .editorial-subscribe {
+    flex-direction: row;
+  }
+}
+
+.editorial-subscribe__input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0;
+  font-family: var(--font-editorial-body);
+  font-size: 1rem;
+  min-height: 44px;
+  color: var(--ink);
+  font-style: italic;
+}
+
+.editorial-subscribe__input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--terracotta);
+}
+
+.editorial-subscribe__input::placeholder {
+  color: var(--ink-soft);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.editorial-subscribe__submit {
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-editorial-body);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.editorial-subscribe__submit:hover,
+.editorial-subscribe__submit:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: none;
+}
+
+/* ── Typeset matrix (Wave 3 — features comparison) ───────────────── */
+
+/* A magazine-grade comparison matrix: hairline column rules between
+   tier columns, italic display headers, no row stripes, no checkmark
+   circles. Tier "yes" cells render concise text; "absent" cells use a
+   small italic em-dash. Designed to read like a typeset spread page.
+
+   Mobile (<48rem) collapses each row into a stacked record so the
+   tier values stack under the feature label without horizontal scroll. */
+
+.editorial-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-editorial-body);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.editorial-matrix thead th {
+  font-family: var(--font-editorial-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.125rem, 1.6vw, 1.4rem);
+  text-align: left;
+  color: var(--ink);
+  padding: 1rem 1.25rem 1rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: bottom;
+}
+
+.editorial-matrix thead th + th {
+  border-left: 1px solid var(--rule);
+  padding-left: 1.25rem;
+  text-align: center;
+}
+
+.editorial-matrix tbody td {
+  padding: 0.875rem 1.25rem 0.875rem 0;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+  vertical-align: top;
+}
+
+.editorial-matrix tbody td:first-child {
+  font-family: var(--font-editorial-body);
+  color: var(--ink);
+  width: 40%;
+}
+
+.editorial-matrix tbody td + td {
+  border-left: 1px solid var(--rule);
+  padding-left: 1.25rem;
+  text-align: center;
+}
+
+.editorial-matrix tbody tr:first-child td {
+  border-top: 0;
+}
+
+.editorial-matrix__absent {
+  font-style: italic;
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+
+@media (max-width: 47.99rem) {
+  /* Collapse the tier columns into stacked records so 375px viewports
+     don't horizontally scroll. The data-column-label attribute on
+     each cell holds the tier name to render as an inline italic
+     prefix. */
+  .editorial-matrix,
+  .editorial-matrix thead,
+  .editorial-matrix tbody,
+  .editorial-matrix tr,
+  .editorial-matrix td,
+  .editorial-matrix th {
+    display: block;
+    width: 100%;
+  }
+  .editorial-matrix thead {
+    /* Visually hidden header — the matrix relabels each cell on mobile. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .editorial-matrix tbody tr {
+    border-top: 1px solid var(--rule);
+    padding: 1rem 0;
+  }
+  .editorial-matrix tbody tr:first-child {
+    border-top: 0;
+  }
+  .editorial-matrix tbody td {
+    border: 0;
+    padding: 0.25rem 0;
+    text-align: left;
+  }
+  .editorial-matrix tbody td:first-child {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-size: 1.25rem;
+    line-height: 1.25;
+    color: var(--ink);
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+  .editorial-matrix tbody td + td::before {
+    content: attr(data-column-label) " — ";
+    font-style: italic;
+    color: var(--ink-soft);
+    margin-right: 0.25em;
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-link,
+  .editorial-colophon a,
+  .editorial-qa summary::after,
+  .editorial-subscribe__submit {
+    transition: none;
+  }
+}

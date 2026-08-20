@@ -1,0 +1,58 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "scripts/**/*.ts",
+        "__tests__/scripts/**/*.ts",
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "../../tsconfig.base.json"
+      ],
+      "outputs": []
+    },
+    "lint": {
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.js",
+        "src/**/*.mjs",
+        "eslint.config.*",
+        "../../eslint.config.*",
+        "../../tsconfig.base.json"
+      ],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "scripts/**/*.ts",
+        "__tests__/scripts/**/*.ts",
+        "__tests__/**/*.ts",
+        "__tests__/**/*.tsx",
+        "package.json",
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "vitest.config.*",
+        "../../tsconfig.base.json"
+      ],
+      "outputs": ["coverage/**"]
+    }
+  }
+}

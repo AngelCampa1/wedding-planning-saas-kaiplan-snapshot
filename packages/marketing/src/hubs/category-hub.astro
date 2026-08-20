@@ -1,0 +1,223 @@
+---
+import type {
+  SiteConfig,
+  ContentItem,
+  BreadcrumbItem,
+  FaqItem,
+} from "../types";
+import { resolveCanonicalUrl } from "../lib/collections";
+import { shouldShowFaqsOnPage } from "../lib/hub-utils";
+import { buildCollectionPageSchema } from "../lib/schema-builders";
+import { buildGraph, withId } from "../lib/schema-graph";
+import BaseLayout from "../layouts/base-layout.astro";
+import SiteHeader from "../components/site-header.astro";
+import SiteFooter from "../components/site-footer.astro";
+import BreadcrumbNav from "../components/breadcrumb-nav.astro";
+import ContentCard from "../components/content-card.astro";
+import Pagination from "../components/pagination.astro";
+import FaqSection from "../components/faq-section.astro";
+import SchemaMarkup from "../seo/schema-markup.astro";
+
+interface PageData {
+  data: ContentItem[];
+  currentPage: number;
+  lastPage: number;
+  url: {
+    prev: string | undefined;
+    next: string | undefined;
+  };
+}
+
+interface Props {
+  config: SiteConfig;
+  title: string;
+  description: string;
+  items: ContentItem[];
+  page: PageData;
+  basePath: string;
+  breadcrumbs: BreadcrumbItem[];
+  canonicalUrl?: string;
+  emptyStateHeading?: string;
+  emptyStateBody?: string;
+  faqs?: FaqItem[];
+  faqHeading?: string;
+  eyebrow?: string;
+  variant?: "default" | "editorial";
+}
+
+const {
+  config,
+  title,
+  description,
+  items,
+  page,
+  basePath,
+  breadcrumbs,
+  canonicalUrl,
+  emptyStateHeading = "More content coming soon.",
+  emptyStateBody = "Drop your email below and we'll let you know when we publish new content.",
+  faqs = [],
+  faqHeading,
+  eyebrow,
+  variant = "default",
+} = Astro.props;
+
+const resolvedCanonical =
+  canonicalUrl ??
+  resolveCanonicalUrl(config.domain, basePath, page.currentPage);
+const siteUrl = `https://${config.domain}`;
+const collectionSchema = buildCollectionPageSchema({
+  name: title,
+  description,
+  url: resolvedCanonical,
+  items: items.map((item) => ({
+    name: item.title,
+    description: item.description,
+    url: `${siteUrl}${item.href}`,
+  })),
+});
+const graph = buildGraph([
+  withId(collectionSchema, `${resolvedCanonical}#collection`),
+]);
+---
+
+<BaseLayout
+  title={`${title}${page.currentPage > 1 ? ` - Page ${page.currentPage}` : ""} | ${config.name}`}
+  description={description}
+  canonicalUrl={resolvedCanonical}
+  siteName={config.name}
+  ogType="website"
+  themeColor={config.theme.primary}
+  theme={config.theme}
+  fonts={config.theme.fonts}
+  appleTouchIcon={config.appleTouchIcon}
+>
+  {page.url.prev && <link slot="head" rel="prev" href={page.url.prev} />}
+  {page.url.next && <link slot="head" rel="next" href={page.url.next} />}
+  <SiteHeader
+    slot="header"
+    siteName={config.name}
+    navItems={config.nav?.items}
+    ctaText={config.funnel.bofu.ctaText}
+    ctaHref={config.funnel.bofu.ctaTarget}
+    logoLight={config.logo?.light}
+    logoDark={config.logo?.dark}
+  />
+
+  <div
+    data-hub-layout
+    class:list={[
+      "hub-shell mx-auto px-4 py-[var(--section-py-sm)]",
+      variant === "editorial" ? "max-w-6xl editorial-shell" : "max-w-5xl",
+    ]}
+  >
+    <div class="hub-intro mb-10">
+      <BreadcrumbNav items={breadcrumbs} siteUrl={`https://${config.domain}`} />
+
+      <header
+        data-hub-hero
+        class:list={[
+          "mt-4",
+          variant === "editorial"
+            ? "max-w-[var(--content-measure-wide)]"
+            : "rounded-[var(--radius-xl)] border border-[color-mix(in_srgb,var(--color-neutral-300)_40%,transparent)] bg-[color-mix(in_srgb,var(--surface-primary)_78%,var(--surface-secondary))] px-6 py-7 shadow-[var(--shadow-card)]",
+        ]}
+      >
+        {
+          eyebrow && variant === "editorial" && (
+            <p class="editorial-kicker">{eyebrow}</p>
+          )
+        }
+        <h1
+          class:list={[
+            "font-heading font-bold text-[var(--color-brand-text)]",
+            variant === "editorial"
+              ? "mt-4 text-[length:var(--text-editorial-title)] leading-[1.04]"
+              : "mb-3 text-[length:var(--text-heading)]",
+          ]}
+        >
+          {title}
+        </h1>
+        <p
+          class:list={[
+            "text-[var(--color-brand-muted)]",
+            variant === "editorial"
+              ? "editorial-lede"
+              : "max-w-2xl text-[length:var(--text-body-lg)]",
+          ]}
+        >
+          {description}
+        </p>
+        {
+          page.lastPage > 1 && (
+            <p
+              class:list={[
+                "text-[length:var(--text-caption)] text-[var(--color-neutral-500)]",
+                variant === "editorial"
+                  ? "mt-3 font-mono uppercase tracking-[0.12em]"
+                  : "mt-3 inline-flex rounded-full bg-[color-mix(in_srgb,var(--surface-elevated)_82%,var(--surface-primary))] px-3 py-1",
+              ]}
+            >
+              Page {page.currentPage} of {page.lastPage}
+            </p>
+          )
+        }
+      </header>
+    </div>
+
+    <slot name="intro" />
+    <slot name="filters" />
+
+    {
+      items.length > 0 ? (
+        <section aria-label={`${title} listing`}>
+          <div
+            data-hub-card-grid
+            class="hub-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {items.map((item) => (
+              <ContentCard item={item} />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <div class="rounded-[var(--radius-xl)] border border-[color-mix(in_srgb,var(--color-neutral-300)_40%,transparent)] bg-[color-mix(in_srgb,var(--surface-primary)_80%,var(--surface-secondary))] py-16 text-center text-[var(--color-brand-muted)] shadow-[var(--shadow-card)]">
+          <p class="mb-2 text-[length:var(--text-body-lg)] font-medium">
+            {emptyStateHeading}
+          </p>
+          <p class="text-[length:var(--text-caption)]">{emptyStateBody}</p>
+        </div>
+      )
+    }
+
+    <Pagination
+      currentPage={page.currentPage}
+      totalPages={page.lastPage}
+      basePath={basePath}
+    />
+
+    <slot name="cta" />
+
+    {
+      shouldShowFaqsOnPage(faqs, page.currentPage) && (
+        <FaqSection
+          faqs={faqs}
+          heading={faqHeading}
+          showBottomCta={false}
+          ctaVariant="compact"
+        />
+      )
+    }
+  </div>
+
+  <SiteFooter
+    slot="footer"
+    siteName={config.name}
+    tagline={config.tagline}
+    linkGroups={config.footer?.linkGroups}
+    legalLinks={config.footer?.legalLinks}
+    brandMetrics={config.footer?.brandMetrics}
+    captureVariant="compact"
+  />
+  <SchemaMarkup graph={graph} />
+</BaseLayout>

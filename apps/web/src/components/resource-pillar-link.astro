@@ -1,0 +1,81 @@
+---
+import type { ResourcePillar } from "@/lib/resource-pillars";
+
+interface Props {
+  pillar: ResourcePillar;
+}
+
+const { pillar } = Astro.props;
+---
+
+<aside class="resource-pillar-link" aria-label="Resource hub">
+  <p class="editorial-eyebrow resource-pillar-link__label">
+    Browse this pillar
+  </p>
+  <a class="resource-pillar-link__anchor" href={pillar.href}>
+    <span class="resource-pillar-link__title">
+      <em>{pillar.title}</em>
+    </span>
+    <span class="resource-pillar-link__deck">{pillar.description}</span>
+    <span class="resource-pillar-link__cta" aria-hidden="true">
+      Browse hub &rarr;
+    </span>
+  </a>
+</aside>
+
+<style>
+  .resource-pillar-link {
+    margin-block: clamp(1.5rem, 4vw, 2.5rem);
+    border-block: 1px solid var(--rule);
+    padding-block: clamp(1rem, 2.5vw, 1.5rem);
+  }
+
+  .resource-pillar-link__label {
+    margin-bottom: 0.75rem;
+  }
+
+  .resource-pillar-link__anchor {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.35rem 1.5rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .resource-pillar-link__anchor:hover,
+  .resource-pillar-link__anchor:focus-visible {
+    color: var(--terracotta);
+    outline: none;
+  }
+
+  .resource-pillar-link__anchor:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .resource-pillar-link__title {
+    font-family: var(--font-editorial-display);
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    line-height: 1.25;
+  }
+
+  .resource-pillar-link__deck {
+    font-family: var(--font-editorial-body);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .resource-pillar-link__cta {
+    font-family: var(--font-editorial-body);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .resource-pillar-link__anchor {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+      align-items: baseline;
+    }
+  }
+</style>

@@ -1,0 +1,133 @@
+---
+import "../../../styles/global.css";
+import ListicleLayout from "@kaiplan/marketing/layouts/listicle-layout.astro";
+import FaqSection from "@kaiplan/marketing/components/faq-section.astro";
+import FunnelCta from "@kaiplan/marketing/components/funnel-cta.astro";
+import DecisionCtaCard from "@kaiplan/marketing/components/decision-cta-card.astro";
+import DataTableBlock from "@kaiplan/marketing/seo/data-table-block.astro";
+import AnswerBlock from "@kaiplan/marketing/seo/answer-block.astro";
+import StatisticCitation from "@kaiplan/marketing/seo/statistic-citation.astro";
+import BestWeddingPlanningAppsContent, {
+  frontmatter,
+} from "../../../content/listicles/best-wedding-planning-apps.md";
+import { siteConfig } from "@/config/site";
+import { buildListicleBreadcrumbs } from "@/lib/breadcrumbs";
+import { buildEntrySeoProps, padToolIndex } from "@/lib/page-helpers";
+import { buildKaiplanContentCta } from "@/lib/content-cta";
+
+const {
+  title,
+  description,
+  bluf,
+  buyerStage,
+  publishedAt,
+  updatedAt,
+  tools,
+  faqs,
+  tableData,
+  answers,
+  statistics,
+} = frontmatter;
+const canonicalPath = "/resources/best/best-wedding-planning-apps";
+const breadcrumbs = buildListicleBreadcrumbs(title, canonicalPath);
+const seoProps = buildEntrySeoProps(frontmatter);
+const listicleDecisionCta = buildKaiplanContentCta(siteConfig, {
+  pageFamily: "listicles",
+  buyerStage,
+  placement: "post-table",
+  currentPath: canonicalPath,
+});
+
+type StatisticItem = { stat: string; source: string; sourceUrl?: string };
+type ListicleTool = {
+  name: string;
+  summary: string;
+  pricing: string;
+  verdict: string;
+};
+type AnswerItem = {
+  q?: string;
+  a?: string;
+  question?: string;
+  answer?: string;
+};
+---
+
+<ListicleLayout
+  title={title}
+  description={description}
+  bluf={bluf}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  canonicalPath={canonicalPath}
+  config={siteConfig}
+  breadcrumbs={breadcrumbs}
+  tools={tools}
+  noindex={seoProps.noindex}
+  answers={seoProps.answers}
+  faqs={seoProps.faqs}
+>
+  {
+    statistics?.map((s: StatisticItem) => (
+      <StatisticCitation
+        stat={s.stat}
+        source={s.source}
+        sourceUrl={s.sourceUrl}
+      />
+    ))
+  }
+
+  <DecisionCtaCard slot="intro-cta" {...listicleDecisionCta} />
+
+  <section class="space-y-4">
+    {
+      tools.map((tool: ListicleTool, index: number) => (
+        <article class="rounded-[var(--radius-md)] border border-[var(--color-neutral-200)] p-5">
+          <p class="text-sm font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-primary)]">
+            #{padToolIndex(index)}
+          </p>
+          <h2 class="mt-2 text-2xl font-bold text-[var(--color-brand-text)]">
+            {tool.name}
+          </h2>
+          <p class="mt-3 text-[var(--color-brand-muted)]">{tool.summary}</p>
+          <p class="mt-3 text-sm font-medium text-[var(--color-brand-text)]">
+            Pricing: {tool.pricing}
+          </p>
+          <p class="mt-3 text-[var(--color-brand-text)]">{tool.verdict}</p>
+        </article>
+      ))
+    }
+  </section>
+
+  {
+    tableData && (
+      <DataTableBlock
+        name={tableData.name}
+        columns={tableData.columns}
+        rows={tableData.rows}
+        description={tableData.description}
+      />
+    )
+  }
+
+  <BestWeddingPlanningAppsContent />
+
+  {
+    answers?.map((answer: AnswerItem) => (
+      <AnswerBlock
+        question={answer.q ?? answer.question ?? ""}
+        answer={answer.a ?? answer.answer ?? ""}
+      />
+    ))
+  }
+
+  <FaqSection faqs={faqs} heading="Common Questions" />
+
+  <FunnelCta
+    stage={buyerStage}
+    funnel={siteConfig.funnel}
+    heading="If you already know what matters, start the trial and choose a plan later."
+    benefitBullets={siteConfig.copy?.funnelCta?.benefitBullets}
+    trustNote={siteConfig.funnel.ctaSubtitle}
+  />
+</ListicleLayout>

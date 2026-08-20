@@ -1,0 +1,418 @@
+@import "tailwindcss";
+@import "@kaiplan/marketing/styles/fonts.css";
+@import "@kaiplan/marketing/styles/globals.css";
+@import "@kaiplan/marketing/styles/editorial.css";
+@source "../../../../packages/marketing/src/**/*.{astro,tsx,ts}";
+
+/*
+ * apps/web token surface (Path A of the web token flattening):
+ *
+ * Consumer code (Astro pages under apps/web/src/pages/**, apps/web
+ * components) should use the FLAT semantic tokens exposed below — e.g.
+ * `var(--color-primary)`, `text-primary`, `bg-success-soft`,
+ * `text-muted-foreground` — mirroring the canonical set defined in
+ * `apps/app/src/styles/globals.css`. New code should NOT reach for the
+ * numeric scale tokens (`--color-primary-500`, `--color-accent-700`, …).
+ *
+ * The numeric scale tokens ARE intentionally kept below as plumbing for
+ * the inherited `@kaiplan/marketing/styles/globals.css` CSS, whose
+ * selectors (`.btn-secondary`, `.marketing-panel`, `.marketing-chip`,
+ * `.editorial-*`, `.prose *`, dark-mode block) bind directly to scale
+ * values. Removing them would break the shared marketing CSS.
+ *
+ * Apps/app canonical flat tokens mirrored here:
+ *   --color-primary / --color-primary-foreground
+ *   --color-accent  / --color-accent-foreground
+ *   --color-background / --color-foreground
+ *   --color-muted / --color-muted-foreground
+ *   --color-border / --color-ring
+ *   --color-destructive / --color-destructive-foreground
+ *   --color-accent-hover (web-only extension, see below)
+ *   --color-success / --color-success-foreground / --color-success-soft /
+ *     --color-success-soft-foreground
+ *   --color-warning / --color-warning-foreground / --color-warning-soft /
+ *     --color-warning-soft-foreground
+ *   --color-info / --color-info-foreground / --color-info-soft /
+ *     --color-info-soft-foreground
+ *   --radius-card / --radius-control / --shadow-card / --shadow-floating
+ */
+
+/*
+ * .btn-primary and .btn-secondary are the Astro counterparts to the Shadcn
+ * Button variants defined in apps/app/src/components/ui/button.tsx. They are
+ * deliberately scaled up for marketing-surface CTA prominence (taller
+ * min-height, pill radius) — do NOT attempt to match Button's height. Keep
+ * focus-ring semantics, hover treatment, and token bindings in sync with
+ * Button so keyboard focus, disabled states, and color contracts stay
+ * consistent across the product surface.
+ *
+ * Note: base padding / background / hover are inherited from
+ * @kaiplan/marketing/styles/globals.css which defines the marketing CTA
+ * tier system. This file adds the apps/web specific overrides — the taller
+ * marketing min-height, AA-compliant sage color for the secondary label on
+ * the warm surface, section-scoped hero/funnel-CTA layout tweaks, and the
+ * Shadcn-aligned focus-visible ring.
+ */
+
+:root {
+  /* Pin the canvas to light-only. `only light` (not plain `light`) tells
+     the browser this site has no dark-mode design, so Chrome's Auto Dark
+     Mode for Web Contents must leave it alone. Also defeats upstream
+     `prefers-color-scheme: dark` CSS that might still survive in vendored
+     files. */
+  color-scheme: only light;
+
+  /* ── Editorial palette (Wave 0) ──────────────────────────────────────
+     Cream / Ink / Terracotta replaces sage / gold. The palette is the
+     single source of truth; every legacy token below (--site-*,
+     --color-primary, --color-accent, etc.) is aliased to one of these
+     so unmigrated pages keep rendering while waves 1-5 land. */
+  --paper: #f5f1ea;
+  --paper-deep: #ebe4d6;
+  --ink: #171311;
+  --ink-soft: #3d3530;
+  --rule: #1b1714;
+  --terracotta: #b0432a;
+  --terracotta-deep: #7c2a18;
+  --clay: #d9a78a;
+  --moss: #3a4a2c;
+
+  /* ── Legacy site-* aliases ───────────────────────────────────────────
+     Map the previous sage/gold scheme onto the editorial palette so
+     `var(--site-primary)`, `var(--site-surface)` etc. still resolve. */
+  --site-primary: var(--terracotta);
+  --site-accent: var(--moss);
+  --site-surface: var(--paper);
+  --site-text: var(--ink);
+  --site-muted: var(--ink-soft);
+  --site-surface-secondary: var(--paper-deep);
+  --site-surface-elevated: #fffdfa;
+  --site-surface-sunken: color-mix(
+    in srgb,
+    var(--paper-deep) 92%,
+    var(--ink) 8%
+  );
+  --site-surface-glass: rgba(245, 241, 234, 0.88);
+  --site-surface-glass-border: rgba(27, 23, 20, 0.16);
+  --site-section-highlight-bg: color-mix(
+    in srgb,
+    var(--color-primary-50) 36%,
+    var(--site-surface-secondary)
+  );
+  --site-shadow-card:
+    0 18px 40px -30px rgba(72, 57, 42, 0.18),
+    0 8px 18px -14px rgba(72, 57, 42, 0.12);
+  --site-shadow-lg:
+    0 28px 52px -34px rgba(72, 57, 42, 0.2),
+    0 14px 28px -24px rgba(72, 57, 42, 0.12);
+  --site-shadow-ambient: 0 28px 50px rgba(72, 57, 42, 0.12);
+  /* Primary CTA now binds to terracotta (the single hot color in the
+     editorial palette) with a paper foreground for AA contrast. */
+  --site-primary-button-bg: var(--terracotta);
+  --site-primary-button-hover-bg: var(--terracotta-deep);
+  --site-primary-button-fg: var(--paper);
+  --site-primary-button-radius: 999px;
+  --site-button-hover-scale: 1.01;
+  --site-card-hover-lift: 6px;
+  --site-card-hover-scale: 1.01;
+  --site-section-py: clamp(4rem, 8vw, 7rem);
+  --site-section-py-sm: clamp(2.5rem, 5vw, 4rem);
+
+  /* Terracotta scale — replaces the legacy sage --color-primary-* steps so
+     Tailwind utilities (bg-primary-100, text-primary-700, …) emit warm
+     editorial tones. The values were tuned for AA contrast on cream paper:
+     -700 measures ~5.4:1 as text on --paper, -800 measures ~7.1:1. */
+  --color-primary-50: #fbeee8;
+  --color-primary-100: #f6dccd;
+  --color-primary-200: #ebbba2;
+  --color-primary-300: #df9676;
+  --color-primary-400: #cc6f4d;
+  --color-primary-500: #b0432a;
+  --color-primary-600: #9a3823;
+  --color-primary-700: #7c2a18;
+  --color-primary-800: #5c1f12;
+  --color-primary-900: #3f160d;
+  --color-primary-950: #220c07;
+
+  /* Moss scale — supporting accent for select editorial moments (chapter
+     dividers, tertiary chips). Kept narrow on chroma so it never competes
+     with terracotta. -700 measures ~6.9:1 on --paper. */
+  --color-accent-50: #eef0eb;
+  --color-accent-100: #d8ddd0;
+  --color-accent-200: #b4bea4;
+  --color-accent-300: #8c9b78;
+  --color-accent-400: #647451;
+  --color-accent-500: #485938;
+  --color-accent-600: #3a4a2c;
+  --color-accent-700: #2e3b22;
+  --color-accent-800: #232d1a;
+  --color-accent-900: #181f12;
+  --color-accent-950: #0c1009;
+
+  --site-category-feature: var(--terracotta);
+  --site-category-roi: var(--moss);
+  --site-category-compliance: var(--clay);
+  --site-category-integration: var(--ink-soft);
+
+  --color-neutral-50: #f7f7f7;
+  --color-neutral-100: #ededed;
+  --color-neutral-200: #dedede;
+  --color-neutral-300: #c9c9c9;
+  --color-neutral-400: #9a8f82;
+  --color-neutral-500: #6b6257;
+  --color-neutral-600: #524a43;
+  --color-neutral-700: #595959;
+  --color-neutral-800: #454545;
+  --color-neutral-900: #333333;
+  --color-neutral-950: #1f1f1f;
+
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+  --color-success-950: #022c22;
+
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+  --color-error-950: #450a0a;
+
+  /* Info palette — no existing slate/info scale in this theme, so a small
+     3-stop earthy slate-blue is added here to mirror the apps/app info
+     token. Deliberately cool-neutral (not cyan/teal/bright blue) so it
+     doesn't clash with sage. */
+  --color-info-100: #e6eaef;
+  --color-info-700: #5a6878;
+  --color-info-900: #2d3a4a;
+
+  /* Flat semantic tokens — aliased to the editorial palette. These keep
+     the apps/app contract so consumer code (`text-primary`, `bg-accent`,
+     `bg-muted`) keeps compiling, but resolve to the new Cream / Ink /
+     Terracotta values. */
+  --color-primary: var(--terracotta);
+  --color-primary-foreground: var(--paper);
+  --color-accent: var(--moss);
+  --color-accent-foreground: var(--paper);
+  /* Hover for accent — slightly deeper moss so legacy hover treatments
+     still read. */
+  --color-accent-hover: var(--color-accent-700);
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  /* --color-muted is a legible warm-gray text color (aligns with apps/app
+     where muted = #746e63). Use text-muted for secondary text.
+     --color-surface-secondary is the cream surface alias for bg-* consumers
+     that need the paper-deep tone; ink-soft on paper-deep measures ~9.6:1. */
+  --color-muted: var(--ink-soft);
+  --color-surface-secondary: var(--paper-deep);
+  --color-muted-foreground: var(--ink-soft);
+  --color-border: color-mix(in srgb, var(--ink) 14%, var(--paper-deep) 86%);
+  --color-destructive: #b03a30;
+  --color-destructive-foreground: var(--paper);
+
+  /* Semantic state tokens — added for design-system normalization sweep.
+     Values are visually aligned with the apps/app palette so the same
+     semantic name resolves to the same perceived color across products.
+     The underlying *-scale tokens (--color-success-700 etc.) are left
+     intact for scale consumers that explicitly want the emerald tones.
+     Contrast-checked for WCAG AA against warm cream surfaces / white. */
+  --color-success: #4f6d57;
+  --color-success-foreground: #ffffff;
+  --color-success-soft: #e7efe8;
+  --color-success-soft-foreground: #2f4536;
+
+  --color-warning: #8a6320;
+  --color-warning-foreground: #ffffff;
+  --color-warning-soft: #f5ecd4;
+  --color-warning-soft-foreground: #6b4f15;
+
+  --color-info: #5a6878;
+  --color-info-foreground: #ffffff;
+  --color-info-soft: #e6eaef;
+  --color-info-soft-foreground: #2d3a4a;
+
+  --radius-card: 1rem;
+  --radius-control: 0.5rem;
+  --shadow-card:
+    0 1px 2px rgba(31, 41, 55, 0.04), 0 4px 12px rgba(31, 41, 55, 0.06);
+  /* Stronger double-layer shadow for floating UI (FABs, persistent
+     overlays) that sit above ordinary card surfaces. Mirrors the
+     apps/app token so floating elements read identically across
+     products. */
+  --shadow-floating:
+    0 4px 10px rgba(31, 41, 55, 0.08), 0 12px 28px rgba(31, 41, 55, 0.12);
+
+  /* Focus ring token mirrors Shadcn's --ring semantic. Aliased to
+     primary-700 to preserve the current visual while letting focus
+     outlines bind to the semantic name instead of a raw scale token. */
+  --color-ring: var(--color-primary-700);
+}
+
+/* Dark mode intentionally removed — the editorial site is cream/ink only.
+   `color-scheme: light` on :root (above) pins the canvas. No @media
+   prefers-color-scheme and no :root.dark overrides — adding them back
+   will re-break the page under Chrome Auto Dark Mode. */
+
+/* Light-only root canvas guard.
+   When a user has High Contrast enabled at the OS level, the browser
+   replaces our authored colors with system palette entries (Canvas,
+   CanvasText, LinkText) — producing a dark canvas with dark-on-dark
+   body text and terracotta-ish preserved link colors. That exact
+   symptom is indistinguishable from "the site has a dark mode," which
+   it does not. Root background and color declarations tell the
+   browser to use our authored editorial palette even in forced-colors
+   contexts. The light-only declarations re-assert the
+   cream/ink contract so nothing slips through.
+
+   The `!important` on html background/color is the last line of
+   defense against browser UAs and extensions that try to swap the
+   canvas at the html level. */
+html {
+  background-color: var(--site-surface, #f5f1ea) !important;
+  color: var(--site-text, #171311) !important;
+  font-family:
+    var(--font-body),
+    "Geist",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  /* Editorial palette uses flat paper as the canvas — no aurora gradients.
+     Wave-1 pages will introduce isolated tinted bands per section. */
+  background-color: var(--site-surface) !important;
+  color: var(--site-text) !important;
+}
+
+/* Explicit forced-colors override. When the user has Windows High
+   Contrast / Forced Colors Mode active, reassert the editorial
+   palette rather than letting the system paint Canvas/CanvasText
+   over our design. */
+/* Legacy forced-colors note retained for context.
+   to `*` tells the browser to keep authored colors on every element,
+   not just the root. Windows 11 Contrast themes (Night sky, Aquatic,
+   Desert, Dusk) trigger forced-colors at the OS level and Chrome
+   repaints every element that hasn't opted out — so the wildcard is
+   the only way to keep the editorial palette intact. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), Georgia, "Times New Roman", serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent-200) 78%, white 22%);
+  color: var(--color-accent-950);
+}
+
+.btn-primary,
+.btn-secondary {
+  min-height: 3.25rem;
+}
+
+/* Mirror Shadcn Button's focus-visible treatment
+   (focus-visible:ring-ring/50 focus-visible:ring-[3px]) so keyboard focus
+   looks identical across apps/app and apps/web. */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-ring) 50%, transparent);
+  outline-offset: 2px;
+}
+
+/* Text-only CTA for mid-scroll nudges and nav — visual hierarchy below
+   primary (gold) and secondary (sage outline). Renders as sage label with
+   an underline that appears on hover, no filled surface, no border. */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-primary-700);
+  background: transparent;
+  border: 0;
+  border-radius: 0.375rem;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.25em;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1.5px;
+  transition:
+    color 150ms ease,
+    text-decoration-color 200ms ease;
+}
+
+.btn-ghost:hover {
+  color: var(--color-primary-800);
+  text-decoration-color: currentColor;
+}
+
+.btn-secondary {
+  /* Moss labels need the darker primary step on warm light surfaces so text
+     clears AA without changing the brand tone used for backgrounds. */
+  color: var(--color-primary-700);
+  border-color: color-mix(
+    in srgb,
+    var(--terracotta) 14%,
+    var(--color-neutral-300)
+  );
+}
+
+.btn-secondary:hover {
+  color: var(--color-primary-800);
+}
+
+[data-section="hero"] .btn-primary,
+[data-section="hero"] .btn-secondary {
+  justify-content: center;
+  width: 100%;
+}
+
+[data-section="hero"] .btn-secondary {
+  background-color: color-mix(in srgb, var(--paper) 92%, var(--paper-deep));
+}
+
+[data-section="funnel-cta"] .btn-primary,
+[data-section="funnel-cta"] .btn-secondary {
+  min-width: 12rem;
+}
+
+.prose {
+  color: var(--ink);
+}
+
+.prose p {
+  line-height: 1.95;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  text-wrap: balance;
+}
+
+.prose ul > li::marker,
+.prose ol > li::marker {
+  color: var(--color-accent-700);
+}

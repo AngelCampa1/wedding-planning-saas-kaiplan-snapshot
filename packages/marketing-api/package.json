@@ -1,0 +1,50 @@
+{
+  "name": "@kaiplan/marketing-api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./integration": {
+      "types": "./src/local-integration.ts",
+      "default": "./src/local-integration.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "typecheck:integration": "tsc -p tsconfig.integration.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@kaiplan/knowledge": "workspace:*",
+    "@kaiplan/shared": "workspace:*",
+    "@libsql/client": "^0.17.2",
+    "@react-email/components": "^1.0.10",
+    "@react-email/render": "^2.0.4",
+    "@sentry/cloudflare": "^10.46.0",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4",
+    "resend": "^6.9.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@vitest/coverage-v8": "^4.1.3",
+    "drizzle-kit": "^0.31.10",
+    "react": "^19",
+    "typescript": "^5.7",
+    "vitest": "^4.1.3"
+  }
+}

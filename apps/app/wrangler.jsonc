@@ -1,0 +1,19 @@
+// Archived repository: third-party keys below are placeholders.
+// Replace them with real values before any deploy.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kaiplan-app",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-05-07",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+  },
+  "vars": {
+    "VITE_API_URL": "https://api.kaiplan.app",
+    "VITE_PUBLIC_SITE_URL": "https://kaiplan.app",
+    "VITE_SENTRY_DSN": "https://public@example.ingest.sentry.io/0",
+  },
+  "routes": [{ "pattern": "my.kaiplan.app", "custom_domain": true }],
+}

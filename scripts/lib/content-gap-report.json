@@ -1,0 +1,404 @@
+{
+  "generatedAt": "2026-04-29T14:07:31.720Z",
+  "totalKeywordsAnalyzed": 50,
+  "gapsFound": 39,
+  "gaps": [
+    {
+      "keyword": "destination wedding planning",
+      "searchVolume": 5400,
+      "keywordDifficulty": 30,
+      "priorityScore": 3780,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "destination-wedding-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "backyard wedding ideas",
+      "searchVolume": 4400,
+      "keywordDifficulty": 30,
+      "priorityScore": 3080,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "backyard-wedding-ideas",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "engagement party planning",
+      "searchVolume": 2900,
+      "keywordDifficulty": 30,
+      "priorityScore": 2030,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "engagement-party-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding thank you notes",
+      "searchVolume": 2400,
+      "keywordDifficulty": 30,
+      "priorityScore": 1680,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-thank-you-notes",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "bachelorette party planning",
+      "searchVolume": 1900,
+      "keywordDifficulty": 30,
+      "priorityScore": 1330,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "bachelorette-party-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding photography styles",
+      "searchVolume": 1600,
+      "keywordDifficulty": 30,
+      "priorityScore": 1120,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-photography-styles",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "micro wedding planning",
+      "searchVolume": 590,
+      "keywordDifficulty": 30,
+      "priorityScore": 413,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "micro-wedding-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "beach wedding planning",
+      "searchVolume": 590,
+      "keywordDifficulty": 30,
+      "priorityScore": 413,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "beach-wedding-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "barn wedding planning",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "barn-wedding-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding transportation guide",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-transportation-guide",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "best wedding rsvp apps",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "best-wedding-rsvp-apps",
+      "suggestedCollection": "listicles",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "best free wedding planning tools",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "best-free-wedding-planning-tools",
+      "suggestedCollection": "listicles",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "best wedding apps without ads",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "best-wedding-apps-without-ads",
+      "suggestedCollection": "listicles",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "zola alternative",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "zola-alternative",
+      "suggestedCollection": "alternatives",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "joy wedding app alternative",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [
+        "https://withjoy.com/blog/it/15-best-wedding-planning-apps-that-make-wedding-prep-easy-2025/?srsltid=AfmBOorfVCFrFVf57PwooBYHsLi5nOCzDjVrDhm7yfjEFS9U75KHR7G1",
+        "https://www.zola.com/expert-advice/best-free-wedding-planning-websites",
+        "https://joyweddingblog.wpenginepowered.com/7-best-free-wedding-websites-that-work-on-any-device-2025-guide/"
+      ],
+      "suggestedSlug": "joy-wedding-app-alternative",
+      "suggestedCollection": "alternatives",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "weddingwire alternative",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "weddingwire-alternative",
+      "suggestedCollection": "alternatives",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "bridebook alternative",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "bridebook-alternative",
+      "suggestedCollection": "alternatives",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "joy wedding pricing",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "joy-wedding-pricing",
+      "suggestedCollection": "pricing-breakdowns",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "kaiplan wedding app",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [
+        "https://www.theknot.com/wedding-planning-app",
+        "https://www.weddingwire.com/wedding-forums/wedding-apps-to-help-you-plan-your-big-day/26a5e7cc93126c47.html"
+      ],
+      "suggestedSlug": "kaiplan-wedding-app",
+      "suggestedCollection": "guides",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "kaiplan vs zola",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "kaiplan-vs-zola",
+      "suggestedCollection": "comparisons",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "kaiplan vs the knot",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "kaiplan-vs-the-knot",
+      "suggestedCollection": "comparisons",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "wedding planning app lifetime deal",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-lifetime-deal",
+      "suggestedCollection": "guides",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "wedding planning app no ads",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-no-ads",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding planning app one time payment",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-one-time-payment",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding planning app with budget tracker",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-with-budget-tracker",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding planning app with guest list",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-with-guest-list",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding planning app with vendor management",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-with-vendor-management",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding planning app with seating chart",
+      "searchVolume": 500,
+      "keywordDifficulty": 30,
+      "priorityScore": 350,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-planning-app-with-seating-chart",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "the knot pricing",
+      "searchVolume": 210,
+      "keywordDifficulty": 30,
+      "priorityScore": 147,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "the-knot-pricing",
+      "suggestedCollection": "pricing-breakdowns",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "wedding band vs dj",
+      "searchVolume": 170,
+      "keywordDifficulty": 30,
+      "priorityScore": 119,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-band-vs-dj",
+      "suggestedCollection": "comparisons",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "zola pricing",
+      "searchVolume": 170,
+      "keywordDifficulty": 30,
+      "priorityScore": 119,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "zola-pricing",
+      "suggestedCollection": "pricing-breakdowns",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "wedding ring guide",
+      "searchVolume": 110,
+      "keywordDifficulty": 30,
+      "priorityScore": 77,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-ring-guide",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "how to choose wedding flowers",
+      "searchVolume": 70,
+      "keywordDifficulty": 30,
+      "priorityScore": 49,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "how-to-choose-wedding-flowers",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "the knot alternative",
+      "searchVolume": 70,
+      "keywordDifficulty": 30,
+      "priorityScore": 49,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "the-knot-alternative",
+      "suggestedCollection": "alternatives",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "best wedding planning software",
+      "searchVolume": 50,
+      "keywordDifficulty": 30,
+      "priorityScore": 35,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "best-wedding-planning-software",
+      "suggestedCollection": "listicles",
+      "buyerStage": "mofu"
+    },
+    {
+      "keyword": "elopement planning guide",
+      "searchVolume": 30,
+      "keywordDifficulty": 30,
+      "priorityScore": 21,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "elopement-planning-guide",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "weddingwire pricing",
+      "searchVolume": 20,
+      "keywordDifficulty": 30,
+      "priorityScore": 14,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "weddingwire-pricing",
+      "suggestedCollection": "pricing-breakdowns",
+      "buyerStage": "bofu"
+    },
+    {
+      "keyword": "winter wedding planning",
+      "searchVolume": 10,
+      "keywordDifficulty": 30,
+      "priorityScore": 7,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "winter-wedding-planning",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    },
+    {
+      "keyword": "wedding insurance guide",
+      "searchVolume": 10,
+      "keywordDifficulty": 30,
+      "priorityScore": 7,
+      "topCompetitorUrls": [],
+      "suggestedSlug": "wedding-insurance-guide",
+      "suggestedCollection": "guides",
+      "buyerStage": "tofu"
+    }
+  ]
+}

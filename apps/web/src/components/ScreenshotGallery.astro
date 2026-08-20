@@ -1,0 +1,68 @@
+---
+import { Image } from "astro:assets";
+import type { ScreenshotEntry } from "../config/site";
+
+interface Props {
+  heading: string;
+  intro: string;
+  screenshots: ScreenshotEntry[];
+}
+
+const { heading, intro, screenshots } = Astro.props;
+---
+
+<section
+  class="px-4 py-[var(--section-py)] bg-[var(--surface-primary)]"
+  id="product-screenshots"
+>
+  <div class="mx-auto max-w-6xl">
+    <div class="max-w-2xl">
+      <p
+        class="font-mono text-[length:var(--text-caption)] uppercase tracking-[0.24em] text-[var(--color-accent-hover)]"
+      >
+        The Planner
+      </p>
+      <h2
+        class="mt-3 font-heading text-[length:var(--text-heading)] font-bold text-[var(--color-brand-text)]"
+      >
+        {heading}
+      </h2>
+      <p
+        class="mt-4 text-[length:var(--text-body-lg)] leading-8 text-[var(--color-brand-muted)]"
+      >
+        {intro}
+      </p>
+    </div>
+
+    <div class="mt-12 grid gap-8 sm:grid-cols-2">
+      {
+        screenshots.map((shot, index) => (
+          <figure class="overflow-hidden rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--color-neutral-300)_42%,transparent)] bg-white shadow-[var(--shadow-card)]">
+            <div
+              data-screenshot-container
+              class="aspect-[16/10] bg-[color-mix(in_srgb,var(--color-accent-50)_60%,white)] flex items-center justify-center"
+            >
+              <Image
+                src={shot.src}
+                alt={shot.alt}
+                widths={[480, 768, 1024]}
+                sizes="(min-width: 640px) 50vw, 100vw"
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                class="h-full w-full object-cover object-top"
+              />
+            </div>
+            <figcaption class="p-5">
+              <span class="inline-block rounded-full bg-[var(--color-accent)]/12 px-3 py-1 font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent-hover)]">
+                {shot.feature}
+              </span>
+              <p class="mt-3 text-[length:var(--text-caption)] leading-6 text-[var(--color-brand-muted)]">
+                {shot.caption}
+              </p>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>

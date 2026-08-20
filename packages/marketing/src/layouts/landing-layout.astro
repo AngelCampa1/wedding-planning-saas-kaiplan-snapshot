@@ -1,0 +1,158 @@
+---
+import BaseLayout from "./base-layout.astro";
+import SchemaMarkup from "../seo/schema-markup.astro";
+import { buildProductSchema, buildFaqPageSchema } from "../lib/schema-builders";
+import { buildSiteIdentitySchemas } from "../lib/site-identity-schemas";
+import { buildGraph, mergeGraphs, withId } from "../lib/schema-graph";
+import SiteHeader from "../components/site-header.astro";
+import SiteFooter from "../components/site-footer.astro";
+import ExitIntentPopup from "../components/exit-intent-popup.astro";
+import { resolveExitPopupProps } from "../lib/exit-popup-props";
+import { resolvePageLeadMagnet } from "../lib/resolve-page-lead-magnet";
+import { buildFooterEmailCaptureProps } from "../lib/footer-utils";
+import {
+  buyerStageToSection,
+  ensureTrailingSlash,
+  resolveLandingTitle,
+} from "../lib/meta";
+import type { BuyerStage, SiteConfig } from "../types";
+
+interface Props {
+  config: SiteConfig;
+  publishedAt?: string;
+  updatedAt?: string;
+  canonicalPath?: string;
+  title?: string;
+  description?: string;
+  preferCategoryTitle?: boolean;
+  noindex?: boolean;
+  ogType?: string;
+  ogImage?: string;
+  buyerStage?: BuyerStage;
+  articleTags?: string[];
+  schemaGraph?: Record<string, unknown>;
+  leadMagnetSlug?: string;
+}
+const {
+  config,
+  publishedAt,
+  updatedAt,
+  canonicalPath,
+  title,
+  description,
+  preferCategoryTitle = false,
+  noindex,
+  ogType = "website",
+  ogImage,
+  buyerStage,
+  articleTags,
+  schemaGraph,
+  leadMagnetSlug,
+} = Astro.props;
+const exitPopupProps =
+  config.exitPopup?.enabled !== false
+    ? resolveExitPopupProps(config)
+    : undefined;
+const pageLeadMagnet = resolvePageLeadMagnet({
+  pathname: Astro.url.pathname,
+  knowledge: config.leadMagnetOptions ?? [],
+  hint: title ?? config.tagline,
+  explicitSlug: leadMagnetSlug,
+});
+const footerEmailCapture = buildFooterEmailCaptureProps(
+  config,
+  Astro.url.origin,
+);
+
+const siteUrl = `https://${config.domain}`;
+const canonicalUrl = ensureTrailingSlash(
+  `https://${config.domain}${canonicalPath ?? "/"}`,
+);
+const productId = `${siteUrl}/#product`;
+const faqId = `${siteUrl}/#faqpage`;
+const siteIdentity = buildSiteIdentitySchemas(config, { canonicalUrl });
+const faqSchema = buildFaqPageSchema(config.faqs);
+
+const schemas = [
+  siteIdentity.schemas[0]!,
+  withId(
+    buildProductSchema({
+      name: config.name,
+      description: config.tagline,
+      url: canonicalUrl,
+      image: `${siteUrl}${config.defaultOgImage}`,
+      category: config.product.category,
+      brand: { name: config.name },
+      offers:
+        config.pricingTiers && config.pricingTiers.length > 0
+          ? config.pricingTiers.map((t) => ({
+              price: t.price,
+              url: `${siteUrl}/#pricing`,
+            }))
+          : [{ price: config.product.price, url: `${siteUrl}/#pricing` }],
+    }),
+    productId,
+  ),
+  siteIdentity.schemas[1]!,
+  siteIdentity.schemas[2]!,
+  ...(faqSchema ? [withId(faqSchema, faqId)] : []),
+];
+const graph = buildGraph(schemas);
+const mergedGraph = schemaGraph ? mergeGraphs(graph, schemaGraph) : graph;
+---
+
+<BaseLayout
+  title={resolveLandingTitle(config, title, preferCategoryTitle)}
+  description={description ?? config.metaDescription ?? config.tagline}
+  canonicalUrl={canonicalUrl}
+  siteName={config.name}
+  siteUrl={`https://${config.domain}`}
+  ogType={ogType}
+  ogImage={ogImage ?? config.defaultOgImage}
+  twitterSite={config.social?.twitterHandle}
+  articleAuthor={config.author?.name}
+  articleSection={buyerStage ? buyerStageToSection(buyerStage) : undefined}
+  articleTags={articleTags}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  themeColor={config.theme.primary}
+  theme={config.theme}
+  fonts={config.theme.fonts}
+  preserveMetaTagCopy={config.preserveMetaTagCopy}
+  appleTouchIcon={config.appleTouchIcon}
+  noindex={noindex}
+  analyticsEnabled={config.analytics?.enabled ?? true}
+  rssUrl="/rss.xml"
+>
+  <SiteHeader
+    slot="header"
+    siteName={config.name}
+    navItems={config.nav?.items}
+    ctaText={config.funnel.bofu.ctaText}
+    ctaHref={config.funnel.bofu.ctaTarget}
+    logoLight={config.logo?.light}
+    logoDark={config.logo?.dark}
+  />
+  <slot />
+  <SchemaMarkup graph={mergedGraph} />
+  {
+    exitPopupProps && pageLeadMagnet && (
+      <ExitIntentPopup
+        apiUrl={Astro.url.origin}
+        siteName={config.name}
+        leadMagnet={pageLeadMagnet}
+        {...exitPopupProps}
+      />
+    )
+  }
+  <SiteFooter
+    slot="footer"
+    siteName={config.name}
+    tagline={config.tagline}
+    linkGroups={config.footer?.linkGroups}
+    legalLinks={config.footer?.legalLinks}
+    emailCapture={footerEmailCapture}
+    contactEmail={config.contactEmail}
+    brandMetrics={config.footer?.brandMetrics}
+  />
+</BaseLayout>

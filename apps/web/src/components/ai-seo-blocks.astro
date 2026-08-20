@@ -1,0 +1,132 @@
+---
+import AnswerBlock from "@kaiplan/marketing/seo/answer-block.astro";
+import DataTableBlock from "@kaiplan/marketing/seo/data-table-block.astro";
+import DefinitionBlock from "@kaiplan/marketing/seo/definition-block.astro";
+import ExpertQuote from "@kaiplan/marketing/seo/expert-quote.astro";
+import ProsConsBlock from "@kaiplan/marketing/seo/pros-cons-block.astro";
+import StatisticCitation from "@kaiplan/marketing/seo/statistic-citation.astro";
+
+type AnswerItem = {
+  q?: string;
+  a?: string;
+  question?: string;
+  answer?: string;
+};
+
+type StatisticItem = {
+  stat: string;
+  source: string;
+  sourceUrl?: string;
+};
+
+type TableData = {
+  name: string;
+  description?: string;
+  columns: string[];
+  rows: string[][];
+};
+
+type DefinitionItem = {
+  term: string;
+  definition: string;
+};
+
+type ProsConsItem = {
+  subject: string;
+  pros: string[];
+  cons: string[];
+};
+
+type ExpertQuoteItem = {
+  quote: string;
+  personName: string;
+  jobTitle?: string;
+  organization?: string;
+  personUrl?: string;
+  personSameAs?: string[];
+};
+
+interface Props {
+  answers?: AnswerItem[];
+  statistics?: StatisticItem[];
+  tableData?: TableData;
+  definitions?: DefinitionItem[];
+  proscons?: ProsConsItem[];
+  expertQuotes?: ExpertQuoteItem[];
+  disableProsConsSchema?: boolean;
+}
+
+const {
+  answers = [],
+  statistics = [],
+  tableData,
+  definitions = [],
+  proscons = [],
+  expertQuotes = [],
+  disableProsConsSchema = false,
+} = Astro.props;
+
+const hasBlocks =
+  definitions.length > 0 ||
+  statistics.length > 0 ||
+  Boolean(tableData) ||
+  answers.length > 0 ||
+  expertQuotes.length > 0 ||
+  proscons.length > 0;
+---
+
+{
+  hasBlocks && (
+    <section class="ai-seo-blocks" aria-label="Citable summary blocks">
+      {definitions.map((item) => (
+        <DefinitionBlock term={item.term} definition={item.definition} />
+      ))}
+      {statistics.map((item) => (
+        <StatisticCitation
+          stat={item.stat}
+          source={item.source}
+          sourceUrl={item.sourceUrl}
+        />
+      ))}
+      {tableData && (
+        <DataTableBlock
+          name={tableData.name}
+          description={tableData.description}
+          columns={tableData.columns}
+          rows={tableData.rows}
+        />
+      )}
+      {answers.map((item) => {
+        const question = item.q ?? item.question ?? "";
+        const answer = item.a ?? item.answer ?? "";
+        return <AnswerBlock question={question} answer={answer} />;
+      })}
+      {expertQuotes.map((item) => (
+        <ExpertQuote
+          quote={item.quote}
+          personName={item.personName}
+          jobTitle={item.jobTitle}
+          organization={item.organization}
+          personUrl={item.personUrl}
+          personSameAs={item.personSameAs}
+        />
+      ))}
+      {proscons.map((item) => (
+        <ProsConsBlock
+          subject={item.subject}
+          pros={item.pros}
+          cons={item.cons}
+          emitSchema={!disableProsConsSchema}
+        />
+      ))}
+    </section>
+  )
+}
+
+<style>
+  .ai-seo-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+const items = [
+  {
+    label: "Collected",
+    text: "wedding details you enter, account email",
+  },
+  {
+    label: "Shared with",
+    text: "Stripe (billing), Resend (transactional email), Neon (database hosting), Apollo.io (CRM for outbound only - never planner data), Cloudflare (image CDN)",
+  },
+  {
+    label: "Never",
+    text: "sold, used to train AI, shared with advertisers",
+  },
+  {
+    label: "Yours",
+    text: "export any time, delete on request",
+  },
+];
+---
+
+<section aria-label="Privacy at a glance">
+  <div
+    class="mt-8 rounded-[var(--radius-md)] border border-[color-mix(in_srgb,var(--color-neutral-300)_40%,transparent)] bg-[color-mix(in_srgb,var(--surface-primary)_96%,white)] px-5 py-4"
+  >
+    <h3
+      class="mb-3 text-[length:var(--text-caption)] font-semibold uppercase tracking-[0.18em] text-[var(--color-brand-muted)]"
+    >
+      Privacy at a glance
+    </h3>
+    <ul class="space-y-2">
+      {
+        items.map(({ label, text }) => (
+          <li class="flex gap-2 text-[length:var(--text-caption)] text-[var(--color-brand-text)]">
+            <span class="shrink-0 font-medium text-[var(--color-brand-muted)]">
+              {label}:
+            </span>
+            <span class="text-[var(--color-brand-muted)]">{text}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p
+      class="mt-3 text-[length:var(--text-caption)] text-[var(--color-brand-muted)]"
+    >
+      Full details in our <a
+        href="/privacy/"
+        class="underline text-[var(--color-accent-hover)]">Privacy Policy</a
+      >.
+    </p>
+  </div>
+</section>

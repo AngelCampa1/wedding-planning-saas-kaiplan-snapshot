@@ -1,0 +1,57 @@
+// Archived repository: infrastructure identifiers and third-party keys below
+// are placeholders. Replace them with real values before any deploy.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kaiplan-web",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-04-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "PUBLIC_API_URL": "https://api.kaiplan.app",
+    "PUBLIC_APP_ORIGIN": "https://my.kaiplan.app",
+    "PRODUCT_NAME": "Kaiplan",
+    "PRODUCT_DOMAIN": "kaiplan.app",
+    "PRODUCT_LOGO_URL": "https://kaiplan.app/favicon.svg",
+    "PRODUCT_BRAND_COLOR": "#B0432A",
+    "PRODUCT_ACCENT_COLOR": "#2E3B22",
+    "CALENDAR_URL": "https://kaiplan.app/pricing/",
+    "EMAIL_FROM": "Kaiplan <hello@kaiplan.app>",
+    "ALLOWED_ORIGIN": "https://kaiplan.app",
+    "ENVIRONMENT": "production",
+    "PUBLIC_SENTRY_DSN": "https://public@example.ingest.sentry.io/0",
+    "SENTRY_DSN": "https://public@example.ingest.sentry.io/0",
+    // Cloudflare's documented always-passes test site key.
+    "PUBLIC_TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+    "PUBLIC_RSVP_REQUIRE_TURNSTILE": "true",
+    "SEQUENCER_BASE_URL": "https://sequencer.example.com",
+  },
+  "triggers": {
+    "crons": ["0 * * * *"],
+  },
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA",
+  },
+  "assets": {
+    "binding": "ASSETS",
+    "run_worker_first": true,
+  },
+  "r2_buckets": [
+    {
+      "binding": "LEAD_MAGNETS_R2",
+      "bucket_name": "kaiplan-lead-magnets",
+    },
+  ],
+  "routes": [
+    { "pattern": "kaiplan.app", "custom_domain": true },
+    { "pattern": "www.kaiplan.app", "custom_domain": true },
+  ],
+  // Marketing D1 database. Get the real id from `pnpm exec wrangler d1 list`.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "kaiplan-db",
+      "database_id": "REPLACE_WITH_MARKETING_D1_DATABASE_ID",
+      "migrations_dir": "./d1/migrations",
+    },
+  ],
+}

@@ -1,0 +1,461 @@
+---
+export const prerender = true;
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig, screenshotGallery } from "@/config/site";
+import { buildKaiplanHomepageData } from "@/lib/homepage-cro";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import { kaiplanOffering } from "@kaiplan/knowledge";
+
+const homepage = buildKaiplanHomepageData({ ...siteConfig, screenshotGallery });
+const pricingTiers = homepage.pricing.tiers;
+const openAppUrl = buildAppSignupUrl();
+
+type OfferingPlanKey = "starter" | "pro" | "lifetime";
+
+function formatCentsAsDollars(cents: number) {
+  const dollars = cents / 100;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: Number.isInteger(dollars) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(dollars);
+}
+
+function formatMonthlyEquivalent(cents: number) {
+  return `${formatCentsAsDollars(cents / 12)}/mo`;
+}
+---
+
+<LandingLayout
+  config={siteConfig}
+  description={`Kaiplan pricing - Starter at ${kaiplanOffering.plans.starter.price}, Pro at ${kaiplanOffering.plans.pro.price}, or Lifetime for ${kaiplanOffering.plans.lifetime.price}. Paid by couples, no vendor ads.`}
+  canonicalPath="/pricing"
+  title="Pricing - Kaiplan"
+>
+  <article class="editorial-shell" data-page="pricing">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="pricing-hero-headline">
+      <div class="hero__grid">
+        <div class="hero__primary">
+          <p class="editorial-eyebrow">Pricing</p>
+          <h1
+            id="pricing-hero-headline"
+            class="editorial-display-l hero__headline"
+          >
+            Simple pricing for one wedding.
+          </h1>
+        </div>
+        <div class="hero__lede-band">
+          <p class="editorial-lede hero__lede">
+            Start with the full app trial, then decide whether monthly, annual,
+            or Lifetime fits the engagement. Every plan is paid by couples, with
+            no vendor ads or marketplace kickbacks.
+          </p>
+          <p class="hero__cta">
+            <a class="editorial-link" href={openAppUrl}>
+              Start planning <span aria-hidden="true">-&gt;</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- TIER SPREAD -->
+    <section
+      class="chapter chapter--pricing"
+      aria-labelledby="pricing-tiers-heading"
+    >
+      <div class="pricing__heading-row">
+        <div>
+          <p class="editorial-eyebrow">The plans</p>
+          <h2
+            id="pricing-tiers-heading"
+            class="editorial-display-m chapter__title"
+          >
+            Three tiers. One product underneath.
+          </h2>
+        </div>
+
+        <div class="pricing__interval-row">
+          <div
+            class="editorial-tabs"
+            role="group"
+            aria-label="Billing interval"
+            data-pricing-tabs
+          >
+            <button
+              type="button"
+              class="editorial-tabs__btn"
+              data-pricing-tab-monthly
+              aria-pressed="false"
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              class="editorial-tabs__btn"
+              data-pricing-tab-annual
+              aria-pressed="true"
+              aria-label="Annually, 2 months free"
+            >
+              Annually
+              <span class="pricing__save-badge" aria-hidden="true"
+                >2 months free</span
+              >
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="editorial-price-spread" role="list">
+        {
+          pricingTiers.map((tier) => {
+            const offeringPlan =
+              kaiplanOffering.plans[tier.name.toLowerCase() as OfferingPlanKey];
+            const displayPrice = tier.price;
+            const hasAnnualPricing = Boolean(
+              tier.annualPriceOverride || tier.annualPriceCents,
+            );
+            const annualTotal = tier.annualPriceOverride
+              ? tier.annualPriceOverride.replace("/yr", "")
+              : tier.annualPriceCents
+                ? formatCentsAsDollars(tier.annualPriceCents)
+                : null;
+            const annualPrice =
+              tier.annualPriceCents && hasAnnualPricing
+                ? formatMonthlyEquivalent(tier.annualPriceCents)
+                : displayPrice;
+            const monthlyDetail =
+              tier.pricingModel === "one-time"
+                ? "one-time payment"
+                : "billed monthly";
+            const annualDetail =
+              annualTotal !== null
+                ? `billed annually, ${annualTotal}/yr`
+                : monthlyDetail;
+            return (
+              <div class="editorial-price-spread__column" role="listitem">
+                {tier.highlighted && (
+                  <span class="editorial-price-spread__editor-pick">
+                    Editor&rsquo;s pick
+                  </span>
+                )}
+                <h3 class="editorial-price-spread__name">
+                  <em>{tier.name}</em>
+                </h3>
+                <p class="editorial-caption pricing__best-for">
+                  <em>{offeringPlan?.bestFor ?? ""}</em>
+                </p>
+                <p
+                  class="editorial-price-spread__price"
+                  data-monthly-price={displayPrice}
+                  data-annual-price={annualPrice}
+                  data-monthly-detail={monthlyDetail}
+                  data-annual-detail={annualDetail}
+                >
+                  <span data-price-current>{annualPrice}</span>
+                  <span class="pricing__billing-detail" data-price-detail>
+                    {annualDetail}
+                  </span>
+                </p>
+                <p class="editorial-body pricing__tier-body">
+                  {offeringPlan?.description ?? ""}
+                </p>
+                <p class="editorial-eyebrow pricing__features-eyebrow">
+                  <em>What's included</em>
+                </p>
+                <ul class="editorial-price-spread__features">
+                  {tier.features.map((feature) => (
+                    <li>{feature}</li>
+                  ))}
+                </ul>
+                <p class="editorial-price-spread__cta">
+                  <a class="editorial-link" href={openAppUrl}>
+                    Start free trial <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </div>
+            );
+          })
+        }
+      </div>
+
+      <p class="editorial-caption pricing__footnote">
+        {siteConfig.pricingConfig.trialBannerText}
+      </p>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- TIER-DETAIL Q&A -->
+    <section class="chapter" aria-labelledby="pricing-questions-heading">
+      <p class="editorial-eyebrow">Tier-detail questions</p>
+      <h2
+        id="pricing-questions-heading"
+        class="editorial-display-m chapter__title"
+      >
+        The questions couples actually ask.
+      </h2>
+      <ul class="editorial-qa" role="list">
+        {
+          kaiplanOffering.planFaqs.map((item, index) => (
+            <li>
+              <details open={index === 0}>
+                <summary>{item.q}</summary>
+                <p class="editorial-qa__answer">{item.a}</p>
+              </details>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- PRICING PRINCIPLES -->
+    <section
+      class="chapter chapter--narrow"
+      aria-labelledby="principles-heading"
+    >
+      <p class="editorial-eyebrow">The model</p>
+      <h2 id="principles-heading" class="editorial-display-m chapter__title">
+        How we think about pricing.
+      </h2>
+      <p class="editorial-body chapter__body">
+        Most wedding tools are free because vendors pay for the placements you
+        see. That model gives the platform a financial stake in nudging your
+        shortlist, your budget, and your contracts toward whoever's paying. We
+        wanted no part of that. Kaiplan is paid by the couples who use it, so
+        the pricing has to stand on its own. The workspace either earns its
+        monthly price or it does not.
+      </p>
+      <p class="editorial-body chapter__body">
+        That's also why the engagement gets to pick the model. A wedding is a
+        finite planning project, usually six to eighteen months. Monthly fits
+        that arc. Lifetime fits the couple who would rather pay once, keep the
+        ledger forever, and never see a renewal email. Either way, the price is
+        on the page, the trial opens the full app first, and there is no
+        marketplace tier shaping what the app shows you.
+      </p>
+    </section>
+
+    <hr class="editorial-rule chapter-rule" aria-hidden="true" />
+
+    <!-- CLOSING CTA -->
+    <section
+      class="chapter chapter--narrow chapter--close"
+      aria-labelledby="pricing-close-heading"
+    >
+      <h2 id="pricing-close-heading" class="editorial-display-m chapter__title">
+        Open the workspace now, choose a plan later.
+      </h2>
+      <p class="editorial-body chapter__body">
+        The shortest version: <a class="editorial-link" href={openAppUrl}
+          >start your free planning trial</a
+        > with full app access. Choose the tier that matches the engagement later,
+        after you have real wedding details in the workspace.
+      </p>
+    </section>
+  </article>
+
+  <script>
+    import {
+      initEditorialPricingToggle,
+      readInitialInterval,
+    } from "@/lib/editorial-pricing-toggle";
+
+    const monthly = document.querySelector<HTMLButtonElement>(
+      "[data-pricing-tab-monthly]",
+    );
+    const annual = document.querySelector<HTMLButtonElement>(
+      "[data-pricing-tab-annual]",
+    );
+
+    if (monthly && annual) {
+      const priceCells = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-monthly-price]"),
+      );
+      const ctaAnchors: HTMLAnchorElement[] = [];
+
+      const initial = readInitialInterval(window.location.search);
+      const cleanup = initEditorialPricingToggle(
+        { monthly, annual, priceCells, ctaAnchors },
+        initial,
+      );
+
+      document.addEventListener(
+        "astro:before-swap",
+        () => {
+          cleanup();
+        },
+        { once: true },
+      );
+    }
+  </script>
+</LandingLayout>
+
+<style>
+  /* Local rhythm for the pricing page. All visual treatment lives in
+     editorial.css. */
+
+  [data-page="pricing"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .hero {
+    padding-block: clamp(2rem, 6vw, 4.5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .hero__primary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .hero__headline em {
+    font-style: italic;
+    font-weight: inherit;
+  }
+
+  .hero__lede-band {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hero__lede {
+    max-width: 38ch;
+  }
+
+  .hero__cta {
+    margin: 0;
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+  }
+
+  @media (min-width: 64rem) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 4rem);
+    }
+    .hero__lede-band {
+      text-align: right;
+      align-items: flex-end;
+    }
+    .hero__lede {
+      text-align: right;
+      max-width: 32ch;
+    }
+  }
+
+  .chapter-rule {
+    margin-block: clamp(2rem, 5vw, 3.5rem) 0;
+  }
+
+  .chapter {
+    padding-block-end: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .chapter--narrow {
+    max-width: 62ch;
+  }
+
+  .chapter--close {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .chapter__title {
+    margin-top: 1rem;
+  }
+
+  .chapter__body {
+    margin-top: 1rem;
+  }
+
+  .chapter__body + .chapter__body {
+    margin-top: 1.25rem;
+  }
+
+  .pricing__heading-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 48rem) {
+    .pricing__heading-row {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+  }
+
+  .pricing__interval-row {
+    margin-top: 0;
+  }
+
+  .chapter--pricing .editorial-price-spread {
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .pricing__best-for {
+    margin: 0;
+    max-width: 32ch;
+  }
+
+  .pricing__tier-body {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .pricing__billing-detail {
+    display: block;
+    margin-top: 0.25rem;
+    font-family: var(--font-editorial-body);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+
+  .pricing__features-eyebrow {
+    margin-top: 1rem;
+  }
+
+  .pricing__footnote {
+    margin-top: 1.25rem;
+    max-width: 62ch;
+  }
+
+  .pricing__save-badge {
+    display: inline-block;
+    margin-left: 0.375rem;
+    padding: 0.1em 0.4em;
+    font-size: 0.6875rem;
+    font-family: var(--font-editorial-body);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+</style>

@@ -1,0 +1,44 @@
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/sitemap*.xml
+  Cache-Control: public, max-age=86400
+
+/llms.txt
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/llms-full.txt
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/pricing.txt
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/resources/guides/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/resources/best/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/compare/alternatives/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/compare/versus/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/compare/pricing/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/free/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/w/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: private, no-store
+
+/api/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: private, no-store
+
+/*
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

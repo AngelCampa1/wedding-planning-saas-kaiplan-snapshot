@@ -1,0 +1,63 @@
+User-agent: *
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: Applebot
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: Amazonbot
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: meta-externalagent
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: CCBot
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+User-agent: Bytespider
+Allow: /
+Disallow: /w/
+Disallow: /api/
+
+Llms-Txt: https://kaiplan.app/llms.txt
+
+Sitemap: https://kaiplan.app/sitemap-index.xml

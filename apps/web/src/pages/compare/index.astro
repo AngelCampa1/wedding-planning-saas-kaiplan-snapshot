@@ -1,0 +1,319 @@
+---
+export const prerender = true;
+import "../../styles/global.css";
+import { getCollection } from "astro:content";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+import { filterIndexableEntries } from "@/lib/indexable-content";
+import { contentEntrySlug } from "@/lib/content-entry";
+import { buildAppSignupUrl } from "@/lib/app-links";
+
+const alternatives = filterIndexableEntries(
+  await getCollection("alternatives"),
+);
+const comparisons = filterIndexableEntries(await getCollection("comparisons"));
+const pricingBreakdowns = filterIndexableEntries(
+  await getCollection("pricing-breakdowns"),
+);
+
+const openAppUrl = buildAppSignupUrl();
+---
+
+<LandingLayout
+  config={siteConfig}
+  canonicalPath="/compare/"
+  title="Comparisons — Wedding Planning Software"
+  description="Compare wedding planning software, pricing, vendor ads, budget tools, guest management, and websites before choosing the platform for your wedding."
+>
+  <article class="editorial-shell" data-page="compare">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="compare-headline">
+      <p class="editorial-eyebrow">Comparisons</p>
+      <h1 id="compare-headline" class="editorial-display-l hero__headline">
+        Kaiplan versus <em>the alternatives</em>.
+      </h1>
+      <p class="editorial-lede hero__lede">
+        Comparing planning tools before you commit to one? We mapped out what
+        each tool actually charges and what you get for it.
+      </p>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- ALTERNATIVES SECTION -->
+    <section
+      class="compare-section"
+      aria-labelledby="alternatives-heading"
+      id="alternatives"
+    >
+      <h2 id="alternatives-heading" class="editorial-display-m section-title">
+        <em>Alternative to&hellip;</em>
+      </h2>
+      <p class="editorial-body section-intro">
+        If you're coming from The Knot, Zola, or another wedding directory, this
+        section walks through what Kaiplan does differently — and what it costs.
+        No star ratings, no affiliate links. Just a comparison of what each tool
+        actually gives you.
+      </p>
+
+      {
+        alternatives.length > 0 ? (
+          <ul class="editorial-entry-list" role="list">
+            {alternatives.map((entry) => (
+              <li class="editorial-entry-list__item">
+                <a
+                  class="editorial-entry-list__link"
+                  href={`/compare/alternatives/${entry.data.competitor.slug}/`}
+                >
+                  <span class="editorial-entry-list__title">
+                    <em>{entry.data.title}</em>
+                  </span>
+                  <span class="editorial-entry-list__deck">
+                    {entry.data.description}
+                  </span>
+                  <span class="editorial-entry-list__cta" aria-hidden="true">
+                    Read &rarr;
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="editorial-body">No alternatives published yet.</p>
+        )
+      }
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- VERSUS SECTION -->
+    <section
+      class="compare-section"
+      aria-labelledby="versus-heading"
+      id="versus"
+    >
+      <h2 id="versus-heading" class="editorial-display-m section-title">
+        <em>Head-to-head.</em>
+      </h2>
+      <p class="editorial-body section-intro">
+        Side-by-side comparisons of two wedding planning tools at a time. Each
+        page maps the same features across both products so the tradeoffs read
+        clearly on one page.
+      </p>
+
+      {
+        comparisons.length > 0 ? (
+          <ul class="editorial-entry-list" role="list">
+            {comparisons.map((entry) => (
+              <li class="editorial-entry-list__item">
+                <a
+                  class="editorial-entry-list__link"
+                  href={`/compare/versus/${contentEntrySlug(entry)}/`}
+                >
+                  <span class="editorial-entry-list__title">
+                    <em>{entry.data.title}</em>
+                  </span>
+                  <span class="editorial-entry-list__deck">
+                    {entry.data.description}
+                  </span>
+                  <span class="editorial-entry-list__cta" aria-hidden="true">
+                    Read &rarr;
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="editorial-body">No comparisons published yet.</p>
+        )
+      }
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- PRICING SECTION -->
+    <section
+      class="compare-section"
+      aria-labelledby="pricing-heading"
+      id="pricing"
+    >
+      <h2 id="pricing-heading" class="editorial-display-m section-title">
+        <em>Pricing, explained.</em>
+      </h2>
+      <p class="editorial-body section-intro">
+        What wedding planning software actually costs — including the tiers that
+        aren't on the pricing page. We document each platform's business model
+        so the tradeoff between "free" and paid is legible.
+      </p>
+
+      {
+        pricingBreakdowns.length > 0 ? (
+          <ul class="editorial-entry-list" role="list">
+            {pricingBreakdowns.map((entry) => (
+              <li class="editorial-entry-list__item">
+                <a
+                  class="editorial-entry-list__link"
+                  href={`/compare/pricing/${contentEntrySlug(entry)}/`}
+                >
+                  <span class="editorial-entry-list__title">
+                    <em>{entry.data.title}</em>
+                  </span>
+                  <span class="editorial-entry-list__deck">
+                    {entry.data.description}
+                  </span>
+                  <span class="editorial-entry-list__cta" aria-hidden="true">
+                    Read &rarr;
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="editorial-body">No pricing breakdowns published yet.</p>
+        )
+      }
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- CLOSING LINE -->
+    <section class="closing" aria-label="Start planning">
+      <p class="editorial-body closing__line">
+        Done comparing?{" "}
+        <a class="editorial-link" href={openAppUrl}>
+          <em>Open the app &rarr;</em>
+        </a>
+      </p>
+    </section>
+  </article>
+</LandingLayout>
+
+<style>
+  [data-page="compare"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .hero {
+    padding-block: clamp(1.5rem, 5vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hero__headline {
+    line-height: 1.02;
+  }
+
+  .hero__headline em {
+    font-style: italic;
+    font-weight: inherit;
+  }
+
+  .hero__lede {
+    max-width: 48ch;
+  }
+
+  .section-rule {
+    margin-block: clamp(1rem, 3vw, 1.5rem) 0;
+  }
+
+  .compare-section {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    padding-block-end: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .section-title {
+    margin: 0;
+  }
+
+  .section-title em {
+    font-style: italic;
+    font-weight: inherit;
+  }
+
+  .section-intro {
+    max-width: 62ch;
+  }
+
+  /* Editorial entry list — hairline-ruled rows */
+  .editorial-entry-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule);
+  }
+
+  .editorial-entry-list__item {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .editorial-entry-list__link {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.25rem 2rem;
+    padding-block: clamp(0.875rem, 2vw, 1.25rem);
+    text-decoration: none;
+    color: inherit;
+    transition: background 150ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .editorial-entry-list__link {
+      transition: none;
+    }
+  }
+
+  .editorial-entry-list__link:hover,
+  .editorial-entry-list__link:focus-visible {
+    background: var(--paper-deep);
+  }
+
+  .editorial-entry-list__link:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 48rem) {
+    .editorial-entry-list__link {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+      align-items: baseline;
+    }
+  }
+
+  .editorial-entry-list__title {
+    font-family: var(--font-editorial-display);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .editorial-entry-list__deck {
+    font-family: var(--font-editorial-body);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .editorial-entry-list__cta {
+    font-family: var(--font-editorial-body);
+    font-size: 0.875rem;
+    color: var(--terracotta);
+    white-space: nowrap;
+  }
+
+  .closing {
+    padding-block: clamp(1rem, 3vw, 2rem);
+  }
+
+  .closing__line {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  }
+</style>

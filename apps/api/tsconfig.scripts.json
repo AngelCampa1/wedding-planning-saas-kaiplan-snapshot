@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": [
+    "scripts/database-env.ts",
+    "scripts/check-stripe-customer-duplicates.ts",
+    "scripts/prepare-marketing-d1-rollout.ts",
+    "scripts/require-production-database-url.ts",
+    "__tests__/scripts/database-env.test.ts",
+    "__tests__/scripts/check-stripe-customer-duplicates.test.ts",
+    "__tests__/scripts/prepare-marketing-d1-rollout.test.ts"
+  ]
+}

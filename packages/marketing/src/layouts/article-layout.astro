@@ -1,0 +1,222 @@
+---
+import BaseLayout from "./base-layout.astro";
+import BreadcrumbNav from "../components/breadcrumb-nav.astro";
+import BlufBlock from "../seo/bluf-block.astro";
+import SchemaMarkup from "../seo/schema-markup.astro";
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+  mergeFaqSources,
+} from "../lib/schema-builders";
+import { buildGraph, withId } from "../lib/schema-graph";
+import {
+  resolveSchemaImage,
+  buyerStageToSection,
+  ensureTrailingSlash,
+} from "../lib/meta";
+import SiteHeader from "../components/site-header.astro";
+import ArticleMeta from "../components/article-meta.astro";
+import SiteFooter from "../components/site-footer.astro";
+import TableOfContents from "../components/table-of-contents.astro";
+import SidebarCta from "../components/sidebar-cta.astro";
+import ExitIntentPopup from "../components/exit-intent-popup.astro";
+import { resolveExitPopupProps } from "../lib/exit-popup-props";
+import { resolvePageLeadMagnet } from "../lib/resolve-page-lead-magnet";
+import { buildSidebarCtaProps } from "../lib/sidebar-cta-utils";
+import type { SiteConfig, BuyerStage, FaqItem } from "../types";
+
+interface Props {
+  title: string;
+  description: string;
+  bluf: string;
+  buyerStage?: BuyerStage;
+  publishedAt: string;
+  updatedAt: string;
+  canonicalPath: string;
+  config: SiteConfig;
+  breadcrumbs: { label: string; href: string }[];
+  schemas?: Record<string, unknown>[];
+  headings?: { depth: number; slug: string; text: string }[];
+  ogImage?: string;
+  noindex?: boolean;
+  answers?: { question: string; answer: string }[];
+  faqs?: FaqItem[];
+  tags?: string[];
+  leadMagnetSlug?: string;
+}
+const {
+  title,
+  description,
+  bluf,
+  buyerStage,
+  publishedAt,
+  updatedAt,
+  canonicalPath,
+  config,
+  breadcrumbs,
+  schemas = [],
+  headings,
+  ogImage,
+  noindex,
+  answers = [],
+  faqs = [],
+  tags,
+  leadMagnetSlug,
+} = Astro.props;
+const exitPopupProps =
+  config.exitPopup?.enabled !== false
+    ? resolveExitPopupProps(config)
+    : undefined;
+const pageLeadMagnet = resolvePageLeadMagnet({
+  pathname: Astro.url.pathname,
+  knowledge: config.leadMagnetOptions ?? [],
+  hint: title ?? config.tagline,
+  explicitSlug: leadMagnetSlug,
+});
+const sidebarCtaProps = buyerStage
+  ? buildSidebarCtaProps(config, buyerStage)
+  : undefined;
+const canonicalUrl = ensureTrailingSlash(
+  `https://${config.domain}${canonicalPath}`,
+);
+
+const orgId = `https://${config.domain}/#organization`;
+const articleSchema = buildArticleSchema({
+  headline: title,
+  description,
+  datePublished: publishedAt,
+  dateModified: updatedAt,
+  lastReviewed: updatedAt,
+  publisher: { "@id": orgId },
+  author: config.author,
+  image: resolveSchemaImage(config.domain, ogImage, config.defaultOgImage),
+  mainEntityOfPage: canonicalUrl,
+  speakableCssSelectors: [".bluf-block", ".faq-answer", ".answer-block-answer"],
+});
+const faqSchema = mergeFaqSources(faqs, answers);
+const breadcrumbSchema = buildBreadcrumbSchema(
+  breadcrumbs,
+  `https://${config.domain}`,
+);
+const articleId = `${canonicalUrl}#article`;
+const graph = buildGraph([
+  withId(articleSchema, articleId),
+  breadcrumbSchema,
+  ...schemas,
+  ...(faqSchema ? [faqSchema] : []),
+]);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  siteName={config.name}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  twitterSite={config.social?.twitterHandle}
+  articleAuthor={config.author?.name}
+  themeColor={config.theme.primary}
+  theme={config.theme}
+  fonts={config.theme.fonts}
+  preserveMetaTagCopy={config.preserveMetaTagCopy}
+  appleTouchIcon={config.appleTouchIcon}
+  ogImage={ogImage}
+  noindex={noindex}
+  siteUrl={`https://${config.domain}`}
+  analyticsEnabled={config.analytics?.enabled ?? true}
+  enableScrollReveal={false}
+  articleSection={buyerStage ? buyerStageToSection(buyerStage) : undefined}
+  articleTags={tags}
+  rssUrl="/rss.xml"
+>
+  <SiteHeader
+    slot="header"
+    siteName={config.name}
+    navItems={config.nav?.items}
+    ctaText={config.funnel.bofu.ctaText}
+    ctaHref={config.funnel.bofu.ctaTarget}
+    ctaVariant="primary"
+    logoLight={config.logo?.light}
+    logoDark={config.logo?.dark}
+  />
+  <div
+    data-editorial-layout
+    class="article-page-shell editorial-shell mx-auto max-w-6xl py-[var(--section-py)]"
+  >
+    <BreadcrumbNav
+      items={breadcrumbs}
+      siteUrl={`https://${config.domain}`}
+      emitSchema={false}
+    />
+    <div
+      data-editorial-article
+      class="article-page-intro marketing-panel mt-6 px-5 py-6 sm:px-6 lg:px-8 lg:py-8"
+    >
+      <p class="marketing-overline">Editorial guide</p>
+      <h1
+        class="mb-4 mt-4 text-balance font-heading text-[length:var(--text-editorial-title)] font-bold leading-tight lg:leading-[1.02] text-[var(--color-brand-text)]"
+      >
+        {title}
+      </h1>
+      <ArticleMeta updatedAt={updatedAt} />
+    </div>
+    <div
+      class:list={[
+        "article-page-grid mt-8",
+        ((headings && headings.length > 0) || !!sidebarCtaProps) &&
+          "lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-12",
+      ]}
+    >
+      <article
+        class="article-page-body min-w-0 max-w-[var(--content-measure-wide)]"
+      >
+        <BlufBlock text={bluf} />
+        <div
+          class="article-prose prose prose-lg max-w-none prose-p:max-w-[var(--content-measure)] prose-li:max-w-[var(--content-measure)] [&_table]:block [&_table]:overflow-x-auto [&_pre]:overflow-x-auto"
+        >
+          <slot />
+        </div>
+      </article>
+      {
+        ((headings && headings.length > 0) || sidebarCtaProps) && (
+          <aside
+            data-editorial-sidebar
+            aria-label="Sidebar"
+            class="article-page-sidebar mt-8 lg:sticky lg:top-28 lg:mt-0 lg:self-start"
+          >
+            {headings && headings.length > 0 && (
+              <TableOfContents headings={headings} />
+            )}
+            {sidebarCtaProps && (
+              <div class={headings && headings.length > 0 ? "mt-6" : ""}>
+                <SidebarCta {...sidebarCtaProps} />
+              </div>
+            )}
+          </aside>
+        )
+      }
+    </div>
+  </div>
+  <SchemaMarkup graph={graph} />
+  {
+    exitPopupProps && pageLeadMagnet && (
+      <ExitIntentPopup
+        apiUrl={Astro.url.origin}
+        siteName={config.name}
+        leadMagnet={pageLeadMagnet}
+        {...exitPopupProps}
+      />
+    )
+  }
+  <SiteFooter
+    slot="footer"
+    siteName={config.name}
+    tagline={config.tagline}
+    linkGroups={config.footer?.linkGroups}
+    legalLinks={config.footer?.legalLinks}
+    contactEmail={config.contactEmail}
+    brandMetrics={config.footer?.brandMetrics}
+    captureVariant="none"
+  />
+</BaseLayout>

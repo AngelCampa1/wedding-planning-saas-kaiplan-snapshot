@@ -1,0 +1,551 @@
+---
+export const prerender = true;
+import "../../styles/global.css";
+import { getCollection } from "astro:content";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+import { contentEntrySlug } from "@/lib/content-entry";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import { getResourcePillars } from "@/lib/resource-pillars";
+
+const guides = await getCollection("guides");
+const listicles = await getCollection("listicles");
+const alternatives = await getCollection("alternatives");
+const comparisons = await getCollection("comparisons");
+const pricingBreakdowns = await getCollection("pricing-breakdowns");
+const leadMagnets = await getCollection("lead-magnets");
+
+const openAppUrl = buildAppSignupUrl();
+
+function isIndexable<T extends { data: { noindex?: boolean } }>(
+  entry: T,
+): boolean {
+  return entry.data.noindex !== true;
+}
+
+// Sort entries by publishedAt descending so newest appear first.
+function sortByDate<T extends { data: { publishedAt: string } }>(
+  entries: T[],
+): T[] {
+  return [...entries].sort(
+    (a, b) =>
+      new Date(b.data.publishedAt).getTime() -
+      new Date(a.data.publishedAt).getTime(),
+  );
+}
+
+const sortedGuides = sortByDate(guides.filter(isIndexable));
+const sortedListicles = sortByDate(listicles.filter(isIndexable));
+const sortedAlternatives = sortByDate(alternatives.filter(isIndexable));
+const sortedComparisons = sortByDate(comparisons.filter(isIndexable));
+const sortedPricingBreakdowns = sortByDate(
+  pricingBreakdowns.filter(isIndexable),
+);
+const sortedLeadMagnets = sortByDate(leadMagnets.filter(isIndexable));
+const pillars = getResourcePillars();
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+---
+
+<LandingLayout
+  config={siteConfig}
+  canonicalPath="/resources/"
+  title="Wedding Planning Resources | Kaiplan"
+  description="Read wedding planning guides, pricing breakdowns, comparisons, and free tools for couples making budget and vendor decisions without affiliate bias."
+>
+  <article class="editorial-shell library-page">
+    <!-- HERO -->
+    <header class="library-hero">
+      <p class="editorial-eyebrow">THE LIBRARY</p>
+      <h1 class="editorial-display-l library-hero__headline">
+        <em>Wedding planning, written plainly.</em>
+      </h1>
+      <p class="editorial-lede library-hero__lede">
+        Guides and research for couples making decisions with real money on the
+        line. No affiliate links. No vendor sponsorships.
+      </p>
+    </header>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- TOPIC PILLARS -->
+    <section aria-labelledby="pillars-heading" class="library-section">
+      <h2 id="pillars-heading" class="editorial-eyebrow library-section__label">
+        Topic Hubs
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {pillars.length} planning hub{pillars.length !== 1 ? "s" : ""}
+      </p>
+      <ol class="library-list" role="list">
+        {
+          pillars.map((pillar) => (
+            <li class="library-list__item">
+              <p class="editorial-eyebrow library-list__meta">
+                <span>{pillar.eyebrow}</span>
+              </p>
+              <h3 class="editorial-display-m editorial-italic library-list__title">
+                <a class="library-list__title-link" href={pillar.href}>
+                  {pillar.title}
+                </a>
+              </h3>
+              <p class="editorial-lede library-list__deck">
+                {pillar.description}
+              </p>
+              <p class="library-list__read-more">
+                <a
+                  class="editorial-link"
+                  href={pillar.href}
+                  aria-label={`Browse: ${pillar.title}`}
+                >
+                  Browse hub <span aria-hidden="true">-&gt;</span>
+                </a>
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- BEST-OF / LISTICLES SECTION -->
+    <section aria-labelledby="listicles-heading" class="library-section">
+      <h2
+        id="listicles-heading"
+        class="editorial-eyebrow library-section__label"
+      >
+        Best Apps &amp; Tools
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {sortedListicles.length} ranked shortlist{
+          sortedListicles.length !== 1 ? "s" : ""
+        }
+      </p>
+      <ol class="library-list" role="list">
+        {
+          sortedListicles.map((entry) => {
+            const slug = contentEntrySlug(entry);
+            const href = `/resources/best/${slug}/`;
+            return (
+              <li class="library-list__item">
+                <p class="editorial-eyebrow library-list__meta">
+                  <span>Ranked shortlist</span>
+                  <span aria-hidden="true">&nbsp;|&nbsp;</span>
+                  <time datetime={entry.data.publishedAt}>
+                    {formatDate(entry.data.publishedAt)}
+                  </time>
+                </p>
+                <h3 class="editorial-display-m editorial-italic library-list__title">
+                  <a class="library-list__title-link" href={href}>
+                    {entry.data.title}
+                  </a>
+                </h3>
+                {entry.data.description && (
+                  <p class="editorial-lede library-list__deck">
+                    {entry.data.description}
+                  </p>
+                )}
+                <p class="library-list__read-more">
+                  <a
+                    class="editorial-link"
+                    href={href}
+                    aria-label={`Read: ${entry.data.title}`}
+                  >
+                    Read <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- GUIDES SECTION -->
+    <section aria-labelledby="guides-heading" class="library-section">
+      <h2 id="guides-heading" class="editorial-eyebrow library-section__label">
+        Planning Guides
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {sortedGuides.length} guide{sortedGuides.length !== 1 ? "s" : ""}
+      </p>
+      <ol class="library-list" role="list">
+        {
+          sortedGuides.map((entry) => {
+            const slug = contentEntrySlug(entry);
+            const href = `/resources/guides/${slug}/`;
+            return (
+              <li class="library-list__item">
+                <p class="editorial-eyebrow library-list__meta">
+                  <span>Planning guide</span>
+                  <span aria-hidden="true">&nbsp;|&nbsp;</span>
+                  <time datetime={entry.data.publishedAt}>
+                    {formatDate(entry.data.publishedAt)}
+                  </time>
+                </p>
+                <h3 class="editorial-display-m editorial-italic library-list__title">
+                  <a class="library-list__title-link" href={href}>
+                    {entry.data.title}
+                  </a>
+                </h3>
+                {entry.data.description && (
+                  <p class="editorial-lede library-list__deck">
+                    {entry.data.description}
+                  </p>
+                )}
+                <p class="library-list__read-more">
+                  <a
+                    class="editorial-link"
+                    href={href}
+                    aria-label={`Read: ${entry.data.title}`}
+                  >
+                    Read <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- ALTERNATIVES SECTION -->
+    <section aria-labelledby="alternatives-heading" class="library-section">
+      <h2
+        id="alternatives-heading"
+        class="editorial-eyebrow library-section__label"
+      >
+        Alternatives
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {sortedAlternatives.length} alternative{
+          sortedAlternatives.length !== 1 ? "s" : ""
+        }
+      </p>
+      <ol class="library-list" role="list">
+        {
+          sortedAlternatives.map((entry) => {
+            const href = `/compare/alternatives/${entry.data.competitor.slug}/`;
+            return (
+              <li class="library-list__item">
+                <p class="editorial-eyebrow library-list__meta">
+                  <span>Alternative</span>
+                  <span aria-hidden="true">&nbsp;|&nbsp;</span>
+                  <time datetime={entry.data.publishedAt}>
+                    {formatDate(entry.data.publishedAt)}
+                  </time>
+                </p>
+                <h3 class="editorial-display-m editorial-italic library-list__title">
+                  <a class="library-list__title-link" href={href}>
+                    {entry.data.title}
+                  </a>
+                </h3>
+                {entry.data.description && (
+                  <p class="editorial-lede library-list__deck">
+                    {entry.data.description}
+                  </p>
+                )}
+                <p class="library-list__read-more">
+                  <a
+                    class="editorial-link"
+                    href={href}
+                    aria-label={`Read: ${entry.data.title}`}
+                  >
+                    Read <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- COMPARISONS SECTION -->
+    <section aria-labelledby="comparisons-heading" class="library-section">
+      <h2
+        id="comparisons-heading"
+        class="editorial-eyebrow library-section__label"
+      >
+        Head-to-Head Comparisons
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {sortedComparisons.length} comparison{
+          sortedComparisons.length !== 1 ? "s" : ""
+        }
+      </p>
+      <ol class="library-list" role="list">
+        {
+          sortedComparisons.map((entry) => {
+            const slug = contentEntrySlug(entry);
+            const href = `/compare/versus/${slug}/`;
+            return (
+              <li class="library-list__item">
+                <p class="editorial-eyebrow library-list__meta">
+                  <span>Comparison</span>
+                  <span aria-hidden="true">&nbsp;|&nbsp;</span>
+                  <time datetime={entry.data.publishedAt}>
+                    {formatDate(entry.data.publishedAt)}
+                  </time>
+                </p>
+                <h3 class="editorial-display-m editorial-italic library-list__title">
+                  <a class="library-list__title-link" href={href}>
+                    {entry.data.title}
+                  </a>
+                </h3>
+                {entry.data.description && (
+                  <p class="editorial-lede library-list__deck">
+                    {entry.data.description}
+                  </p>
+                )}
+                <p class="library-list__read-more">
+                  <a
+                    class="editorial-link"
+                    href={href}
+                    aria-label={`Read: ${entry.data.title}`}
+                  >
+                    Read <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- PRICING BREAKDOWNS SECTION -->
+    <section aria-labelledby="pricing-heading" class="library-section">
+      <h2 id="pricing-heading" class="editorial-eyebrow library-section__label">
+        Pricing Breakdowns
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {sortedPricingBreakdowns.length} breakdown{
+          sortedPricingBreakdowns.length !== 1 ? "s" : ""
+        }
+      </p>
+      <ol class="library-list" role="list">
+        {
+          sortedPricingBreakdowns.map((entry) => {
+            const slug = contentEntrySlug(entry);
+            const href = `/compare/pricing/${slug}/`;
+            return (
+              <li class="library-list__item">
+                <p class="editorial-eyebrow library-list__meta">
+                  <span>Pricing breakdown</span>
+                  <span aria-hidden="true">&nbsp;|&nbsp;</span>
+                  <time datetime={entry.data.publishedAt}>
+                    {formatDate(entry.data.publishedAt)}
+                  </time>
+                </p>
+                <h3 class="editorial-display-m editorial-italic library-list__title">
+                  <a class="library-list__title-link" href={href}>
+                    {entry.data.title}
+                  </a>
+                </h3>
+                {entry.data.description && (
+                  <p class="editorial-lede library-list__deck">
+                    {entry.data.description}
+                  </p>
+                )}
+                <p class="library-list__read-more">
+                  <a
+                    class="editorial-link"
+                    href={href}
+                    aria-label={`Read: ${entry.data.title}`}
+                  >
+                    Read <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- FREE TOOLS SECTION -->
+    <section aria-labelledby="free-tools-heading" class="library-section">
+      <h2
+        id="free-tools-heading"
+        class="editorial-eyebrow library-section__label"
+      >
+        Free Tools &amp; Templates
+      </h2>
+      <p class="editorial-caption library-section__count">
+        {sortedLeadMagnets.length} free tool{
+          sortedLeadMagnets.length !== 1 ? "s" : ""
+        }
+      </p>
+      <ol class="library-list" role="list">
+        {
+          sortedLeadMagnets.map((entry) => {
+            const slug = contentEntrySlug(entry);
+            const href = `/free/${slug}/`;
+            return (
+              <li class="library-list__item">
+                <p class="editorial-eyebrow library-list__meta">
+                  <span>Free template</span>
+                </p>
+                <h3 class="editorial-display-m editorial-italic library-list__title">
+                  <a class="library-list__title-link" href={href}>
+                    {entry.data.title}
+                  </a>
+                </h3>
+                {entry.data.description && (
+                  <p class="editorial-lede library-list__deck">
+                    {entry.data.description}
+                  </p>
+                )}
+                <p class="library-list__read-more">
+                  <a
+                    class="editorial-link"
+                    href={href}
+                    aria-label={`Download: ${entry.data.title}`}
+                  >
+                    Download free <span aria-hidden="true">-&gt;</span>
+                  </a>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <hr class="editorial-rule library-rule" aria-hidden="true" />
+
+    <!-- CLOSING CTA -->
+    <footer class="library-cta">
+      <p class="editorial-body">
+        When you are ready to move from research to planning,{" "}
+        <a class="editorial-link" href={openAppUrl}
+          >start your free planning trial</a
+        >
+        and bring the budget, guest list, and vendor notes into one place.
+      </p>
+    </footer>
+  </article>
+</LandingLayout>
+
+<style>
+  .library-page {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Hero */
+  .library-hero {
+    padding-block: clamp(2rem, 6vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .library-hero__headline {
+    margin-top: 0.5rem;
+    max-width: 28ch;
+  }
+
+  .library-hero__lede {
+    max-width: 52ch;
+  }
+
+  /* Hairline rules */
+  .library-rule {
+    margin-block: 0;
+  }
+
+  /* Section labeling */
+  .library-section {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .library-section__label {
+    margin-bottom: 0.25rem;
+  }
+
+  .library-section__count {
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  /* Editorial list: vertical stack with hairline rules between items */
+  .library-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .library-list__item {
+    border-top: 1px solid var(--rule);
+    padding-block: clamp(1.5rem, 3vw, 2.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .library-list__item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .library-list__meta {
+    /* eyebrow already handles typography */
+  }
+
+  .library-list__title {
+    margin: 0;
+  }
+
+  .library-list__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .library-list__title-link:hover,
+  .library-list__title-link:focus-visible {
+    color: var(--terracotta);
+    outline: none;
+  }
+
+  .library-list__title-link:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .library-list__deck {
+    max-width: 60ch;
+  }
+
+  .library-list__read-more {
+    margin: 0;
+    font-family: var(--font-editorial-body);
+    font-size: 0.9375rem;
+  }
+
+  /* Closing CTA */
+  .library-cta {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+</style>

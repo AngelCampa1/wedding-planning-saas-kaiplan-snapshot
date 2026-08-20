@@ -1,0 +1,456 @@
+---
+export const prerender = true;
+import "../../../styles/global.css";
+import { getCollection, render } from "astro:content";
+import ListicleLayout from "@kaiplan/marketing/layouts/listicle-layout.astro";
+import FaqSection from "@kaiplan/marketing/components/faq-section.astro";
+import FunnelCta from "@kaiplan/marketing/components/funnel-cta.astro";
+import RelatedPages from "@kaiplan/marketing/components/related-pages.astro";
+import DecisionCtaCard from "@kaiplan/marketing/components/decision-cta-card.astro";
+import DataTableBlock from "@kaiplan/marketing/seo/data-table-block.astro";
+import AnswerBlock from "@kaiplan/marketing/seo/answer-block.astro";
+import ProsConsBlock from "@kaiplan/marketing/seo/pros-cons-block.astro";
+import StatisticCitation from "@kaiplan/marketing/seo/statistic-citation.astro";
+import { siteConfig } from "@/config/site";
+import { buildListicleBreadcrumbs } from "@/lib/breadcrumbs";
+import {
+  padToolIndex,
+  buildContentMap,
+  buildEntrySeoProps,
+  resolveIndexableRelatedPageLinks,
+} from "@/lib/page-helpers";
+import { buildKaiplanContentCta } from "@/lib/content-cta";
+import { contentEntrySlug } from "@/lib/content-entry";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import ResourcePillarLink from "@/components/resource-pillar-link.astro";
+import { getPrimaryPillarForHref } from "@/lib/resource-pillars";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("listicles");
+  return entries.map((entry) => ({
+    params: { slug: contentEntrySlug(entry) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const {
+  title,
+  description,
+  bluf,
+  buyerStage,
+  publishedAt,
+  updatedAt,
+  tools,
+  faqs,
+  relatedPages,
+  tableData,
+  answers,
+  statistics,
+} = entry.data;
+const canonicalPath = `/resources/best/${contentEntrySlug(entry)}`;
+const primaryPillar = getPrimaryPillarForHref(canonicalPath);
+
+const [
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+] = await Promise.all([
+  getCollection("alternatives"),
+  getCollection("comparisons"),
+  getCollection("pricing-breakdowns"),
+  getCollection("listicles"),
+  getCollection("guides"),
+  getCollection("lead-magnets"),
+]);
+const contentMap = buildContentMap({
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+});
+const relatedLinks = resolveIndexableRelatedPageLinks(relatedPages, contentMap);
+
+const breadcrumbs = buildListicleBreadcrumbs(title, canonicalPath);
+const seoProps = buildEntrySeoProps(entry.data);
+const listicleDecisionCta = buildKaiplanContentCta(siteConfig, {
+  pageFamily: "listicles",
+  buyerStage,
+  placement: "mid-article",
+  currentPath: canonicalPath,
+});
+
+const openAppUrl = buildAppSignupUrl();
+
+function formatByline(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+  });
+}
+
+const bylineDate = formatByline(updatedAt ?? publishedAt);
+
+/*
+  Roman numeral labels for the first ten items.
+  Beyond ten we fall back to padToolIndex (01, 02 …) which handles
+  the rare case where a listicle has more entries.
+*/
+const ROMAN: readonly string[] = [
+  "I.",
+  "II.",
+  "III.",
+  "IV.",
+  "V.",
+  "VI.",
+  "VII.",
+  "VIII.",
+  "IX.",
+  "X.",
+];
+
+function toNumeral(index: number): string {
+  return ROMAN[index] ?? `${padToolIndex(index)}.`;
+}
+---
+
+<ListicleLayout
+  title={title}
+  description={description}
+  bluf={bluf}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  canonicalPath={canonicalPath}
+  config={siteConfig}
+  breadcrumbs={breadcrumbs}
+  tools={tools}
+  noindex={seoProps.noindex}
+  answers={seoProps.answers}
+  faqs={seoProps.faqs}
+>
+  <!--
+    ListicleLayout renders masthead, breadcrumbs, schema markup (Article +
+    ItemList), header/footer, sidebar. We supply the slot body in editorial
+    style.
+  -->
+
+  <!-- Article masthead / byline -->
+  <header class="listicle-masthead">
+    <p class="editorial-eyebrow">Ranked shortlist</p>
+    <p class="editorial-caption listicle-byline">
+      From the Kaiplan editors &middot; {bylineDate}
+    </p>
+    {description && <p class="editorial-lede listicle-lede">{description}</p>}
+  </header>
+
+  <!-- Optional data table (SEO enrichment) -->
+  {
+    tableData && (
+      <DataTableBlock
+        name={tableData.name}
+        columns={tableData.columns}
+        rows={tableData.rows}
+        description={tableData.description}
+      />
+    )
+  }
+
+  <!-- Ranked tool list — editorial numbered treatment -->
+  <ol class="listicle-ranked-list" aria-label={`Ranked list: ${title}`}>
+    {
+      tools.map(
+        (
+          tool: {
+            name: string;
+            summary: string;
+            pros: string[];
+            cons: string[];
+            pricing: string;
+            verdict: string;
+          },
+          i: number,
+        ) => (
+          <li class="listicle-ranked-list__item">
+            <div class="listicle-ranked-list__numeral" aria-hidden="true">
+              {toNumeral(i)}
+            </div>
+            <div class="listicle-ranked-list__body">
+              <h2 class="listicle-ranked-list__name editorial-italic">
+                {tool.name}
+              </h2>
+              <p class="editorial-body listicle-ranked-list__summary">
+                {tool.summary}
+              </p>
+              <ProsConsBlock
+                subject={tool.name}
+                pros={tool.pros}
+                cons={tool.cons}
+              />
+              <dl class="listicle-ranked-list__meta">
+                <div class="listicle-ranked-list__meta-row">
+                  <dt class="editorial-eyebrow">Pricing</dt>
+                  <dd class="editorial-body">{tool.pricing}</dd>
+                </div>
+                <div class="listicle-ranked-list__meta-row">
+                  <dt class="editorial-eyebrow">Verdict</dt>
+                  <dd class="editorial-body">
+                    <em>{tool.verdict}</em>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        ),
+      )
+    }
+  </ol>
+
+  <DecisionCtaCard {...listicleDecisionCta} />
+
+  <!-- Remaining MDX body prose -->
+  <div class="listicle-body">
+    <Content />
+  </div>
+
+  {
+    statistics &&
+      statistics.length > 0 &&
+      statistics.map(
+        (s: { stat: string; source: string; sourceUrl?: string }) => (
+          <StatisticCitation
+            stat={s.stat}
+            source={s.source}
+            sourceUrl={s.sourceUrl}
+          />
+        ),
+      )
+  }
+
+  {
+    answers &&
+      answers.map(
+        (a: { q?: string; a?: string; question?: string; answer?: string }) => (
+          <AnswerBlock
+            question={a.q ?? a.question ?? ""}
+            answer={a.a ?? a.answer ?? ""}
+          />
+        ),
+      )
+  }
+
+  <FunnelCta
+    stage={buyerStage}
+    funnel={siteConfig.funnel}
+    heading="If the shortlist is clear, start the trial and choose a plan later."
+    benefitBullets={siteConfig.copy?.funnelCta?.benefitBullets}
+    trustNote={siteConfig.funnel.ctaSubtitle}
+  />
+
+  <FaqSection faqs={faqs} heading="Common Questions" />
+
+  <ResourcePillarLink pillar={primaryPillar} />
+
+  {
+    relatedLinks.length > 0 && (
+      <RelatedPages pages={relatedLinks} stage={buyerStage} />
+    )
+  }
+
+  <!-- Closing editorial CTA -->
+  <aside class="listicle-closing-cta">
+    <hr class="editorial-rule" aria-hidden="true" />
+    <p class="editorial-body listicle-closing-cta__text">
+      When the shortlist is clear,{" "}
+      <a class="editorial-link" href={openAppUrl}>open Kaiplan</a> and bring budget,
+      guests, vendors, and seating into one workspace.
+    </p>
+  </aside>
+</ListicleLayout>
+
+<style>
+  /* Masthead / byline above the ranked list */
+  .listicle-masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .listicle-byline {
+    /* editorial-caption already sets italic + muted */
+  }
+
+  .listicle-lede {
+    max-width: 56ch;
+  }
+
+  /*
+    Ranked list — editorial numbered treatment.
+    Oversized display-italic numeral hangs in the left margin (≥48rem).
+    Each item is separated by a hairline rule.
+  */
+  .listicle-ranked-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .listicle-ranked-list__item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    border-top: 1px solid var(--rule);
+    padding-block: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .listicle-ranked-list__item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /*
+    Numeral column — display italic, oversized, terracotta.
+    On mobile it sits above the body text; on wide screens it hangs
+    in the left margin alongside the body column.
+  */
+  .listicle-ranked-list__numeral {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1;
+    color: var(--terracotta);
+  }
+
+  @media (min-width: 48rem) {
+    .listicle-ranked-list__item {
+      grid-template-columns: minmax(4rem, 6rem) minmax(0, 1fr);
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: start;
+    }
+    .listicle-ranked-list__numeral {
+      text-align: right;
+      padding-top: 0.1em;
+    }
+  }
+
+  /* Tool name — display medium italic */
+  .listicle-ranked-list__name {
+    font-family: var(--font-editorial-display);
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0 0 0.75rem;
+    font-weight: 400;
+  }
+
+  .listicle-ranked-list__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .listicle-ranked-list__summary {
+    max-width: 60ch;
+  }
+
+  /* Pricing + verdict definition list */
+  .listicle-ranked-list__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .listicle-ranked-list__meta-row {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: baseline;
+  }
+
+  .listicle-ranked-list__meta-row dt {
+    /* editorial-eyebrow: already small caps */
+  }
+
+  .listicle-ranked-list__meta-row dd {
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* Remaining MDX prose */
+  .listicle-body {
+    max-width: 62ch;
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink);
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .listicle-body :global(h2),
+  .listicle-body :global(h3) {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    margin: clamp(1.5rem, 3vw, 2rem) 0 0.5rem;
+  }
+
+  .listicle-body :global(h2) {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .listicle-body :global(h3) {
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    line-height: 1.2;
+  }
+
+  .listicle-body :global(a) {
+    color: var(--terracotta);
+    text-decoration: underline;
+    text-decoration-color: var(--terracotta);
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+    transition:
+      text-decoration-thickness 200ms ease,
+      color 200ms ease;
+  }
+
+  .listicle-body :global(a:hover),
+  .listicle-body :global(a:focus-visible) {
+    color: var(--terracotta-deep);
+    text-decoration-color: var(--terracotta-deep);
+    text-decoration-thickness: 2px;
+  }
+
+  /* Closing CTA */
+  .listicle-closing-cta {
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .listicle-closing-cta__text {
+    max-width: 50ch;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .listicle-body :global(a) {
+      transition: none;
+    }
+  }
+</style>

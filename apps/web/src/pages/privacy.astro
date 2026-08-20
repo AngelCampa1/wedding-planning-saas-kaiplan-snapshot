@@ -1,0 +1,456 @@
+---
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+
+const privacyEmail = "angel.campa@kaiplan.app";
+---
+
+<LandingLayout
+  config={siteConfig}
+  title={`Privacy Policy — ${siteConfig.name}`}
+  description={`Learn what Kaiplan collects, how wedding planning data is used, which processors support the app, and how to request data removal.`}
+  canonicalPath="/privacy"
+>
+  <article class="editorial-shell page-shell">
+    <header class="page-header">
+      <p class="editorial-eyebrow">PRIVACY</p>
+      <h1 class="editorial-display-m editorial-italic page-title">
+        Your data, our responsibility.
+      </h1>
+      <p class="editorial-lede page-lede">
+        This page explains what information Kaiplan collects — including
+        information you enter about your wedding guests, who are not Kaiplan
+        users — how it is used to operate the product, the legal bases we rely
+        on, the processors that support the app, your privacy rights, and how to
+        contact us.
+      </p>
+      <p class="page-datestamp">Effective date: 28 May 2026</p>
+    </header>
+
+    <div class="editorial-body page-body">
+      <section id="who-we-are">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">I.</span>
+          Who we are
+        </h2>
+        <p>
+          Kaiplan is a wedding-planning application operated by Ventora Labs, a
+          Wyoming corporation ("Kaiplan", "we", "us"). Kaiplan is the data
+          controller for the personal information described in this policy. Our
+          principal place of business is Sheridan, Wyoming. You can reach us
+          about privacy at
+          <a href={`mailto:${privacyEmail}`} class="editorial-link"
+            >{privacyEmail}</a
+          >. We have not appointed a Data Protection Officer; if that changes,
+          this policy will name them. If we are required to appoint an EU or UK
+          representative under Art. 27 GDPR, their details will be added here.
+        </p>
+      </section>
+
+      <section id="what-we-collect">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">II.</span>
+          What we collect
+        </h2>
+        <p>
+          <strong>Account data.</strong> When you create an account we store your
+          name, email address, whether your email is verified, an optional profile
+          image, and a securely hashed password (or, if you sign in with Google, OAuth
+          tokens and the provider account identifier instead of a password). We also
+          store session records that include your IP address and browser user-agent
+          so we can keep you signed in and secure your account.
+        </p>
+        <p>
+          <strong>Planning data you create.</strong> As you use Kaiplan we store the
+          wedding details you enter: wedding name and date, budget amounts and currency,
+          budget categories and line items, vendor records (company name, primary
+          contact name, vendor email and phone, contract status and notes, quotes
+          and payment amounts and dates), checklist tasks, seating charts, and wedding-website
+          content and its public URL slug.
+        </p>
+        <p>
+          <strong>Guest-list data about other people.</strong> Kaiplan lets you build
+          a guest list. The information you enter about each guest is personal data
+          about people who are usually not Kaiplan users. This can include each guest's
+          first and last name, email address, phone number, which "side" they belong
+          to, group/household name, dietary tags and notes, RSVP status, and plus-one
+          relationships. See section
+          <strong>X. Guests and other non-users</strong> for how we handle this.
+        </p>
+        <p>
+          <strong>Billing data.</strong> We store your subscription plan and status,
+          trial dates, and identifiers issued by our payment processor (Stripe customer,
+          subscription, and price IDs). We do not store full card numbers; payment
+          card details are handled by Stripe.
+        </p>
+        <p>
+          <strong>Communications and support.</strong> If you send feedback we store
+          your message and, if provided, your email and the page URL and browser user-agent.
+          We keep operational logs of the transactional emails we send (recipient
+          email, email type, status, and provider message ID) and your email-notification
+          preferences.
+        </p>
+        <p>
+          <strong>Marketing and pre-signup data.</strong> If you join a waitlist,
+          request a planning resource, or submit a survey on our marketing site, we
+          store your email, the source page, UTM campaign parameters, referral codes,
+          survey answers, and lead-magnet download records.
+        </p>
+        <p>
+          <strong>Analytics and diagnostics.</strong> We collect basic usage and error
+          information through PostHog and Sentry (see section
+          <strong>XI. Cookies and analytics</strong>).
+        </p>
+      </section>
+
+      <section id="how-we-use-it">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">III.</span>
+          How and why we use it (legal bases)
+        </h2>
+        <p>
+          We use your information to authenticate your account, operate the
+          planning workspace, process billing and trials, deliver transactional
+          and RSVP emails, respond to feedback, diagnose errors, and improve the
+          product. We do not sell or share your data with advertisers or paid
+          vendor marketplaces.
+        </p>
+        <p>
+          Where the UK GDPR or EU GDPR applies, we rely on these legal bases
+          under Article 6:
+        </p>
+        <ul class="processor-list">
+          <li>
+            <strong>Performance of a contract</strong> — to create and run your account,
+            store your planning data, and provide the features you sign up for.
+          </li>
+          <li>
+            <strong>Legitimate interests</strong> — to secure our service, prevent
+            abuse, understand product usage in aggregate, and send service-related
+            messages; balanced against your rights.
+          </li>
+          <li>
+            <strong>Legal obligation</strong> — to keep records we are required to
+            retain, for example billing records.
+          </li>
+          <li>
+            <strong>Consent</strong> — where required, for non-essential analytics/cookies
+            and certain marketing emails; you can withdraw consent at any time.
+          </li>
+        </ul>
+      </section>
+
+      <section id="sub-processors">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">IV.</span>
+          Sub-processors
+        </h2>
+        <p>
+          Kaiplan relies on the following third-party processors to operate.
+          Each processes personal data on our behalf for the purpose described.
+        </p>
+        <ul class="processor-list">
+          <li>
+            <strong>Cloudflare</strong> — application and website hosting (Workers
+            and Pages), CDN, database connection pooling (Hyperdrive), image storage
+            (Cloudflare Images), marketing data storage (D1), bot/abuse protection
+            on public RSVP forms (Turnstile), and basic web analytics (Cloudflare
+            Insights).
+          </li>
+          <li>
+            <strong>Neon</strong> — managed PostgreSQL hosting for the core application
+            database (accounts, weddings, guests, vendors, billing records).
+          </li>
+          <li>
+            <strong>Stripe</strong> — payment processing, subscriptions, and billing
+            management.
+          </li>
+          <li>
+            <strong>Resend</strong> — transactional and RSVP email delivery.
+          </li>
+          <li>
+            <strong>Google</strong> — optional account sign-in via Google OAuth, when
+            you choose it.
+          </li>
+          <li>
+            <strong>Sentry</strong> — error monitoring and production diagnostics.
+          </li>
+          <li>
+            <strong>PostHog</strong> — product and marketing analytics. Where email
+            is used for server-side lead-magnet attribution, it is hashed.
+          </li>
+          <li>
+            <strong>Apollo.io</strong> — sales/CRM list management for marketing signups.
+            Only the email address you submit through a marketing signup form is sent
+            to Apollo. Your wedding planning data and guest data are never sent to
+            Apollo.
+          </li>
+        </ul>
+      </section>
+
+      <section id="international-transfers">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">V.</span>
+          International transfers
+        </h2>
+        <p>
+          Kaiplan and several of the processors above are based in or store data
+          in the United States. If you access Kaiplan from the EU, the UK, or
+          elsewhere, your information may be transferred to and processed in the
+          United States and other countries whose data-protection laws may
+          differ from your own. Where required, transfers of EU/UK personal data
+          are made under appropriate safeguards such as the EU Standard
+          Contractual Clauses and the UK International Data Transfer Addendum.
+        </p>
+      </section>
+
+      <section id="retention">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">VI.</span>
+          Data retention
+        </h2>
+        <p>
+          We keep your account and planning data for as long as your account is
+          active. When you delete your account we intend to delete or anonymize
+          your record and associated data — including your guest list and other
+          planning data — within a reasonable period when no longer required,
+          except where we must retain certain records (such as billing records)
+          to meet legal obligations. Short-lived tokens (for example
+          email-preference and RSVP links) expire automatically, and
+          processed-webhook and email-token records are cleaned up on a rolling
+          basis.
+        </p>
+      </section>
+
+      <section id="security">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">VII.</span>
+          Security
+        </h2>
+        <p>
+          We take reasonable measures to protect your information. Account
+          passwords are stored hashed, never in plain text, and a minimum
+          password length is enforced. Authenticated requests are protected by
+          session checks and CSRF protections, and email sign-up can require
+          email verification. Public RSVP forms can require Cloudflare Turnstile
+          verification to reduce abuse. Our application and database are
+          operated through the hosting and database providers listed above. No
+          method of transmission or storage is completely secure, and we cannot
+          guarantee absolute security. We do not claim any specific security
+          certification unless and until one is independently obtained.
+        </p>
+      </section>
+
+      <section id="your-rights">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">VIII.</span>
+          Your rights
+        </h2>
+        <p>
+          <strong>EU/UK (GDPR).</strong> Subject to applicable law, you may request
+          access to your personal data, correction, deletion, restriction or objection
+          to processing, and data portability, and you may withdraw consent where
+          we rely on it. You also have the right to lodge a complaint with your local
+          supervisory authority (in the UK, the Information Commissioner's Office).
+        </p>
+        <p>
+          <strong>California (CCPA/CPRA).</strong> Subject to applicable law, California
+          residents may request to know the categories and specific pieces of personal
+          information we have collected, request deletion, request correction, and
+          opt out of any "sale" or "sharing" of personal information. We do not sell
+          or share personal information as those terms are defined under the CCPA/CPRA,
+          and we will not discriminate against you for exercising your rights.
+        </p>
+        <p>
+          To exercise any of these rights, email
+          <a href={`mailto:${privacyEmail}`} class="editorial-link"
+            >{privacyEmail}</a
+          >. We may need to verify your identity before acting on a request.
+        </p>
+      </section>
+
+      <section id="data-removal">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">IX.</span>
+          Data removal
+        </h2>
+        <p>
+          To delete your account, email us at
+          <a href={`mailto:${privacyEmail}`} class="editorial-link"
+            >{privacyEmail}</a
+          >. We will delete or anonymize your record and associated data within
+          a reasonable period when no longer required, subject to the
+          legal-retention exceptions described in section VI.
+        </p>
+      </section>
+
+      <section id="guests-and-non-users">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">X.</span>
+          Guests and other non-users
+        </h2>
+        <p>
+          When you add guests to your wedding, you provide us with personal data
+          about other people. In relation to that guest data you act as the
+          person who decides what to collect, and we process it on your behalf
+          to provide guest-list, RSVP, seating, and wedding-website features and
+          to send RSVP-related emails. You are responsible for having an
+          appropriate basis to share your guests' information with us and for
+          the accuracy of what you enter.
+        </p>
+        <p>
+          Guests who receive an RSVP email can manage their email preferences
+          and unsubscribe from RSVP messages using the link in those emails. If
+          you are a guest (or any non-user) and want to access, correct, or
+          delete information a couple has entered about you, please contact the
+          couple who invited you, or contact us at
+          <a href={`mailto:${privacyEmail}`} class="editorial-link"
+            >{privacyEmail}</a
+          > and we will help route your request or act on it where we are able.
+        </p>
+      </section>
+
+      <section id="cookies-and-analytics">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">XI.</span>
+          Cookies and analytics
+        </h2>
+        <p>
+          We use essential cookies and similar technologies to keep you signed
+          in and to operate the service. We use PostHog and Sentry to understand
+          how people find and use the site, diagnose errors, and improve
+          conversion paths, and Cloudflare Insights for basic web analytics.
+          PostHog is loaded with autocapture, pageview, pageleave, session
+          recording, browser persistence, and browser capture disabled by
+          default. Server-side lead-magnet analytics use hashed email values
+          when an email is needed for attribution. We do not sell or share your
+          data with advertisers.
+        </p>
+      </section>
+
+      <section id="children">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">XII.</span>
+          Children
+        </h2>
+        <p>
+          Kaiplan is intended for adults planning a wedding and is not directed
+          to children. We do not knowingly collect personal information from
+          children under 16. If you believe a child has provided us personal
+          information, contact us at
+          <a href={`mailto:${privacyEmail}`} class="editorial-link"
+            >{privacyEmail}</a
+          > and we will delete it.
+        </p>
+      </section>
+
+      <section id="changes">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">XIII.</span>
+          Changes to this policy
+        </h2>
+        <p>
+          We may update this policy from time to time. When we do, we will
+          revise the effective date above and, where appropriate, notify you.
+          Continued use of Kaiplan after an update means you accept the revised
+          policy.
+        </p>
+      </section>
+
+      <section id="contact">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">XIV.</span>
+          Contact
+        </h2>
+        <p>
+          Questions about this policy or your data:
+          <a href={`mailto:${privacyEmail}`} class="editorial-link"
+            >{privacyEmail}</a
+          >.
+        </p>
+      </section>
+
+      <hr class="editorial-rule closing-rule" />
+    </div>
+  </article>
+</LandingLayout>
+
+<style>
+  .page-shell {
+    padding-block: clamp(4rem, 8vw, 7rem);
+  }
+
+  .page-header {
+    max-width: 62ch;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .page-title {
+    margin-top: 0.75rem;
+  }
+
+  .page-lede {
+    margin-top: 1rem;
+  }
+
+  .page-datestamp {
+    margin-top: 0.75rem;
+    font-family: var(--font-editorial-body);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .page-body {
+    max-width: 62ch;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  .section-rule {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-heading {
+    margin-bottom: 1rem;
+  }
+
+  .section-numeral {
+    font-style: normal;
+    font-family: var(--font-editorial-mono, monospace);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .processor-list {
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: disc;
+  }
+
+  .closing-rule {
+    margin-top: 1rem;
+  }
+</style>

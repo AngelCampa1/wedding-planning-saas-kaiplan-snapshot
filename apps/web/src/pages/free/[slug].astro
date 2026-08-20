@@ -1,0 +1,431 @@
+---
+export const prerender = true;
+import "../../styles/global.css";
+import { getCollection } from "astro:content";
+import { marked } from "marked";
+import { siteConfig } from "@/config/site";
+import { contentEntrySlug } from "@/lib/content-entry";
+import { splitContentAtGate } from "@kaiplan/marketing/lib/lead-magnet-utils";
+import { GatedContentIsland } from "@kaiplan/marketing/components/gated-content-island";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import BreadcrumbNav from "@kaiplan/marketing/components/breadcrumb-nav.astro";
+import RelatedPages from "@kaiplan/marketing/components/related-pages.astro";
+import AnswerBlock from "@kaiplan/marketing/seo/answer-block.astro";
+import DefinitionBlock from "@kaiplan/marketing/seo/definition-block.astro";
+import StatisticCitation from "@kaiplan/marketing/seo/statistic-citation.astro";
+import { buildLeadMagnetBreadcrumbs } from "@kaiplan/marketing/lib/lead-magnet-breadcrumbs";
+import { ensureTrailingSlash } from "@kaiplan/marketing/lib/meta";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import ResourcePillarLink from "@/components/resource-pillar-link.astro";
+import { getPrimaryPillarForHref } from "@/lib/resource-pillars";
+import {
+  buildContentMap,
+  buildEntrySeoProps,
+  buildLeadMagnetSchemaGraph,
+  resolveIndexableRelatedPageLinks,
+} from "@/lib/page-helpers";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("lead-magnets");
+  return entries.map((entry) => ({
+    params: { slug: contentEntrySlug(entry) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const slug = contentEntrySlug(entry);
+const { data } = entry;
+
+const canonicalPath = `/free/${slug}`;
+const canonicalUrl = ensureTrailingSlash(
+  `https://${siteConfig.domain}${canonicalPath}`,
+);
+const primaryPillar = getPrimaryPillarForHref(canonicalPath);
+
+// Public Turnstile site key baked at build time. Empty in local dev so no
+// widget renders and the server applies its dev bypass.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+
+// Derive category eyebrow from slug
+function resolveCategory(entrySlug: string): string {
+  const budgetSlugs = [
+    "budget-template",
+    "hidden-cost-calculator-worksheet",
+    "honeymoon-budget-planner",
+  ];
+  const timelineSlugs = [
+    "wedding-timeline-template",
+    "pre-wedding-beauty-timeline",
+    "wedding-day-coordinator-notes",
+  ];
+  const vendorSlugs = [
+    "vendor-interview-question-list",
+    "vendor-red-flag-checklist",
+    "vendor-contract-review-checklist",
+    "wedding-venue-comparison-worksheet",
+  ];
+  const checklistSlugs = [
+    "complete-wedding-checklist",
+    "wedding-photography-shot-list",
+    "seating-chart-planning-template",
+    "wedding-rsvp-tracker",
+  ];
+  const worksheetSlugs = ["wedding-vows-writing-worksheet"];
+
+  if (budgetSlugs.includes(entrySlug)) return "BUDGET TOOL";
+  if (timelineSlugs.includes(entrySlug)) return "TIMELINE TOOL";
+  if (vendorSlugs.includes(entrySlug)) return "VENDOR TOOL";
+  if (checklistSlugs.includes(entrySlug)) return "CHECKLIST";
+  if (worksheetSlugs.includes(entrySlug)) return "WORKSHEET";
+  return "FREE TOOL";
+}
+
+const category = resolveCategory(slug);
+
+function resolveClosingCta(entrySlug: string): string {
+  const ctas: Record<string, string> = {
+    "budget-template": "Planning the budget?",
+    "hidden-cost-calculator-worksheet": "Checking the real cost?",
+    "vendor-interview-question-list": "Interviewing vendors?",
+    "vendor-red-flag-checklist": "Screening vendors?",
+    "wedding-app-comparison-scorecard": "Comparing planning apps?",
+    "wedding-timeline-template": "Building the timeline?",
+    "wedding-venue-comparison-worksheet": "Comparing venues?",
+    "complete-wedding-checklist": "Tracking everything?",
+    "wedding-photography-shot-list": "Planning the photos?",
+    "vendor-contract-review-checklist": "Reviewing contracts?",
+    "seating-chart-planning-template": "Planning the seating?",
+    "wedding-vows-writing-worksheet": "Writing your vows?",
+    "pre-wedding-beauty-timeline": "Planning the getting-ready day?",
+    "honeymoon-budget-planner": "Planning the honeymoon?",
+    "wedding-day-coordinator-notes": "Coordinating the day?",
+    "wedding-rsvp-tracker": "Tracking RSVPs?",
+  };
+
+  return ctas[entrySlug] ?? "Planning the wedding?";
+}
+
+const closingCta = resolveClosingCta(slug);
+
+// Build "what's inside" bullets from bluf
+function buildInsideBullets(bluf: string): string[] {
+  const sentences = bluf
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 20 && s.length < 200);
+  if (sentences.length >= 2) {
+    return sentences.slice(0, 4);
+  }
+  return [bluf];
+}
+
+const insideBullets = buildInsideBullets(data.bluf);
+
+// Gated content split — preserve existing email-gate form logic exactly
+const renderedHtml = await Promise.resolve(
+  marked.parse(entry.body ?? "", { async: true }),
+);
+const { teaser, gated } = splitContentAtGate(
+  renderedHtml,
+  data.freePreviewSections,
+);
+
+const openAppUrl = buildAppSignupUrl();
+const breadcrumbs = buildLeadMagnetBreadcrumbs({
+  title: data.title,
+  canonicalPath,
+});
+
+const [
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+] = await Promise.all([
+  getCollection("alternatives"),
+  getCollection("comparisons"),
+  getCollection("pricing-breakdowns"),
+  getCollection("listicles"),
+  getCollection("guides"),
+  getCollection("lead-magnets"),
+]);
+const contentMap = buildContentMap({
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+});
+const relatedLinks = resolveIndexableRelatedPageLinks(
+  data.relatedPages,
+  contentMap,
+);
+const seoProps = buildEntrySeoProps(data);
+const schemaGraph = buildLeadMagnetSchemaGraph({
+  title: data.title,
+  description: data.description,
+  publishedAt: data.publishedAt,
+  updatedAt: data.updatedAt,
+  canonicalUrl,
+  siteDomain: siteConfig.domain,
+  defaultOgImage: siteConfig.defaultOgImage,
+  ogImage: data.ogImage,
+  author: siteConfig.author,
+  answers: data.answers,
+  faqs: data.faqs,
+});
+---
+
+<LandingLayout
+  config={siteConfig}
+  description={data.description}
+  title={`${data.title} | ${siteConfig.name}`}
+  canonicalPath={canonicalPath}
+  publishedAt={data.publishedAt}
+  updatedAt={data.updatedAt}
+  noindex={seoProps.noindex}
+  ogType="article"
+  ogImage={data.ogImage}
+  articleTags={data.tags}
+  schemaGraph={schemaGraph}
+>
+  <BreadcrumbNav
+    items={breadcrumbs}
+    siteUrl={`https://${siteConfig.domain}`}
+    emitSchema={false}
+  />
+  <article class="editorial-shell" data-page="lead-magnet">
+    <!-- HERO -->
+    <section class="lm-hero" aria-labelledby="lm-headline">
+      <p class="editorial-eyebrow lm-hero__eyebrow">{category}</p>
+      <hr class="editorial-rule lm-hero__rule" aria-hidden="true" />
+      <h1
+        id="lm-headline"
+        class="editorial-display-m editorial-italic lm-hero__headline"
+      >
+        {data.title}
+      </h1>
+      <p class="editorial-lede lm-hero__lede">{data.description}</p>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- GATED CONTENT — email capture form + teaser/gated split -->
+    <section class="lm-gate-section" aria-label="Download this template">
+      <script is:inline>
+        (function () {
+          try {
+            if (localStorage.getItem("exit-popup-signed-up") === "true") {
+              document.currentScript.parentElement.setAttribute(
+                "data-signed-up",
+                "",
+              );
+            }
+          } catch (error) {
+            void error;
+          }
+        })();
+      </script>
+      <GatedContentIsland
+        client:load
+        apiUrl={Astro.url.origin}
+        leadMagnetTitle={data.title}
+        leadMagnetSlug={slug}
+        description="Enter your email — we'll send the full PDF to your inbox and give you an instant download here."
+        ctaText="Download free"
+        teaserHtml={teaser}
+        gatedHtml={gated}
+        sourcePage={canonicalPath}
+        webVersionHref={`${canonicalPath}/read`}
+        turnstileSiteKey={turnstileSiteKey}
+      />
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- WHAT'S INSIDE -->
+    <section class="lm-inside" aria-labelledby="lm-inside-heading">
+      <p class="editorial-eyebrow">What is inside</p>
+      <h2 id="lm-inside-heading" class="editorial-display-m lm-inside__title">
+        <em class="editorial-italic">What this template covers.</em>
+      </h2>
+      <ul class="lm-inside__list" aria-label="Template contents">
+        {
+          insideBullets.map((bullet) => (
+            <li class="lm-inside__item editorial-body">{bullet}</li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <ResourcePillarLink pillar={primaryPillar} />
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    {
+      relatedLinks.length > 0 && (
+        <>
+          <RelatedPages
+            pages={relatedLinks}
+            heading="Related wedding planning resources"
+            variant="compact"
+          />
+          <hr class="editorial-rule section-rule" aria-hidden="true" />
+        </>
+      )
+    }
+
+    <!-- RELATED CTA -->
+    <section class="lm-related" aria-label="Open Kaiplan">
+      <p class="editorial-body lm-related__line">
+        {closingCta}{" "}
+        <a class="editorial-link" href={openAppUrl}>
+          <em>Open Kaiplan &#8594;</em>
+        </a>
+      </p>
+    </section>
+
+    {
+      data.definitions && data.definitions.length > 0 && (
+        <section class="lm-seo-blocks" aria-label="Definitions">
+          {data.definitions.map((definition) => (
+            <DefinitionBlock
+              term={definition.term}
+              definition={definition.definition}
+            />
+          ))}
+        </section>
+      )
+    }
+
+    {
+      data.answers && data.answers.length > 0 && (
+        <section class="lm-seo-blocks" aria-label="Common questions">
+          {data.answers.map((answer) => (
+            <AnswerBlock
+              question={answer.q}
+              answer={answer.a}
+              emitSchema={false}
+            />
+          ))}
+        </section>
+      )
+    }
+
+    {
+      data.statistics && data.statistics.length > 0 && (
+        <section class="lm-seo-blocks" aria-label="Sources and citations">
+          {data.statistics.map((s) => (
+            <StatisticCitation
+              stat={s.stat}
+              source={s.source}
+              sourceUrl={s.sourceUrl}
+            />
+          ))}
+        </section>
+      )
+    }
+  </article>
+</LandingLayout>
+
+<style>
+  [data-page="lead-magnet"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  /* Hero */
+  .lm-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: clamp(1.5rem, 4vw, 3rem);
+    max-width: 56ch;
+  }
+
+  .lm-hero__rule {
+    max-width: 3rem;
+    margin: 0;
+  }
+
+  .lm-hero__headline {
+    line-height: 1.05;
+  }
+
+  .lm-hero__lede {
+    max-width: 50ch;
+    margin-top: 0.5rem;
+  }
+
+  /* Section rule */
+  .section-rule {
+    margin-block: 0;
+  }
+
+  /* Gate section */
+  .lm-gate-section {
+    padding-block: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* What's inside */
+  .lm-inside {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-block: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .lm-inside__title {
+    margin: 0;
+  }
+
+  .lm-inside__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 58ch;
+  }
+
+  .lm-inside__item {
+    position: relative;
+    padding-left: 1.5rem;
+    max-width: none;
+  }
+
+  .lm-inside__item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.875rem;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* Related CTA */
+  .lm-related {
+    padding-block: clamp(1rem, 3vw, 2rem);
+  }
+
+  .lm-related__line {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+    max-width: none;
+  }
+
+  .lm-seo-blocks {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+</style>

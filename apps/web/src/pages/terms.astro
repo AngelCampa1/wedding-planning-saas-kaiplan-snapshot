@@ -1,0 +1,171 @@
+---
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+---
+
+<LandingLayout
+  config={siteConfig}
+  title={`Terms of Service - ${siteConfig.name}`}
+  description={`Read the terms for using Kaiplan, including account rules, billing, lifetime access, acceptable use, liability limits, and contact details.`}
+  canonicalPath="/terms"
+>
+  <article class="editorial-shell page-shell">
+    <header class="page-header">
+      <p class="editorial-eyebrow">TERMS</p>
+      <h1 class="editorial-display-m editorial-italic page-title">
+        The terms of the arrangement.
+      </h1>
+      <p class="editorial-lede page-lede">
+        These terms describe the account, billing, and usage conditions for
+        using Kaiplan and the information published on this site.
+      </p>
+      <p class="page-datestamp">Last updated: March 2026</p>
+    </header>
+
+    <div class="editorial-body page-body">
+      <section id="what-kaiplan-is">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">I.</span>
+          What {siteConfig.name} is
+        </h2>
+        <p>
+          By creating an account or starting a paid plan with
+          {siteConfig.name}, you agree to these terms. Starter and Pro are
+          month-to-month subscriptions unless you cancel, while Lifetime is a
+          one-time purchase for ongoing access.
+        </p>
+      </section>
+
+      <section id="accounts-and-billing">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">II.</span>
+          Accounts and billing
+        </h2>
+        <p>
+          Selecting a plan takes you into the authenticated app, where checkout
+          is completed through our billing provider. We may suspend or remove
+          accounts for abuse, fraud, or misuse of the service.
+        </p>
+      </section>
+
+      <section id="cancellations-and-refunds">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">III.</span>
+          Cancellations and refunds
+        </h2>
+        <p>
+          Starter and Pro subscriptions renew automatically until canceled. You
+          can cancel future renewals from the billing portal in the app. A
+          cancellation stops future charges but does not automatically refund
+          past subscription periods. Lifetime purchases are one-time charges for
+          the wedding planning workspace and are generally non-refundable after
+          purchase, except where required by law or where Kaiplan confirms a
+          billing error.
+        </p>
+      </section>
+
+      <section id="content-on-this-site">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">IV.</span>
+          Content on this site
+        </h2>
+        <p>
+          Pricing data and competitor information on this site reflects our
+          research as of the dates shown. We do not guarantee accuracy of
+          third-party pricing. Always verify pricing directly with vendors
+          before making purchasing decisions.
+        </p>
+      </section>
+
+      <section id="limitation-of-liability">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">V.</span>
+          Limitation of liability
+        </h2>
+        <p>
+          This site is provided as-is for informational purposes.
+          {siteConfig.name} is not liable for decisions made based on information
+          presented here.
+        </p>
+      </section>
+
+      <section id="contact">
+        <hr class="editorial-rule section-rule" />
+        <h2 class="editorial-display-m editorial-italic section-heading">
+          <span class="section-numeral">VI.</span>
+          Contact
+        </h2>
+        <p>
+          Questions:
+          <a href={`mailto:${siteConfig.contactEmail}`} class="editorial-link">
+            {siteConfig.contactEmail}
+          </a>
+        </p>
+      </section>
+
+      <hr class="editorial-rule closing-rule" />
+    </div>
+  </article>
+</LandingLayout>
+
+<style>
+  .page-shell {
+    padding-block: clamp(4rem, 8vw, 7rem);
+  }
+
+  .page-header {
+    max-width: 62ch;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .page-title {
+    margin-top: 0.75rem;
+  }
+
+  .page-lede {
+    margin-top: 1rem;
+  }
+
+  .page-datestamp {
+    margin-top: 0.75rem;
+    font-family: var(--font-editorial-body);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .page-body {
+    max-width: 62ch;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  .section-rule {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-heading {
+    margin-bottom: 1rem;
+  }
+
+  .section-numeral {
+    font-style: normal;
+    font-family: var(--font-editorial-mono, monospace);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .closing-rule {
+    margin-top: 1rem;
+  }
+</style>

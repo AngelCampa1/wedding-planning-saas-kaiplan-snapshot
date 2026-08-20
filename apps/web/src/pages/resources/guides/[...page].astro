@@ -1,0 +1,77 @@
+---
+export const prerender = true;
+import "../../../styles/global.css";
+import { getCollection } from "astro:content";
+import CategoryHub from "@kaiplan/marketing/hubs/category-hub.astro";
+import PublicSignupCta from "@kaiplan/marketing/components/public-signup-cta";
+import { FilterChipsIsland } from "@kaiplan/marketing/components/filter-chips-island";
+import { siteConfig } from "@/config/site";
+import { hubFaqs } from "@/config/hub-faqs";
+import {
+  sortByUpdatedAtDesc,
+  mapToContentItems,
+} from "@kaiplan/marketing/lib/collections";
+import { BUYER_STAGE_FILTER, DATE_SORT_OPTIONS } from "@/lib/content-filters";
+import { filterIndexableEntries } from "@/lib/indexable-content";
+import { getKaiplanGuidesHubCopy } from "@/lib/hub-page-copy";
+import { contentEntrySlug } from "@/lib/content-entry";
+import type { GetStaticPathsOptions } from "astro";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const entries = filterIndexableEntries(await getCollection("guides"));
+  const sorted = sortByUpdatedAtDesc(entries);
+  const items = mapToContentItems(
+    sorted,
+    (e) => `/resources/guides/${contentEntrySlug(e)}`,
+    (e): Record<string, string> =>
+      e.data.timeEstimate ? { timeEstimate: e.data.timeEstimate } : {},
+  );
+  return paginate(items, { pageSize: 10 });
+}
+
+const { page } = Astro.props;
+const guidesHubCopy = getKaiplanGuidesHubCopy();
+---
+
+<CategoryHub
+  config={siteConfig}
+  title={guidesHubCopy.title}
+  description={guidesHubCopy.description}
+  items={page.data}
+  page={page}
+  basePath="/resources/guides/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Resources", href: "/resources/" },
+    { label: "Guides", href: "/resources/guides/" },
+  ]}
+  faqs={hubFaqs["/resources/guides"]}
+  faqHeading={guidesHubCopy.faqHeading}
+>
+  <FilterChipsIsland
+    slot="filters"
+    client:load
+    items={page.data}
+    filters={[BUYER_STAGE_FILTER]}
+    sortOptions={DATE_SORT_OPTIONS}
+  />
+  <section
+    slot="cta"
+    class="mt-8 py-10 text-center border-t border-[var(--color-neutral-200)]"
+    id="signup"
+  >
+    <h2 class="text-2xl font-bold text-[var(--color-brand-text)] mb-2">
+      {guidesHubCopy.ctaHeading}
+    </h2>
+    <p class="text-[var(--color-brand-muted)] mb-6 max-w-md mx-auto">
+      {guidesHubCopy.ctaBody}
+    </p>
+    <PublicSignupCta
+      apiUrl=""
+      sourcePage="/resources/guides/"
+      buttonText={guidesHubCopy.ctaButtonText}
+      ctaTarget={siteConfig.funnel.bofu.ctaTarget}
+      surveyQuestions={siteConfig.survey.questions}
+    />
+  </section>
+</CategoryHub>

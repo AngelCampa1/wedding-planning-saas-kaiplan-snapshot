@@ -1,0 +1,43 @@
+---
+import { buildCtaAnalyticsAttributes } from "../lib/cta-analytics"
+import type { CtaAnalyticsContext } from "../types"
+
+interface Props {
+  ctaText: string
+  ctaTarget: string
+  subtitle?: string
+  bullets?: string[]
+  trustNote?: string
+  analytics?: CtaAnalyticsContext
+}
+
+const { ctaText, ctaTarget, subtitle, bullets, trustNote, analytics } = Astro.props
+const analyticsAttributes = buildCtaAnalyticsAttributes({
+  ...analytics,
+  target: ctaTarget,
+})
+---
+
+<div class="hidden lg:block sticky top-24" data-section="sidebar-cta">
+  <div data-sidebar-cta-panel class="rounded-[var(--radius-md)] border border-[var(--color-neutral-200)] bg-[var(--surface-elevated)] p-5 shadow-[var(--shadow-sm)]">
+    {subtitle && (
+      <p class="mb-3 text-[length:var(--text-caption)] text-[var(--color-neutral-500)]">{subtitle}</p>
+    )}
+    {bullets && bullets.length > 0 && (
+      <ul class="space-y-2 mb-4">
+        {bullets.map((bullet) => (
+          <li class="flex items-start gap-2 text-[length:var(--text-caption)] text-[var(--color-neutral-700)]">
+            <svg class="w-4 h-4 mt-0.5 shrink-0 text-[var(--color-brand-primary)]" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor">
+              <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+            </svg>
+            <span>{bullet}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+    <a href={ctaTarget} class="btn-primary block text-center no-underline w-full mt-4" {...analyticsAttributes}>{ctaText}</a>
+    {trustNote && (
+      <p class="text-[length:var(--text-caption)] text-[var(--color-neutral-400)] mt-3 text-center">{trustNote}</p>
+    )}
+  </div>
+</div>

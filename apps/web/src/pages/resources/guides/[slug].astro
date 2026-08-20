@@ -1,0 +1,380 @@
+---
+export const prerender = true;
+import "../../../styles/global.css";
+import { getCollection, render } from "astro:content";
+import ArticleLayout from "@kaiplan/marketing/layouts/article-layout.astro";
+import FaqSection from "@kaiplan/marketing/components/faq-section.astro";
+import FunnelCta from "@kaiplan/marketing/components/funnel-cta.astro";
+import InlineSignup from "@kaiplan/marketing/components/inline-signup.astro";
+import RelatedPages from "@kaiplan/marketing/components/related-pages.astro";
+import DefinitionBlock from "@kaiplan/marketing/seo/definition-block.astro";
+import AnswerBlock from "@kaiplan/marketing/seo/answer-block.astro";
+import ExpertQuote from "@kaiplan/marketing/seo/expert-quote.astro";
+import StatisticCitation from "@kaiplan/marketing/seo/statistic-citation.astro";
+import DataTableBlock from "@kaiplan/marketing/seo/data-table-block.astro";
+import { siteConfig } from "@/config/site";
+import { buildGuideBreadcrumbs } from "@/lib/breadcrumbs";
+import { buildGuideInlineSignupCopy } from "@/lib/guide-inline-signup";
+import {
+  buildOptionalHowToSchema,
+  buildContentMap,
+  buildEntrySeoProps,
+  resolveIndexableRelatedPageLinks,
+} from "@/lib/page-helpers";
+import { contentEntrySlug } from "@/lib/content-entry";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import ResourcePillarLink from "@/components/resource-pillar-link.astro";
+import { getPrimaryPillarForHref } from "@/lib/resource-pillars";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("guides");
+  return entries.map((entry) => ({
+    params: { slug: contentEntrySlug(entry) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const {
+  title,
+  description,
+  bluf,
+  buyerStage,
+  publishedAt,
+  updatedAt,
+  faqs,
+  relatedPages,
+  definitions,
+  answers,
+  expertQuotes,
+  statistics,
+  tableData,
+} = entry.data;
+const canonicalPath = `/resources/guides/${contentEntrySlug(entry)}`;
+const primaryPillar = getPrimaryPillarForHref(canonicalPath);
+
+const [
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+] = await Promise.all([
+  getCollection("alternatives"),
+  getCollection("comparisons"),
+  getCollection("pricing-breakdowns"),
+  getCollection("listicles"),
+  getCollection("guides"),
+  getCollection("lead-magnets"),
+]);
+const contentMap = buildContentMap({
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+});
+const relatedLinks = resolveIndexableRelatedPageLinks(relatedPages, contentMap);
+
+const breadcrumbs = buildGuideBreadcrumbs(title, canonicalPath);
+const inlineSignupCopy = buildGuideInlineSignupCopy(canonicalPath);
+const howToSchema = buildOptionalHowToSchema(
+  entry.data.steps,
+  title,
+  description,
+);
+const seoProps = buildEntrySeoProps(entry.data);
+
+const openAppUrl = buildAppSignupUrl();
+
+function formatByline(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+  });
+}
+
+const bylineDate = formatByline(updatedAt ?? publishedAt);
+---
+
+<ArticleLayout
+  title={title}
+  description={description}
+  bluf={bluf}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  canonicalPath={canonicalPath}
+  config={siteConfig}
+  breadcrumbs={breadcrumbs}
+  schemas={howToSchema ? [howToSchema] : []}
+  headings={headings}
+  noindex={seoProps.noindex}
+  answers={seoProps.answers}
+  faqs={seoProps.faqs}
+>
+  <!--
+    The ArticleLayout renders the masthead, breadcrumbs, schema markup,
+    header/footer, and sidebar around this slot. We provide the article
+    body in editorial style below.
+  -->
+
+  <!-- Article masthead / byline -->
+  <header class="guide-masthead">
+    <p class="editorial-eyebrow">Planning guide</p>
+    <p class="editorial-caption guide-byline">
+      From the Kaiplan editors &middot; {bylineDate}
+    </p>
+  </header>
+
+  <!-- SEO enrichment blocks (before body prose) -->
+  {
+    definitions &&
+      definitions.map((d: { term: string; definition: string }) => (
+        <DefinitionBlock term={d.term} definition={d.definition} />
+      ))
+  }
+
+  <!-- Article body — editorial column with drop-cap on opening paragraph -->
+  <div class="guide-body">
+    <Content />
+  </div>
+
+  {
+    tableData && (
+      <DataTableBlock
+        name={tableData.name}
+        columns={tableData.columns}
+        rows={tableData.rows}
+        description={tableData.description}
+      />
+    )
+  }
+  {
+    statistics &&
+      statistics.length > 0 &&
+      statistics.map(
+        (s: { stat: string; source: string; sourceUrl?: string }) => (
+          <StatisticCitation
+            stat={s.stat}
+            source={s.source}
+            sourceUrl={s.sourceUrl}
+          />
+        ),
+      )
+  }
+
+  {
+    answers &&
+      answers.map(
+        (a: { q?: string; a?: string; question?: string; answer?: string }) => (
+          <AnswerBlock
+            question={a.q ?? a.question ?? ""}
+            answer={a.a ?? a.answer ?? ""}
+          />
+        ),
+      )
+  }
+  {
+    expertQuotes &&
+      expertQuotes.map(
+        (q: {
+          quote: string;
+          personName: string;
+          jobTitle?: string;
+          organization?: string;
+        }) => (
+          <ExpertQuote
+            quote={q.quote}
+            personName={q.personName}
+            jobTitle={q.jobTitle}
+            organization={q.organization}
+          />
+        ),
+      )
+  }
+
+  <InlineSignup
+    apiUrl={Astro.url.origin}
+    sourcePage={inlineSignupCopy.sourcePage}
+    surveyQuestions={siteConfig.survey.questions}
+    heading={inlineSignupCopy.heading}
+    subtext={inlineSignupCopy.subtext}
+    buttonText={inlineSignupCopy.buttonText}
+    ctaTarget={inlineSignupCopy.ctaTarget}
+    subtitle={inlineSignupCopy.subtitle}
+    whatHappensNext={inlineSignupCopy.whatHappensNext}
+    surveyPreview={inlineSignupCopy.surveyPreview}
+    productName={siteConfig.name}
+    productDomain={siteConfig.domain}
+    variant={inlineSignupCopy.variant}
+  />
+
+  <FunnelCta
+    stage={buyerStage}
+    funnel={siteConfig.funnel}
+    heading="When you are ready, move from research to plan selection."
+    benefitBullets={siteConfig.copy?.funnelCta?.benefitBullets}
+    trustNote={siteConfig.funnel.ctaSubtitle}
+  />
+
+  <FaqSection faqs={faqs} heading="Frequently Asked Questions" />
+
+  <ResourcePillarLink pillar={primaryPillar} />
+
+  {
+    relatedLinks.length > 0 && (
+      <RelatedPages pages={relatedLinks} stage={buyerStage} />
+    )
+  }
+
+  <!-- Closing editorial CTA -->
+  <aside class="guide-closing-cta">
+    <hr class="editorial-rule" aria-hidden="true" />
+    <p class="editorial-body guide-closing-cta__text">
+      When the research is done,{" "}
+      <a class="editorial-link" href={openAppUrl}>open Kaiplan</a> and move budget,
+      guests, vendors, and seating into one workspace.
+    </p>
+  </aside>
+</ArticleLayout>
+
+<style>
+  /* Article masthead — eyebrow + byline above the prose */
+  .guide-masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .guide-byline {
+    /* editorial-caption already sets italic + muted styling */
+  }
+
+  /* Editorial body column — 62ch reading width, drop-cap on opening */
+  .guide-body {
+    max-width: 62ch;
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  /*
+    Drop-cap on the very first paragraph of the guide body.
+    Floats a 3-line-height initial in display italic terracotta.
+  */
+  .guide-body > :global(p:first-of-type)::first-letter {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-size: 4.5em;
+    line-height: 0.75;
+    float: left;
+    margin-right: 0.08em;
+    margin-top: 0.06em;
+    color: var(--terracotta);
+    /* Prevent the drop-cap from interfering with adjacent elements. */
+    shape-outside: margin-box;
+  }
+
+  /*
+    Subheadings within the rendered MDX body become display-M italic.
+  */
+  .guide-body :global(h2) {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+    line-height: 1.05;
+    color: var(--ink);
+    margin: clamp(2rem, 4vw, 3rem) 0 0.75rem;
+  }
+
+  .guide-body :global(h3) {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: clamp(1.5rem, 3vw, 2rem) 0 0.5rem;
+  }
+
+  /* Inline links inside the body */
+  .guide-body :global(a) {
+    color: var(--terracotta);
+    text-decoration: underline;
+    text-decoration-color: var(--terracotta);
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+    transition:
+      text-decoration-thickness 200ms ease,
+      color 200ms ease;
+  }
+
+  .guide-body :global(a:hover),
+  .guide-body :global(a:focus-visible) {
+    color: var(--terracotta-deep);
+    text-decoration-color: var(--terracotta-deep);
+    text-decoration-thickness: 2px;
+  }
+
+  /* Block quotes typeset as pull-quotes */
+  .guide-body :global(blockquote) {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+    line-height: 1.2;
+    color: var(--ink);
+    max-width: 32ch;
+    margin: clamp(1.5rem, 4vw, 2.5rem) 0;
+    padding-left: 0.4em;
+    position: relative;
+    quotes: "\201C" "\201D" "\2018" "\2019";
+    border: 0;
+  }
+
+  .guide-body :global(blockquote)::before {
+    content: open-quote;
+    position: absolute;
+    top: -0.05em;
+    left: -0.6em;
+    font-size: 1.4em;
+    line-height: 1;
+    color: var(--terracotta);
+    font-style: italic;
+  }
+
+  @media (min-width: 64rem) {
+    .guide-body :global(blockquote) {
+      padding-left: 0;
+    }
+    .guide-body :global(blockquote)::before {
+      left: -1em;
+    }
+  }
+
+  /* Closing CTA */
+  .guide-closing-cta {
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .guide-closing-cta__text {
+    max-width: 50ch;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .guide-body :global(a) {
+      transition: none;
+    }
+  }
+</style>

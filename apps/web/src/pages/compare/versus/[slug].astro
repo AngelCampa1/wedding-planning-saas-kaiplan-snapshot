@@ -1,0 +1,554 @@
+---
+export const prerender = true;
+import "../../../styles/global.css";
+import { getCollection, render } from "astro:content";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import BreadcrumbNav from "@kaiplan/marketing/components/breadcrumb-nav.astro";
+import { siteConfig } from "@/config/site";
+import { buildComparisonRows } from "@/lib/comparison-rows";
+import {
+  buildContentMap,
+  buildEntrySeoProps,
+  resolveIndexableRelatedPageLinks,
+} from "@/lib/page-helpers";
+import { buildAppSignupUrl } from "@/lib/app-links";
+import { contentEntrySlug } from "@/lib/content-entry";
+import ResourcePillarLink from "@/components/resource-pillar-link.astro";
+import { getPrimaryPillarForHref } from "@/lib/resource-pillars";
+import AiSeoBlocks from "@/components/ai-seo-blocks.astro";
+import { buildEditorialSchemaGraph } from "@/lib/editorial-schema";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("comparisons");
+  return entries.map((entry) => ({
+    params: { slug: contentEntrySlug(entry) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const {
+  title,
+  description,
+  bluf,
+  publishedAt,
+  updatedAt,
+  buyerStage,
+  competitorA,
+  competitorB,
+  verdict,
+  faqs,
+  relatedPages,
+  tableData,
+  proscons,
+  answers,
+  tags,
+  statistics,
+  pricingStats,
+  definitions,
+  expertQuotes,
+  disableProsConsSchema,
+  ogImage,
+} = entry.data;
+const canonicalPath = `/compare/versus/${contentEntrySlug(entry)}`;
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Compare", href: "/compare/" },
+  { label: "Versus", href: "/compare/versus/" },
+  { label: title, href: `${canonicalPath}/` },
+];
+const primaryPillar = getPrimaryPillarForHref(canonicalPath);
+
+const [
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+] = await Promise.all([
+  getCollection("alternatives"),
+  getCollection("comparisons"),
+  getCollection("pricing-breakdowns"),
+  getCollection("listicles"),
+  getCollection("guides"),
+  getCollection("lead-magnets"),
+]);
+const contentMap = buildContentMap({
+  alternatives,
+  comparisons,
+  pricingBreakdowns,
+  listicles,
+  guides,
+  leadMagnets,
+});
+const relatedLinks = resolveIndexableRelatedPageLinks(relatedPages, contentMap);
+
+const comparisonRows = buildComparisonRows(
+  competitorA.name,
+  competitorA.pricing,
+  competitorB.name,
+  competitorB.pricing,
+  siteConfig.product.price,
+);
+const seoProps = buildEntrySeoProps(entry.data);
+const openAppUrl = buildAppSignupUrl();
+const schemaGraph = buildEditorialSchemaGraph({
+  title,
+  description,
+  publishedAt,
+  updatedAt,
+  canonicalPath,
+  config: siteConfig,
+  answers,
+  faqs,
+  breadcrumbs,
+  ogImage,
+});
+---
+
+<LandingLayout
+  config={siteConfig}
+  canonicalPath={canonicalPath}
+  title={title}
+  description={description}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  noindex={seoProps.noindex}
+  ogType="article"
+  buyerStage={buyerStage}
+  articleTags={tags}
+  schemaGraph={schemaGraph}
+>
+  <BreadcrumbNav
+    items={breadcrumbs}
+    siteUrl={`https://${siteConfig.domain}`}
+    emitSchema={false}
+  />
+  <article class="editorial-shell" data-page="versus">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="vs-headline">
+      <p class="editorial-eyebrow">Head-to-head</p>
+      <h1 id="vs-headline" class="editorial-display-l hero__headline">
+        <em>{competitorA.name} vs {competitorB.name}.</em>
+      </h1>
+      <p class="editorial-lede hero__lede">{description}</p>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- BLUF / OPENING STATEMENT -->
+    {
+      bluf && (
+        <section class="bluf-section" aria-labelledby="bluf-heading">
+          <h2 id="bluf-heading" class="sr-only">
+            Summary
+          </h2>
+          <blockquote class="editorial-pullquote bluf-quote">{bluf}</blockquote>
+        </section>
+      )
+    }
+
+    {bluf && <hr class="editorial-rule section-rule" aria-hidden="true" />}
+
+    <AiSeoBlocks
+      definitions={definitions}
+      statistics={[...(statistics ?? []), ...(pricingStats ?? [])]}
+      tableData={tableData}
+      answers={answers}
+      proscons={proscons}
+      expertQuotes={expertQuotes}
+      disableProsConsSchema={disableProsConsSchema}
+    />
+
+    {
+      ((definitions?.length ?? 0) > 0 ||
+        (statistics?.length ?? 0) > 0 ||
+        (pricingStats?.length ?? 0) > 0 ||
+        tableData ||
+        (answers?.length ?? 0) > 0 ||
+        (proscons?.length ?? 0) > 0 ||
+        (expertQuotes?.length ?? 0) > 0) && (
+        <hr class="editorial-rule section-rule" aria-hidden="true" />
+      )
+    }
+
+    <!-- COMPARISON MATRIX -->
+    <section class="matrix-section" aria-labelledby="matrix-heading">
+      <h2 id="matrix-heading" class="editorial-display-m section-title">
+        <em>The comparison.</em>
+      </h2>
+      <p class="editorial-body section-intro">
+        <em>{competitorA.name}</em> vs <em>{competitorB.name}</em> — pricing, setup,
+        and focus, with Kaiplan as a third option.
+      </p>
+
+      <div class="matrix-wrap">
+        <table
+          class="editorial-matrix"
+          aria-label={`${competitorA.name} vs ${competitorB.name} vs Kaiplan`}
+        >
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col"><em>{competitorA.name}</em></th>
+              <th scope="col"><em>{competitorB.name}</em></th>
+              <th scope="col"><em>{siteConfig.name}</em></th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              comparisonRows.map((row) => (
+                <tr>
+                  <td>{row.feature}</td>
+                  <td data-column-label={competitorA.name}>{row.values[0]}</td>
+                  <td data-column-label={competitorB.name}>{row.values[1]}</td>
+                  <td data-column-label={siteConfig.name}>{row.values[2]}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- VERDICT / RECOMMENDATION -->
+    {
+      verdict && (
+        <>
+          <section class="verdict-section" aria-labelledby="verdict-heading">
+            <h2 id="verdict-heading" class="editorial-display-m section-title">
+              <em>The recommendation.</em>
+            </h2>
+            <p class="editorial-body verdict-body">{verdict}</p>
+          </section>
+          <hr class="editorial-rule section-rule" aria-hidden="true" />
+        </>
+      )
+    }
+
+    <!-- EDITORIAL BODY (MDX content) -->
+    <section class="body-section" aria-label="Full comparison">
+      <div class="editorial-prose">
+        <Content />
+      </div>
+    </section>
+
+    <!-- FAQS -->
+    {
+      faqs && faqs.length > 0 && (
+        <>
+          <hr class="editorial-rule section-rule" aria-hidden="true" />
+          <section
+            class="faq-section"
+            aria-labelledby="vs-faq-heading"
+            id="faq"
+          >
+            <h2 id="vs-faq-heading" class="editorial-display-m section-title">
+              <em>Common questions.</em>
+            </h2>
+            <ul class="editorial-qa" role="list">
+              {faqs.map(
+                (
+                  item: {
+                    question?: string;
+                    q?: string;
+                    answer?: string;
+                    a?: string;
+                  },
+                  index: number,
+                ) => {
+                  const q = item.question ?? item.q ?? "";
+                  const a = item.answer ?? item.a ?? "";
+                  return (
+                    <li>
+                      <details open={index === 0}>
+                        <summary>{q}</summary>
+                        <p class="editorial-qa__answer">{a}</p>
+                      </details>
+                    </li>
+                  );
+                },
+              )}
+            </ul>
+          </section>
+        </>
+      )
+    }
+
+    <!-- RELATED PAGES -->
+    {
+      relatedLinks.length > 0 && (
+        <>
+          <hr class="editorial-rule section-rule" aria-hidden="true" />
+          <section class="related-section" aria-labelledby="related-heading">
+            <h2 id="related-heading" class="editorial-display-m section-title">
+              <em>Related comparisons.</em>
+            </h2>
+            <ul class="editorial-entry-list" role="list">
+              {relatedLinks.map(
+                (link: {
+                  href: string;
+                  title: string;
+                  description?: string;
+                }) => (
+                  <li class="editorial-entry-list__item">
+                    <a class="editorial-entry-list__link" href={link.href}>
+                      <span class="editorial-entry-list__title">
+                        <em>{link.title}</em>
+                      </span>
+                      {link.description && (
+                        <span class="editorial-entry-list__deck">
+                          {link.description}
+                        </span>
+                      )}
+                      <span
+                        class="editorial-entry-list__cta"
+                        aria-hidden="true"
+                      >
+                        Read &rarr;
+                      </span>
+                    </a>
+                  </li>
+                ),
+              )}
+            </ul>
+          </section>
+        </>
+      )
+    }
+
+    <ResourcePillarLink pillar={primaryPillar} />
+
+    <hr class="editorial-rule section-rule" aria-hidden="true" />
+
+    <!-- CLOSING CTA -->
+    <section class="closing" aria-label="Open the app">
+      <p class="editorial-body closing__line">
+        If this comparison already narrowed the field,{" "}
+        <a class="editorial-link" href={openAppUrl}>
+          <em>open the app &rarr;</em>
+        </a>
+      </p>
+    </section>
+  </article>
+</LandingLayout>
+
+<style>
+  [data-page="versus"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .hero {
+    padding-block: clamp(1.5rem, 5vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hero__headline {
+    line-height: 1.02;
+  }
+
+  .hero__lede {
+    max-width: 52ch;
+  }
+
+  .section-rule {
+    margin-block: clamp(0.5rem, 2vw, 1rem) 0;
+  }
+
+  .bluf-section {
+    padding-block: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .bluf-quote {
+    max-width: 44ch;
+  }
+
+  .matrix-section,
+  .verdict-section,
+  .faq-section,
+  .related-section,
+  .body-section {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    padding-block-end: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .section-title {
+    margin: 0;
+  }
+
+  .section-title em {
+    font-style: italic;
+    font-weight: inherit;
+  }
+
+  .section-intro {
+    max-width: 62ch;
+  }
+
+  .verdict-body {
+    max-width: 62ch;
+  }
+
+  .matrix-wrap {
+    overflow-x: auto;
+  }
+
+  /* Editorial prose — styles for MDX-rendered body copy */
+  .editorial-prose {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 66ch;
+  }
+
+  .editorial-prose :global(h2) {
+    font-family: var(--font-editorial-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .editorial-prose :global(h3) {
+    font-family: var(--font-editorial-display);
+    font-weight: 400;
+    font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .editorial-prose :global(p) {
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .editorial-prose :global(ul),
+  .editorial-prose :global(ol) {
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    padding-left: 1.5rem;
+    margin: 0;
+  }
+
+  .editorial-prose :global(hr) {
+    border: 0;
+    height: 1px;
+    background: var(--rule);
+    margin: clamp(1rem, 2.5vw, 1.5rem) 0;
+  }
+
+  .editorial-prose :global(a) {
+    color: var(--terracotta);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .editorial-prose :global(a:hover),
+  .editorial-prose :global(a:focus-visible) {
+    color: var(--terracotta-deep);
+  }
+
+  /* Editorial entry list — hairline-ruled rows */
+  .editorial-entry-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule);
+  }
+
+  .editorial-entry-list__item {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .editorial-entry-list__link {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.25rem 2rem;
+    padding-block: clamp(0.875rem, 2vw, 1.25rem);
+    text-decoration: none;
+    color: inherit;
+    transition: background 150ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .editorial-entry-list__link {
+      transition: none;
+    }
+  }
+
+  .editorial-entry-list__link:hover,
+  .editorial-entry-list__link:focus-visible {
+    background: var(--paper-deep);
+  }
+
+  .editorial-entry-list__link:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 48rem) {
+    .editorial-entry-list__link {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+      align-items: baseline;
+    }
+  }
+
+  .editorial-entry-list__title {
+    font-family: var(--font-editorial-display);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .editorial-entry-list__deck {
+    font-family: var(--font-editorial-body);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .editorial-entry-list__cta {
+    font-family: var(--font-editorial-body);
+    font-size: 0.875rem;
+    color: var(--terracotta);
+    white-space: nowrap;
+  }
+
+  .closing {
+    padding-block: clamp(1rem, 3vw, 2rem);
+  }
+
+  .closing__line {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  }
+
+  /* Screen-reader only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

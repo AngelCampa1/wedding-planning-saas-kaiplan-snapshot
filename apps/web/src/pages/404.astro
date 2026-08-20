@@ -1,0 +1,40 @@
+---
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+
+Astro.response.status = 404;
+Astro.response.statusText = "Not Found";
+---
+
+<LandingLayout
+  config={siteConfig}
+  title={`Page Not Found — ${siteConfig.name}`}
+  description={`The page you're looking for doesn't exist. Head back to ${siteConfig.name}.`}
+  canonicalPath="/404"
+>
+  <section
+    style="
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: clamp(5rem, 12vw, 10rem) clamp(1rem, 4vw, 3rem);
+      max-width: 80rem;
+      margin-inline: auto;
+    "
+  >
+    <h1
+      class="editorial-display-xl editorial-italic"
+      style="color: var(--ink);"
+    >
+      This page is not on<br />the seating chart.
+    </h1>
+    <p class="editorial-body" style="margin-top: 2rem;">
+      Return to the <a class="editorial-link" href="/"
+        ><em>planning desk →</em></a
+      >
+    </p>
+  </section>
+</LandingLayout>

@@ -1,0 +1,48 @@
+# Archived repository: infrastructure identifiers below are placeholders.
+# Replace them with real Cloudflare resource IDs before any deploy.
+name = "kaiplan-api"
+main = "src/index.ts"
+compatibility_date = "2026-04-01"
+compatibility_flags = ["nodejs_compat"]
+upload_source_maps = true
+
+[[routes]]
+pattern = "api.kaiplan.app"
+custom_domain = true
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+
+[vars]
+BETTER_AUTH_URL = "https://api.kaiplan.app"
+APP_URL = "https://my.kaiplan.app"
+# FEEDBACK_RECIPIENT_EMAIL: set via `wrangler secret put FEEDBACK_RECIPIENT_EMAIL`
+# Production deploy defaults. Local development and tests must override via
+# .dev.vars instead of inheriting production settings.
+ENVIRONMENT = "production"
+# SENTRY_DSN: set via `wrangler secret put SENTRY_DSN`
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+# REQUIRED: Replace with the production kaiplan-hyperdrive binding ID before deploying
+# Get this from: wrangler hyperdrive list
+id = "REPLACE_WITH_HYPERDRIVE_ID"
+
+[[d1_databases]]
+binding = "MARKETING_DB"
+database_name = "kaiplan-db"
+database_id = "REPLACE_WITH_MARKETING_D1_DATABASE_ID"
+migrations_dir = "../../apps/web/d1/migrations"
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[triggers]
+# Daily cleanup of expired processed-webhook-event rows (TTL maintenance).
+crons = ["0 3 * * *"]
+
+# First migration — adds RateLimiter DO class
+[[migrations]]
+tag = "v1"
+new_classes = ["RateLimiter"]

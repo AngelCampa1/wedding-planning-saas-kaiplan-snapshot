@@ -1,0 +1,50 @@
+{
+  "name": "@kaiplan/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "deploy": "pnpm exec tsx ../../scripts/validate-cloudflare-api-config.ts && pnpm run db:migrate:prod && pnpm run marketing-d1:migrate:prod && wrangler deploy",
+    "marketing-d1:prepare": "tsx scripts/prepare-marketing-d1-rollout.ts --remote",
+    "marketing-d1:migrate:prod": "pnpm --dir ../web run d1:migrate:prod",
+    "lint": "pnpm exec eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:preflight": "tsx scripts/check-stripe-customer-duplicates.ts",
+    "db:preflight:prod": "tsx scripts/require-production-database-url.ts && pnpm run db:preflight",
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:prod": "pnpm run db:preflight:prod && pnpm run db:migrate",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@kaiplan/knowledge": "workspace:*",
+    "@kaiplan/shared": "workspace:*",
+    "@neondatabase/serverless": "^0.10",
+    "@react-email/components": "^1.0.11",
+    "@react-email/render": "^2.0.5",
+    "@sentry/cloudflare": "^10.47.0",
+    "better-auth": "^1.6.11",
+    "dotenv": "^16.6.1",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4",
+    "pg": "^8.16.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "resend": "^6.10.0",
+    "stripe": "^22.0.0",
+    "zod": "^3.24"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4",
+    "@types/pg": "^8.15.6",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.7",
+    "wrangler": "^4.81.0"
+  }
+}

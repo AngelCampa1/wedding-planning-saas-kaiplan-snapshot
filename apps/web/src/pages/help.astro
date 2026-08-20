@@ -1,0 +1,484 @@
+---
+import "../styles/global.css";
+import LandingLayout from "@kaiplan/marketing/layouts/landing-layout.astro";
+import { siteConfig } from "@/config/site";
+import { buildAppSignupUrl } from "@/lib/app-links";
+
+const openAppUrl = buildAppSignupUrl();
+const helpEmail = siteConfig.contactEmail;
+
+/**
+ * Slugify a question into a URL-safe deep-link anchor. Lowercases,
+ * strips punctuation, and collapses whitespace into hyphens. Kept inline
+ * because the only consumer is this page and its scope is tiny.
+ */
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+interface QA {
+  q: string;
+  a: string;
+}
+
+interface ManualChapter {
+  numeral: string;
+  id: string;
+  title: string;
+  lede: string;
+  qa: QA[];
+}
+
+const chapters: ManualChapter[] = [
+  {
+    numeral: "I",
+    id: "getting-started",
+    title: "Getting started",
+    lede: "Create the account, set up one wedding workspace, then take the in-app tour. Five minutes is enough to see whether Kaiplan fits your planning style before you import anything.",
+    qa: [
+      {
+        q: "How do I create my Kaiplan account?",
+        a: "Sign up with an email and password, or with Google. Then enter the wedding name, date, and a rough budget if you have one. The first workspace is yours — your partner or planner can be invited later from Settings.",
+      },
+      {
+        q: "Can I restart the in-app tour later?",
+        a: "Yes. The Help button inside the app re-opens the guided tour anytime. We built it because we noticed couples wanted a refresher after stepping away for a few weeks, not just on day one.",
+      },
+      {
+        q: "What's the very first thing I should do after signup?",
+        a: "Add three or four broad budget categories — venue, catering, flowers, photography — even if you don't have numbers yet. Those buckets give every other surface (vendors, payments, exports) somewhere to attach.",
+      },
+    ],
+  },
+  {
+    numeral: "II",
+    id: "spreadsheets",
+    title: "Moving from a spreadsheet or CSV",
+    lede: "CSV is a spreadsheet saved as plain rows and columns. If your guest list lives in Google Sheets, Excel, or Numbers today, the import takes a download and a click — not an afternoon.",
+    qa: [
+      {
+        q: "How do I export my spreadsheet as a CSV?",
+        a: "In Google Sheets, choose File, then Download, then Comma Separated Values. In Excel, choose Save As and pick CSV UTF-8. Numbers exports CSV from the File menu under Export To. The file lands in your Downloads folder.",
+      },
+      {
+        q: "Which columns does Kaiplan expect on import?",
+        a: "Use first_name and last_name as required columns. Optional columns include email, phone, side, group_name, dietary_tags, and dietary_notes. Extra columns are ignored, and rows are saved when you run the import.",
+      },
+      {
+        q: "What happens if my CSV has duplicates or messy data?",
+        a: "Kaiplan validates each row before saving and reports row-level errors after import. Clean obvious duplicates and column-name mismatches in your spreadsheet first, then re-upload the CSV if any rows fail validation.",
+      },
+      {
+        q: "Can I import vendors or budget rows from a spreadsheet too?",
+        a: "Not yet. Guest CSV import is available today. Vendors and budget rows are entered directly because their schemas include contracts, deposits, balances, due dates, and status fields that need structured review.",
+      },
+    ],
+  },
+  {
+    numeral: "III",
+    id: "guests",
+    title: "Managing guests and RSVPs",
+    lede: "Guests can be added one at a time or imported in bulk. RSVP links are private household links — each invited household gets its own URL so replies attach to the right names.",
+    qa: [
+      {
+        q: "Should I add plus-ones as separate guests?",
+        a: "Yes — add the plus-one as their own row, linked to the host guest under the household. The seating chart needs every person counted individually, but the RSVP link still goes to the household.",
+      },
+      {
+        q: "How do RSVP links work?",
+        a: "Each household gets a unique link tied to its guests. When the household opens the link they see only their own names, can confirm or decline per person, and the responses flow back into the guest ledger automatically.",
+      },
+      {
+        q: "Can I send the same RSVP link to multiple households?",
+        a: "Don't. The link encodes which guests it represents — sharing one link across households means responses overwrite each other. Use the bulk send tool to mail unique links to every household at once.",
+      },
+      {
+        q: "What if a guest changes their RSVP after responding?",
+        a: "They can re-open the same link and update their answer until the deadline you set. Every change is timestamped in the activity log so you can see who flipped from yes to no and when.",
+      },
+      {
+        q: "How do I chase the no-replies?",
+        a: "Filter the guest list by RSVP status equals pending. The bulk action menu can re-send the same link to the filtered set, or you can copy the chase list to a CSV for a manual phone round.",
+      },
+    ],
+  },
+  {
+    numeral: "IV",
+    id: "budget",
+    title: "Budget and vendors",
+    lede: "Budget categories are broad buckets — venue, catering, flowers, photography. Vendors are the companies and people you're researching, comparing, or booking against those buckets.",
+    qa: [
+      {
+        q: "What's the difference between a budget row and a vendor?",
+        a: "A budget row is a planned amount inside a category — like $4,000 for flowers. A vendor is a real company you're tracking — Acme Florals, with a quote, a deposit, and a contract. The vendor links to the budget row so totals reconcile.",
+      },
+      {
+        q: "How do deposits, balances, and totals reconcile?",
+        a: "Each vendor row tracks the quoted amount, the deposit you've paid, and the balance remaining. Category totals roll up automatically — the moment the florist deposit clears, the floral category subtotal updates without a formula edit.",
+      },
+      {
+        q: "Can I track quotes from multiple vendors before I book?",
+        a: "Yes. Add each vendor with status set to Shortlisted or In Negotiation. The category total only counts vendors marked Booked, so shortlists don't pollute your running spend.",
+      },
+      {
+        q: "Does Kaiplan recommend vendors?",
+        a: "No. There's no marketplace, no paid placements, no affiliate kickbacks. Every vendor in your workspace is one you typed in yourself. We built it this way because the existing platforms quietly steer your shortlist toward whoever paid for visibility.",
+      },
+    ],
+  },
+  {
+    numeral: "V",
+    id: "seating",
+    title: "Seating chart basics",
+    lede: "The seating chart is most useful after a few RSVPs land. Create tables, set seat counts, drag confirmed guests onto seats, and save the layout when it's worth keeping.",
+    qa: [
+      {
+        q: "When should I start the seating chart?",
+        a: "Wait until at least half your RSVPs are in. Building tables before that means re-arranging every time a Yes turns into a No. The chart pulls confirmed guests automatically, so the work compounds late.",
+      },
+      {
+        q: "What table shapes are available?",
+        a: "Round, rectangular, and a separate head-table shape. Each table has a configurable seat count and an optional name (Family, College Friends) so the inspector panel can summarize who's where.",
+      },
+      {
+        q: "Can I save multiple seating arrangements?",
+        a: "Yes — save a draft layout, branch a copy, and compare. Useful when you're trying out a family-only configuration versus a mixed table approach without losing the original.",
+      },
+      {
+        q: "What happens if a confirmed guest cancels after I've seated them?",
+        a: "The seat opens automatically and the inspector flags the table as under-allocated. Drag a replacement in from the unseated rail; nothing else has to change.",
+      },
+    ],
+  },
+  {
+    numeral: "VI",
+    id: "website",
+    title: "Wedding website and invite links",
+    lede: "The public website can stay private while you draft. Save Draft never changes the live page. Publish updates what guests see; unpublishing pulls it back to private.",
+    qa: [
+      {
+        q: "Is my draft visible to guests before I publish?",
+        a: "No. The draft is saved to your workspace only. The live website only updates when you press Publish. We built it this way because half-edited venue paragraphs shouldn't ship by accident.",
+      },
+      {
+        q: "What website URL do guests use?",
+        a: "Published sites use the Kaiplan wedding URL you choose, like kaiplan.app/w/your-slug. Keep the slug short enough to print on invitations or pair it with a QR code.",
+      },
+      {
+        q: "How do RSVP links connect to the website?",
+        a: "Each household gets a private tokenized link shaped like /w/your-slug/?token=HOUSEHOLD-TOKEN#rsvp. The website can be public, but only invited households with their own link can submit an RSVP.",
+      },
+      {
+        q: "What if I want to take the website offline after the wedding?",
+        a: "Toggle Unpublish in Settings. The page returns a polite archive notice. The data stays in your workspace — you can re-publish or export anytime, and Lifetime accounts keep everything indefinitely.",
+      },
+    ],
+  },
+  {
+    numeral: "VII",
+    id: "billing",
+    title: "Billing, exports, and account safety",
+    lede: "Billing opens a secure Stripe browser tab. Exports save CSV files to your device. Inviting your partner or planner with their own login is safer than sharing your password.",
+    qa: [
+      {
+        q: "How do I change my plan or cancel?",
+        a: "Open Settings, then Billing. Manage Plan launches a Stripe customer portal in a new tab where you can upgrade, downgrade, or cancel. Cancellation takes effect at the end of the current billing period.",
+      },
+      {
+        q: "Where do my exports save to?",
+        a: "Exports download as CSV files to your browser's default Downloads folder. The export menu lives on every list page — guests, vendors, budget — and we generate the file shape the most common downstream tool (caterer's spreadsheet, accountant's ledger) expects.",
+      },
+      {
+        q: "Can I share my account with my partner?",
+        a: "Don't share the password. Invite them as an Editor from Settings, then they sign in with their own email. The activity log records who changed what, which matters when two people are editing the same vendor row at the same time.",
+      },
+      {
+        q: "What happens to my data after the wedding?",
+        a: "Nothing, until you tell us otherwise. Archive the workspace from Settings to lock it read-only. Lifetime accounts keep everything indefinitely; subscription accounts can export full CSV backups before the subscription ends.",
+      },
+      {
+        q: "Is my data secure?",
+        a: "Connections are encrypted in transit. Passwords are hashed; we never store them in clear text. Sessions expire on inactivity. We don't sell your data, ever — the business model is you paying us, not advertisers paying us for access to your wedding details.",
+      },
+    ],
+  },
+];
+
+const tocLinks = [
+  { id: "getting-started", label: "Getting started" },
+  { id: "spreadsheets", label: "Spreadsheets" },
+  { id: "guests", label: "Guests" },
+  { id: "budget", label: "Budget" },
+  { id: "seating", label: "Seating" },
+  { id: "website", label: "Website" },
+  { id: "billing", label: "Billing" },
+];
+---
+
+<LandingLayout
+  config={siteConfig}
+  title={`Help — ${siteConfig.name}`}
+  description="The Manual — chapter-numbered answers for the most-asked Kaiplan questions, set in plain English with deep-link anchors per question."
+  canonicalPath="/help/"
+>
+  <article class="editorial-shell" data-page="help">
+    <!-- HERO -->
+    <section class="manual-hero" aria-labelledby="manual-hero-headline">
+      <p class="editorial-eyebrow">THE MANUAL</p>
+      <h1
+        id="manual-hero-headline"
+        class="editorial-display-l manual-hero__headline"
+      >
+        Wedding planning help, set in <em class="editorial-italic"
+          >plain English</em
+        >.
+      </h1>
+      <p class="editorial-lede manual-hero__lede">
+        Quick answers for the most-asked questions. Deep-link any answer; share
+        it. If something&rsquo;s missing, write us.
+      </p>
+      <p class="manual-hero__cta">
+        <a class="editorial-link" href={openAppUrl}>
+          Open the app <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    </section>
+
+    <!-- JUMP-TO TOC -->
+    <nav class="manual-toc" aria-label="Jump to chapter">
+      <p class="editorial-body manual-toc__line">
+        <span class="editorial-eyebrow manual-toc__label">Jump to:</span>
+        {
+          tocLinks.map((link, index) => (
+            <>
+              <a class="editorial-link" href={`#${link.id}`}>
+                {link.label}
+              </a>
+              {index < tocLinks.length - 1 && (
+                <span class="manual-toc__sep" aria-hidden="true">
+                  {" · "}
+                </span>
+              )}
+            </>
+          ))
+        }
+      </p>
+    </nav>
+
+    <hr class="editorial-rule manual-rule" aria-hidden="true" />
+
+    <!-- SEVEN CHAPTERS -->
+    {
+      chapters.map((chapter) => (
+        <section
+          class="editorial-chapter manual-chapter"
+          data-chapter={chapter.numeral}
+          id={chapter.id}
+          aria-labelledby={`manual-chapter-${chapter.id}-heading`}
+        >
+          <h2
+            id={`manual-chapter-${chapter.id}-heading`}
+            class="editorial-display-m manual-chapter__title"
+          >
+            <em class="editorial-italic">{chapter.title}</em>
+          </h2>
+          <p class="editorial-lede manual-chapter__lede">{chapter.lede}</p>
+
+          <ul class="editorial-qa manual-chapter__qa" role="list">
+            {chapter.qa.map((item) => {
+              const slug = `${chapter.id}-${slugify(item.q)}`;
+              return (
+                <li>
+                  <details id={slug}>
+                    <summary>
+                      <span class="manual-qa__question">{item.q}</span>
+                      <a
+                        class="manual-qa__permalink"
+                        href={`#${slug}`}
+                        aria-label={`Permalink to: ${item.q}`}
+                        tabindex="-1"
+                      >
+                        #
+                      </a>
+                    </summary>
+                    <p class="editorial-qa__answer">{item.a}</p>
+                  </details>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))
+    }
+
+    <hr class="editorial-rule manual-rule" aria-hidden="true" />
+
+    <!-- COLOPHON-STYLE CLOSING LINE -->
+    <p class="manual-colophon editorial-body">
+      Couldn&rsquo;t find your answer? Write to{" "}
+      <a class="editorial-link" href={`mailto:${helpEmail}`}>
+        <em>{helpEmail}</em>
+      </a>
+      .
+    </p>
+  </article>
+
+  <script>
+    /**
+     * Auto-open the targeted <details> when the URL carries a deep-link
+     * hash. Native anchor jump still works without JS — this just removes
+     * the extra click for shared links.
+     */
+    function openTarget() {
+      const hash = window.location.hash;
+      if (!hash) return;
+      const target = document.querySelector(hash);
+      if (target instanceof HTMLDetailsElement) {
+        target.open = true;
+        target.scrollIntoView({ behavior: "auto", block: "start" });
+      }
+    }
+    openTarget();
+    window.addEventListener("hashchange", openTarget);
+  </script>
+</LandingLayout>
+
+<style>
+  /* Help page rhythm — every visual treatment lives in editorial.css.
+     This block only handles spacing and per-page layout. */
+
+  [data-page="help"] {
+    padding-top: clamp(2rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .manual-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .manual-hero__headline {
+    margin-top: 0.5rem;
+    max-width: 22ch;
+  }
+
+  .manual-hero__lede {
+    margin-top: 0.5rem;
+    max-width: 52ch;
+  }
+
+  .manual-hero__cta {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-editorial-body);
+    font-size: 1rem;
+  }
+
+  .manual-toc {
+    /* Render as a single editorial paragraph; let .editorial-body cap
+       the reading width so the TOC reads like prose, not a grid. */
+  }
+
+  .manual-toc__line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.5rem;
+    max-width: none;
+  }
+
+  .manual-toc__label {
+    margin-right: 0.5rem;
+  }
+
+  .manual-toc__sep {
+    color: var(--ink-soft);
+  }
+
+  .manual-rule {
+    margin-block: 0;
+  }
+
+  .manual-chapter {
+    padding-block-end: clamp(2rem, 5vw, 3.5rem);
+    /* Account for masthead height when scrolled to via deep link. */
+    scroll-margin-top: 6rem;
+  }
+
+  .manual-chapter__title {
+    margin-top: 0.5rem;
+  }
+
+  .manual-chapter__lede {
+    margin-top: 1rem;
+    max-width: 62ch;
+  }
+
+  .manual-chapter__qa {
+    margin-top: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  /* Each <details> is the deep-link target so it gets the same
+     scroll-margin treatment as its parent chapter. */
+  .manual-chapter__qa details {
+    scroll-margin-top: 6rem;
+  }
+
+  /* Permalink anchor — visually quiet until hover/focus reveals the #. */
+  .manual-qa__permalink {
+    margin-left: 0.5rem;
+    font-family: var(--font-editorial-body);
+    font-style: normal;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .editorial-qa summary:hover .manual-qa__permalink,
+  .editorial-qa summary:focus-visible .manual-qa__permalink,
+  .editorial-qa details[open] > summary .manual-qa__permalink,
+  .editorial-qa details:target > summary .manual-qa__permalink {
+    opacity: 1;
+  }
+
+  .manual-qa__permalink:hover,
+  .manual-qa__permalink:focus-visible {
+    color: var(--terracotta);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* :target styling auto-opens the visual answer area on deep link
+     even if the inline script hasn't run yet. */
+  .editorial-qa details:target {
+    /* No layout change — the JS sets `open`. This rule is a defensive
+       no-op so the styling hook exists for future treatments. */
+  }
+
+  .manual-colophon {
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  .manual-colophon a em {
+    font-style: italic;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .manual-qa__permalink {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,193 @@
+---
+import BaseLayout from "../layouts/base-layout.astro";
+import BreadcrumbNav from "./breadcrumb-nav.astro";
+import BlufBlock from "../seo/bluf-block.astro";
+import SiteHeader from "./site-header.astro";
+import SiteFooter from "./site-footer.astro";
+import ExitIntentPopup from "./exit-intent-popup.astro";
+import { GatedContentIsland } from "./gated-content-island";
+import { resolveExitPopupProps } from "../lib/exit-popup-props";
+import { resolvePageLeadMagnet } from "../lib/resolve-page-lead-magnet";
+import { buildFooterEmailCaptureProps } from "../lib/footer-utils";
+import { buildLeadMagnetBreadcrumbs } from "../lib/lead-magnet-breadcrumbs";
+import { splitContentAtGate } from "../lib/lead-magnet-utils";
+import { ensureTrailingSlash } from "../lib/meta";
+import type { SiteConfig } from "../types";
+import AnswerBlock from "../seo/answer-block.astro";
+import DefinitionBlock from "../seo/definition-block.astro";
+
+interface LeadMagnetData {
+  title: string;
+  description: string;
+  publishedAt: string;
+  updatedAt: string;
+  bluf: string;
+  freePreviewSections: number;
+  ogImage?: string;
+  tags?: string[];
+  relatedPages: string[];
+  noindex?: boolean;
+  answers?: { q: string; a: string }[];
+  definitions: { term: string; definition: string }[];
+}
+
+interface Props {
+  entry: { data: LeadMagnetData; slug: string };
+  config: SiteConfig;
+  headings?: { depth: number; slug: string; text: string }[];
+  hubLabel?: string;
+  hubHref?: string;
+}
+
+const { entry, config, hubLabel, hubHref } = Astro.props;
+const { data } = entry;
+const { answers, definitions } = data;
+
+const renderedHtml = await Astro.slots.render("default");
+const { teaser, gated } = splitContentAtGate(
+  renderedHtml,
+  data.freePreviewSections,
+);
+
+const canonicalPath = `/free/${entry.slug}/`;
+const canonicalUrl = ensureTrailingSlash(
+  `https://${config.domain}${canonicalPath}`,
+);
+
+const breadcrumbs = buildLeadMagnetBreadcrumbs({
+  title: data.title,
+  canonicalPath,
+  hubLabel,
+  hubHref,
+});
+
+const exitPopupProps =
+  config.exitPopup?.enabled !== false
+    ? resolveExitPopupProps(config)
+    : undefined;
+const pageLeadMagnet = resolvePageLeadMagnet({
+  pathname: Astro.url.pathname,
+  knowledge: config.leadMagnetOptions ?? [],
+  explicitSlug: entry.slug,
+});
+const footerEmailCapture = buildFooterEmailCaptureProps(
+  config,
+  Astro.url.origin,
+);
+
+const ctaText = config.leadMagnet?.ctaText ?? "Email me the PDF";
+const description =
+  config.leadMagnet?.teaser ??
+  "Enter your email — we'll send the full PDF to your inbox and give you an instant download here.";
+const pdfSubhead = "Get the PDF: no fluff, same content as the web version.";
+const webVersionHref = `${canonicalPath}read/`;
+
+// Public Turnstile site key baked at build time. Empty in local dev so no
+// widget renders and the server applies its dev bypass.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+---
+
+<BaseLayout
+  title={`${data.title} | ${config.name}`}
+  description={data.description}
+  canonicalUrl={canonicalUrl}
+  siteName={config.name}
+  publishedAt={data.publishedAt}
+  updatedAt={data.updatedAt}
+  twitterSite={config.social?.twitterHandle}
+  themeColor={config.theme.primary}
+  theme={config.theme}
+  fonts={config.theme.fonts}
+  appleTouchIcon={config.appleTouchIcon}
+  ogImage={data.ogImage}
+  noindex={data.noindex}
+  siteUrl={`https://${config.domain}`}
+  analyticsEnabled={config.analytics?.enabled ?? true}
+  articleTags={data.tags}
+  rssUrl="/rss.xml"
+>
+  <Fragment slot="head">
+    <style>
+      [data-signed-up] .lead-magnet-gate {
+        display: none;
+      }
+    </style>
+  </Fragment>
+  <SiteHeader
+    slot="header"
+    siteName={config.name}
+    navItems={config.nav?.items}
+    ctaText={config.funnel.bofu.ctaText}
+    ctaHref={config.funnel.bofu.ctaTarget}
+    ctaVariant="primary"
+    logoLight={config.logo?.light}
+    logoDark={config.logo?.dark}
+  />
+  <div class="px-4 py-[var(--section-py)] max-w-4xl mx-auto">
+    <BreadcrumbNav items={breadcrumbs} siteUrl={`https://${config.domain}`} />
+    <h1
+      class="font-heading text-[length:var(--text-heading)] font-bold text-[var(--color-brand-text)] mb-4"
+    >
+      {data.title}
+    </h1>
+    <p
+      class="mb-4 text-[length:var(--text-caption)] text-[var(--color-brand-muted)]"
+    >
+      {pdfSubhead}
+    </p>
+    <BlufBlock text={data.bluf} />
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem("exit-popup-signed-up") === "true") {
+            document.currentScript.parentElement.setAttribute(
+              "data-signed-up",
+              "",
+            );
+          }
+        } catch (error) {
+          void error;
+        }
+      })();
+    </script>
+    <GatedContentIsland
+      client:load
+      apiUrl={Astro.url.origin}
+      leadMagnetTitle={data.title}
+      leadMagnetSlug={entry.slug}
+      description={description}
+      ctaText={ctaText}
+      teaserHtml={teaser}
+      gatedHtml={gated}
+      sourcePage={canonicalPath}
+      webVersionHref={webVersionHref}
+      turnstileSiteKey={turnstileSiteKey}
+    />
+    {
+      definitions &&
+        definitions.map((d) => (
+          <DefinitionBlock term={d.term} definition={d.definition} />
+        ))
+    }
+    {answers && answers.map((a) => <AnswerBlock question={a.q} answer={a.a} />)}
+  </div>
+  {
+    exitPopupProps && pageLeadMagnet && (
+      <ExitIntentPopup
+        apiUrl={Astro.url.origin}
+        siteName={config.name}
+        leadMagnet={pageLeadMagnet}
+        {...exitPopupProps}
+      />
+    )
+  }
+  <SiteFooter
+    slot="footer"
+    siteName={config.name}
+    tagline={config.tagline}
+    linkGroups={config.footer?.linkGroups}
+    legalLinks={config.footer?.legalLinks}
+    emailCapture={footerEmailCapture}
+    brandMetrics={config.footer?.brandMetrics}
+  />
+</BaseLayout>

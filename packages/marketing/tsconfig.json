@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "/pagefind/pagefind.js": ["./src/__stubs__/pagefind.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

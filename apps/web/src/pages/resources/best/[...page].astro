@@ -1,0 +1,76 @@
+---
+export const prerender = true;
+import "../../../styles/global.css";
+import { getCollection } from "astro:content";
+import CategoryHub from "@kaiplan/marketing/hubs/category-hub.astro";
+import PublicSignupCta from "@kaiplan/marketing/components/public-signup-cta";
+import { FilterChipsIsland } from "@kaiplan/marketing/components/filter-chips-island";
+import { siteConfig } from "@/config/site";
+import { hubFaqs } from "@/config/hub-faqs";
+import {
+  sortByUpdatedAtDesc,
+  mapToContentItems,
+} from "@kaiplan/marketing/lib/collections";
+import { BUYER_STAGE_FILTER, DATE_SORT_OPTIONS } from "@/lib/content-filters";
+import { filterIndexableEntries } from "@/lib/indexable-content";
+import { getKaiplanBestAppsHubCopy } from "@/lib/hub-page-copy";
+import { contentEntrySlug } from "@/lib/content-entry";
+import type { GetStaticPathsOptions } from "astro";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const entries = filterIndexableEntries(await getCollection("listicles"));
+  const sorted = sortByUpdatedAtDesc(entries);
+  const items = mapToContentItems(
+    sorted,
+    (e) => `/resources/best/${contentEntrySlug(e)}`,
+    (e) => ({ category: e.data.category }),
+  );
+  return paginate(items, { pageSize: 10 });
+}
+
+const { page } = Astro.props;
+const bestAppsHubCopy = getKaiplanBestAppsHubCopy();
+---
+
+<CategoryHub
+  config={siteConfig}
+  title={bestAppsHubCopy.title}
+  description={bestAppsHubCopy.description}
+  items={page.data}
+  page={page}
+  basePath="/resources/best/"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Resources", href: "/resources/" },
+    { label: "Best Apps", href: "/resources/best/" },
+  ]}
+  faqs={hubFaqs["/resources/best"]}
+  faqHeading={bestAppsHubCopy.faqHeading}
+>
+  <FilterChipsIsland
+    slot="filters"
+    client:load
+    items={page.data}
+    filters={[BUYER_STAGE_FILTER]}
+    sortOptions={DATE_SORT_OPTIONS}
+  />
+  <section
+    slot="cta"
+    class="mt-8 py-10 text-center border-t border-[var(--color-neutral-200)]"
+    id="signup"
+  >
+    <h2 class="text-2xl font-bold text-[var(--color-brand-text)] mb-2">
+      {bestAppsHubCopy.ctaHeading}
+    </h2>
+    <p class="text-[var(--color-brand-muted)] mb-6 max-w-md mx-auto">
+      {bestAppsHubCopy.ctaBody}
+    </p>
+    <PublicSignupCta
+      apiUrl=""
+      sourcePage="/resources/best/"
+      buttonText={bestAppsHubCopy.ctaButtonText}
+      ctaTarget={siteConfig.funnel.bofu.ctaTarget}
+      surveyQuestions={siteConfig.survey.questions}
+    />
+  </section>
+</CategoryHub>

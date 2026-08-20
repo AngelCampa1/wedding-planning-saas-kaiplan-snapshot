@@ -1,0 +1,50 @@
+/* ===================================================================
+   EDITORIAL FONT BUNDLE
+   ===================================================================
+   Loads the Wave 0 editorial type system:
+     • Instrument Serif — display serif with a true italic. Used at
+       oversized scale for hero headlines and pull-quotes.
+     • Geist — geometric sans body (variable weight 300-700).
+     • Geist Mono — tabular numerals, pricing rows, captions.
+
+   Strategy:
+     • One @import statement per family, served from Google Fonts.
+     • `display=swap` keeps text visible during the FOIT window so we do
+       not block FCP. The base layout adds `<link rel="preconnect">` to
+       fonts.googleapis.com / fonts.gstatic.com plus a `<link rel="preload"
+       as="style">` against the same family list, so the @import below
+       resolves from the warm preload cache (no extra round-trip).
+     • Italic axes are requested for both Instrument Serif (editorial
+       emphasis) and Geist (occasional italic body).
+
+   This file is imported from apps/web/src/styles/global.css alongside
+   `editorial.css`. Sites that opt into the editorial system should NOT
+   redeclare these font-faces; instead update the layout's `fonts` prop
+   (or siteConfig.theme.fonts) so the dynamic font URL stays in sync.
+   =================================================================== */
+
+/* ── Family fallbacks ─────────────────────────────────────────────────
+   Declared as CSS custom properties so consumer rules can opt into the
+   full fallback chain by writing `font-family: var(--font-editorial-display)`.
+   The base layout / globals.css still set `--font-heading` / `--font-body`
+   from siteConfig.theme.fonts; these editorial-* tokens are the canonical
+   names the new editorial primitives reach for. */
+:root {
+  --font-editorial-display:
+    "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-editorial-body:
+    "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-editorial-mono:
+    "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* ── font-display contract ────────────────────────────────────────────
+   `display=swap` is appended to the @import above; this @font-feature-values
+   block records the typographic features we rely on so editorial primitives
+   can use `font-variant-alternates` / `font-feature-settings` without
+   sprinkling magic strings across components. */
+@font-feature-values "Instrument Serif" {
+  @styleset {
+    editorial-italic: 1;
+  }
+}

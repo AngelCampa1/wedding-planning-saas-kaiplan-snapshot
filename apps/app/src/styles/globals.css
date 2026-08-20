@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #b0432a;
+  --color-primary-foreground: #f5f1ea;
+  --color-accent: #eef0eb;
+  --color-accent-foreground: #2e3b22;
+  --color-background: #f5f1ea;
+  --color-card: #fffdfa;
+  --color-card-foreground: #171311;
+  --color-popover: #fffdfa;
+  --color-popover-foreground: #171311;
+  --color-secondary: #e8e3d9;
+  --color-secondary-foreground: #171311;
+  --color-surface: #ebe4d6;
+  --color-muted: #ebe4d6;
+  --color-muted-foreground: #3d3530;
+  --color-border: color-mix(in srgb, #171311 14%, #ebe4d6 86%);
+  --color-input: #fffdfa;
+  --color-ring: #7c2a18;
+  --color-destructive: #b84d4a;
+  --color-destructive-foreground: #fff7f7;
+  --color-foreground: #171311;
+
+  --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-body:
+    "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:
+    "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Extra-small text token for dense UI (seating guest chips, seat
+     labels, seat-drop indicators). 0.625rem == 10px. */
+  --text-2xs: 0.625rem;
+
+  /* Semantic state tokens */
+  --color-success: #4f6d57;
+  --color-success-foreground: #ffffff;
+  --color-success-soft: #e7efe8;
+  --color-success-soft-foreground: #2f4536;
+
+  --color-warning: #8a6320;
+  --color-warning-foreground: #ffffff;
+  --color-warning-soft: #f5ecd4;
+  --color-warning-soft-foreground: #6b4f15;
+
+  --color-info: #5a6878;
+  --color-info-foreground: #ffffff;
+  --color-info-soft: #e6eaef;
+  --color-info-soft-foreground: #2d3a4a;
+
+  --radius-card: 1rem;
+  --radius-control: 0.5rem;
+  --shadow-card:
+    0 1px 2px rgba(23, 19, 17, 0.04), 0 4px 12px rgba(23, 19, 17, 0.06);
+  --shadow-floating:
+    0 4px 10px rgba(23, 19, 17, 0.08), 0 12px 28px rgba(23, 19, 17, 0.12);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+}
+
+/* Terracotta #b0432a at body-text scale scores ~4.6:1 on paper #f5f1ea,
+   just clearing WCAG AA. Darken to #7c2a18 for small text and links so
+   contrast reaches ~7.1:1. bg-primary stays at the brand terracotta since
+   it pairs with --color-primary-foreground (paper) at ~5.7:1 on buttons. */
+@layer utilities {
+  .text-primary {
+    color: #7c2a18;
+  }
+  .bg-primary {
+    background-color: #b0432a;
+  }
+  /* Moss-deep #2e3b22 scores ~9:1 on paper — used for accent text emphasis. */
+  .text-accent {
+    color: #2e3b22;
+  }
+  /* --color-muted is a surface token (#ebe4d6); override here so text-muted
+     renders readable ink-soft text rather than the near-invisible surface tint. */
+  .text-muted {
+    color: #3d3530;
+  }
+
+  /* Small-caps label used as eyebrow/overline text in editorial layouts.
+     Eliminates repeated inline style={} patterns across auth-shell,
+     countdown-hero, editorial-empty-state, and dashboard (6+ occurrences). */
+  .text-kicker {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  /* Italic serif display heading for Instrument Serif.
+     Instrument Serif is not a variable font — no optical-size axis.
+     The italic + regular weight combination gives expressive stroke
+     contrast at large display sizes. */
+  .heading-display {
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  /* Horizontal 1px decorative line in the accent color (70% opacity).
+     Applied as a background-color on a 1px-tall div rather than a border
+     so it can be sized and positioned with layout utilities. */
+  .rule-accent {
+    background-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+  }
+
+  /* Horizontal/vertical 1px decorative line in the primary color (28% opacity).
+     Lower opacity keeps the rule subtle against the warm surface. */
+  .rule-primary {
+    background-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+.metric-emphasis--success {
+  color: var(--color-success);
+}
+
+.metric-emphasis--warning {
+  color: var(--color-warning);
+}
+
+.feedback-banner {
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+}
+
+.feedback-banner--error {
+  border-color: color-mix(in srgb, var(--color-destructive) 24%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--color-destructive) 8%,
+    var(--color-background)
+  );
+  color: var(--color-destructive);
+}
+
+.feedback-banner--success {
+  border-color: color-mix(in srgb, var(--color-success) 26%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--color-success) 10%,
+    var(--color-background)
+  );
+  color: var(--color-foreground);
+}
+
+.feedback-banner--warning {
+  border-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--color-warning) 10%,
+    var(--color-background)
+  );
+  color: var(--color-warning);
+}
+
+.action-icon-button {
+  border-radius: 9999px;
+  padding: 0.25rem;
+  color: var(--color-muted-foreground);
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.action-icon-button:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  color: var(--color-foreground);
+}
+
+.action-icon-button--destructive:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--color-destructive) 8%,
+    transparent
+  );
+  color: var(--color-destructive);
+}
+
+.editor-preview-surface {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 12%, transparent),
+    color-mix(in srgb, var(--color-surface) 40%, transparent),
+    color-mix(in srgb, var(--color-background) 88%, transparent)
+  );
+}
+
+[data-help-mode="true"] [data-help-key] {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  [data-aics-root][data-aics-position="bottom-right"] {
+    right: auto !important;
+    left: max(1rem, env(safe-area-inset-left)) !important;
+  }
+}

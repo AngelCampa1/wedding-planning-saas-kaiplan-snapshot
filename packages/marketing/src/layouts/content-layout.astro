@@ -1,0 +1,202 @@
+---
+import BaseLayout from "./base-layout.astro";
+import BreadcrumbNav from "../components/breadcrumb-nav.astro";
+import BlufBlock from "../seo/bluf-block.astro";
+import FunnelCta from "../components/funnel-cta.astro";
+import TableOfContents from "../components/table-of-contents.astro";
+import SchemaMarkup from "../seo/schema-markup.astro";
+import SiteHeader from "../components/site-header.astro";
+import SiteFooter from "../components/site-footer.astro";
+import ExitIntentPopup from "../components/exit-intent-popup.astro";
+import { resolveExitPopupProps } from "../lib/exit-popup-props";
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+  mergeFaqSources,
+} from "../lib/schema-builders";
+import { buildGraph, withId } from "../lib/schema-graph";
+import {
+  resolveSchemaImage,
+  buyerStageToSection,
+  ensureTrailingSlash,
+} from "../lib/meta";
+import { shouldShowToc } from "../lib/headings";
+import ArticleMeta from "../components/article-meta.astro";
+import type { TocHeading } from "../lib/headings";
+import type { SiteConfig, BuyerStage, FaqItem } from "../types";
+
+interface Props {
+  title: string;
+  description: string;
+  bluf: string;
+  buyerStage: BuyerStage;
+  publishedAt: string;
+  updatedAt: string;
+  canonicalPath: string;
+  config: SiteConfig;
+  breadcrumbs: { label: string; href: string }[];
+  schemas?: Record<string, unknown>[];
+  maxWidth?: string;
+  ctaHeading?: string;
+  headings?: TocHeading[];
+  ogImage?: string;
+  noindex?: boolean;
+  answers?: { question: string; answer: string }[];
+  faqs?: FaqItem[];
+  tags?: string[];
+}
+const {
+  title,
+  description,
+  bluf,
+  buyerStage,
+  publishedAt,
+  updatedAt,
+  canonicalPath,
+  config,
+  breadcrumbs,
+  schemas = [],
+  maxWidth = "max-w-3xl",
+  ctaHeading,
+  headings = [],
+  ogImage,
+  noindex,
+  answers = [],
+  faqs = [],
+  tags,
+} = Astro.props;
+const exitPopupProps =
+  config.exitPopup?.enabled !== false
+    ? resolveExitPopupProps(config)
+    : undefined;
+const showToc = shouldShowToc(headings);
+const canonicalUrl = ensureTrailingSlash(
+  `https://${config.domain}${canonicalPath}`,
+);
+
+const orgId = `https://${config.domain}/#organization`;
+const articleSchema = buildArticleSchema({
+  headline: title,
+  description,
+  datePublished: publishedAt,
+  dateModified: updatedAt,
+  lastReviewed: updatedAt,
+  publisher: { "@id": orgId },
+  author: config.author,
+  image: resolveSchemaImage(config.domain, ogImage, config.defaultOgImage),
+  mainEntityOfPage: canonicalUrl,
+  speakableCssSelectors: [".bluf-block", ".faq-answer", ".answer-block-answer"],
+});
+// Merge frontmatter faqs (primary, wins on conflict) with inline AnswerBlock answers (secondary)
+const faqSchema = mergeFaqSources(faqs, answers);
+const breadcrumbSchema = buildBreadcrumbSchema(
+  breadcrumbs,
+  `https://${config.domain}`,
+);
+const articleId = `${canonicalUrl}#article`;
+const graph = buildGraph([
+  withId(articleSchema, articleId),
+  breadcrumbSchema,
+  ...schemas,
+  ...(faqSchema ? [faqSchema] : []),
+]);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  siteName={config.name}
+  publishedAt={publishedAt}
+  updatedAt={updatedAt}
+  twitterSite={config.social?.twitterHandle}
+  articleAuthor={config.author?.name}
+  themeColor={config.theme.primary}
+  theme={config.theme}
+  fonts={config.theme.fonts}
+  preserveMetaTagCopy={config.preserveMetaTagCopy}
+  appleTouchIcon={config.appleTouchIcon}
+  ogImage={ogImage}
+  noindex={noindex}
+  siteUrl={`https://${config.domain}`}
+  analyticsEnabled={config.analytics?.enabled ?? true}
+  enableScrollReveal={false}
+  articleSection={buyerStageToSection(buyerStage)}
+  articleTags={tags}
+  rssUrl="/rss.xml"
+>
+  <SiteHeader
+    slot="header"
+    siteName={config.name}
+    navItems={config.nav?.items}
+    ctaText={config.funnel.bofu.ctaText}
+    ctaHref={config.funnel.bofu.ctaTarget}
+    ctaVariant="primary"
+    logoLight={config.logo?.light}
+    logoDark={config.logo?.dark}
+  />
+  <div
+    data-editorial-layout
+    class={`px-4 py-[var(--section-py)] ${maxWidth} mx-auto ${showToc ? "lg:grid lg:grid-cols-[1fr_300px] lg:gap-10 lg:max-w-5xl" : ""}`}
+  >
+    <BreadcrumbNav
+      items={breadcrumbs}
+      siteUrl={`https://${config.domain}`}
+      emitSchema={false}
+    />
+    <article data-editorial-article>
+      <p class="marketing-overline">Field guide</p>
+      <h1
+        class="mb-4 mt-4 font-heading text-[length:var(--text-editorial-title)] font-bold leading-tight lg:leading-[1.02] text-brand-text"
+      >
+        {title}
+      </h1>
+      <ArticleMeta updatedAt={updatedAt} />
+      <BlufBlock text={bluf} />
+      <div
+        class="prose prose-lg max-w-none prose-p:max-w-prose prose-li:max-w-prose [&_table]:block [&_table]:overflow-x-auto [&_pre]:overflow-x-auto"
+      >
+        <slot />
+      </div>
+    </article>
+    {
+      showToc && (
+        <aside data-editorial-sidebar class="lg:sticky lg:top-28 lg:self-start">
+          <TableOfContents headings={headings} />
+        </aside>
+      )
+    }
+  </div>
+  <FunnelCta
+    stage={buyerStage}
+    funnel={config.funnel}
+    subtitle={config.funnel.ctaSubtitle}
+    heading={ctaHeading}
+    trustNote={config.copy?.funnelCta?.trustNote}
+    benefitBullets={config.copy?.funnelCta?.benefitBullets}
+    secondaryCtaText={config.copy?.funnelCta?.secondaryCta?.text}
+    secondaryCtaTarget={config.copy?.funnelCta?.secondaryCta?.target}
+  />
+  <SchemaMarkup graph={graph} />
+  {
+    exitPopupProps && (
+      <ExitIntentPopup
+        apiUrl={Astro.url.origin}
+        siteName={config.name}
+        leadMagnet={config.leadMagnet}
+        leadMagnetOptions={config.leadMagnetOptions}
+        {...exitPopupProps}
+      />
+    )
+  }
+  <SiteFooter
+    slot="footer"
+    siteName={config.name}
+    tagline={config.tagline}
+    linkGroups={config.footer?.linkGroups}
+    legalLinks={config.footer?.legalLinks}
+    contactEmail={config.contactEmail}
+    brandMetrics={config.footer?.brandMetrics}
+    captureVariant="none"
+  />
+</BaseLayout>

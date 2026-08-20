@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-labelledby="title desc">
+  <title id="title">Kaiplan</title>
+  <desc id="desc">Kaiplan wedding planning wordmark</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M37 18v59" stroke="#171311" stroke-width="7"/>
+    <path d="M63 18 40 45l27 32" stroke="#171311" stroke-width="5.5"/>
+    <path d="M24 20h26M24 76h26M55 20h17M52 76h19" stroke="#171311" stroke-width="3.5"/>
+    <path d="M24 45c15-16 40 5 54 24 8 10 18 15 31 7" stroke="#B0432A" stroke-width="4.8"/>
+    <path d="M88 59c8-10 13-20 15-32" stroke="#3A4A2C" stroke-width="2.6"/>
+    <path d="M101 35c12-1 20 4 23 14-12 1-20-4-23-14Z" fill="#3A4A2C" stroke="#3A4A2C" stroke-width="1.2"/>
+    <path d="M94 52c11 1 17 7 18 17-11-1-17-7-18-17Z" fill="#3A4A2C" stroke="#3A4A2C" stroke-width="1.2"/>
+  </g>
+  <text x="132" y="66" fill="#171311" font-family="Instrument Serif, Georgia, 'Times New Roman', serif" font-size="58" font-weight="400" letter-spacing=".5">Kaiplan</text>
+  <path d="M136 78h38" stroke="#B0432A" stroke-width="2"/>
+  <path d="M186 78h8" stroke="#B0432A" stroke-width="2"/>
+  <path d="M206 78h38" stroke="#3A4A2C" stroke-width="2"/>
+</svg>

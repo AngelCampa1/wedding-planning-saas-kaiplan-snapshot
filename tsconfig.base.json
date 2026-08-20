@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+    // Note: `lib` is intentionally omitted here. Each app should override `lib`
+    // in its own tsconfig.json to avoid leaking DOM types (document/window) into
+    // packages that run in non-browser environments (e.g., Cloudflare Workers).
+  }
+}

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Lighter gate than `pnpm run verify` — CI owns full verify including e2e.
+pnpm run lint && pnpm run typecheck && pnpm run test:coverage
